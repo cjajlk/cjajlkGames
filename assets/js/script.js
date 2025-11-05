@@ -1,7 +1,7 @@
 /***********************
- * CJajlk Games – Script principal
+ * CJajlk Games  Script principal
  * Version : 1.0
- * Effets : apparition douce, bascule d’aide, interaction jeux
+ * Effets : apparition douce, bascule daide, interaction jeux
  ***********************/
 
 /* === Apparition douce au chargement === */
@@ -13,7 +13,7 @@ window.addEventListener('load', () => {
   });
 });
 
-/* === Bascule de la section "Aider le développeur" === */
+/* === Bascule de la section "Aider le dveloppeur" === */
 const toggleButton = document.querySelector('.support-toggle');
 const supportOptions = document.querySelector('.support-options');
 
@@ -24,9 +24,9 @@ if (toggleButton && supportOptions) {
 
     // effet sonore doux (optionnel si tu ajoutes un petit son dans assets)
     if (visible) {
-      toggleButton.textContent = "💜 Merci pour ton soutien";
+      toggleButton.textContent = " Merci pour ton soutien";
     } else {
-      toggleButton.textContent = "🤝 Aider le développeur";
+      toggleButton.textContent = " Aider le dveloppeur";
     }
   });
 }
