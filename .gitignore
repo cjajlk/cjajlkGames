@@ -1,0 +1,4 @@
+# Ignorer les fichiers de maintenance
+maintenance_fichiers/
+*.py
+*.txt
