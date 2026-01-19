@@ -914,6 +914,64 @@ footer {
   text-align: center;
   line-height: 1.4;
 }
+.evenement-image {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: 16px;
+}
+.jeu-evenement {
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+@media (max-width: 768px) {
+
+  .jeu-evenement h2 {
+    font-size: 1.4rem;
+  }
+
+  .pack-title {
+    font-size: 1.3rem;
+  }
+
+  .jeu-evenement p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .evenement-image {
+    max-width: 100%;
+    border-radius: 12px;
+  }
+}
+.jeu-visuel {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 3rem 0;
+}
+
+.jeu-visuel img {
+  width: 100%;
+  max-width: 420px;   /* largeur mobile réaliste */
+  height: auto;
+  border-radius: 18px;
+  box-shadow: 0 0 25px rgba(120, 90, 255, 0.25);
+}
+@media (max-width: 600px) {
+  .jeu-visuel {
+    margin: 2rem 0;
+  }
+
+  .jeu-visuel img {
+    max-width: 100%;
+    border-radius: 12px;
+  }
+}
 
 
 
