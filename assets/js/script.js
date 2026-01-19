@@ -59,23 +59,23 @@ smoothLinks.forEach(link => {
   });
 });
 
+/*****************************
+ * 🌙 Bêta Android – compteur manuel
+ *****************************/
 
-/***********************
- * Bêta Android – Gestion simple et sincère
- ***********************/
+document.addEventListener("DOMContentLoaded", () => {
 
-/* 🌙 Bêta Android – Compteur manuel */
+  const MAX_TESTERS = 12;
+  const CURRENT_TESTERS = 6; // ← TU MODIFIES ICI
 
-const MAX_TESTERS = 12;
-const CURRENT_TESTERS = 6; // ← TU MODIFIES CE NOMBRE À LA MAIN
+  const countText = document.getElementById("betaCountText");
+  const progressBar = document.getElementById("betaProgressBar");
 
-const countText = document.getElementById("betaCountText");
-const progressBar = document.getElementById("betaProgressBar");
+  function updateCounter() {
+    countText.textContent = `${CURRENT_TESTERS} / ${MAX_TESTERS}`;
+    progressBar.style.width = `${(CURRENT_TESTERS / MAX_TESTERS) * 100}%`;
+  }
 
-function updateCounter() {
-  countText.textContent = `${CURRENT_TESTERS} / ${MAX_TESTERS}`;
-  progressBar.style.width = `${(CURRENT_TESTERS / MAX_TESTERS) * 100}%`;
-}
+  updateCounter();
 
-updateCounter();
-
+});
