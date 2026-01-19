@@ -45,9 +45,14 @@ html, body {
   font-size: 3.2rem;
   letter-spacing: 2px;
   background: linear-gradient(90deg, #d9c9ff, #9fc8ff, #b08fff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: glowText 5s ease-in-out infinite alternate;
+  background-clip: text;              /* standard */
+-webkit-background-clip: text;      /* Chrome / Edge / mobile */
+
+color: transparent;
+-webkit-text-fill-color: transparent;
+
+animation: glowText 5s ease-in-out infinite alternate;
+
 }
 
 .banner-content p {
