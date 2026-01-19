@@ -59,3 +59,62 @@ smoothLinks.forEach(link => {
   });
 });
 
+
+/***********************
+ * Bêta Android – Gestion simple et sincère
+ ***********************/
+
+const MAX_TESTERS = 12;
+const STORAGE_KEY = "betaTesters";
+
+const form = document.getElementById("betaForm");
+const emailInput = document.getElementById("betaEmail");
+const feedback = document.getElementById("betaFeedback");
+const countText = document.getElementById("betaCountText");
+const progressBar = document.getElementById("betaProgressBar");
+
+// Récupération des inscrits
+function getTesters() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+}
+
+// Mise à jour compteur + barre
+function updateCounter() {
+  const count = getTesters().length;
+  countText.textContent = `${count} / ${MAX_TESTERS}`;
+  progressBar.style.width = `${(count / MAX_TESTERS) * 100}%`;
+}
+
+// Initialisation
+updateCounter();
+
+// Soumission du formulaire
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const email = emailInput.value.trim().toLowerCase();
+  if (!email) return;
+
+  const testers = getTesters();
+
+  if (testers.includes(email)) {
+    feedback.textContent =
+      "🌙 Tu es déjà inscrit à la bêta. Merci pour ton soutien.";
+    return;
+  }
+
+  if (testers.length >= MAX_TESTERS) {
+    feedback.textContent =
+      "✨ La bêta est complète. Merci pour ton intérêt.";
+    return;
+  }
+
+  testers.push(email);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(testers));
+
+  feedback.textContent =
+    "💜 Merci. Ton inscription a bien été prise en compte. Tu recevras l’invitation dès que possible.";
+
+  emailInput.value = "";
+  updateCounter();
+});
