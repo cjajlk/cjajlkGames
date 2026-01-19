@@ -1,4 +1,4 @@
-/***********************
+
  * CJajlk Games  Script principal
  * Version : 1.0
  * Effets : apparition douce, bascule daide, interaction jeux
@@ -58,4 +58,5 @@ smoothLinks.forEach(link => {
     }
   });
 });
+
 
