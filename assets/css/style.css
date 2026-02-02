@@ -1002,3 +1002,73 @@ footer {
 }
 
 
+.beta-signature{
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(20,20,40,0.6);
+  backdrop-filter: blur(6px);
+  text-align:center;
+}
+
+.beta-signature input{
+  padding:8px 12px;
+  border-radius:10px;
+  border:none;
+  margin-right:8px;
+}
+
+.beta-signature button{
+  padding:8px 14px;
+  border:none;
+  border-radius:10px;
+  background:#7a8cff;
+  color:white;
+  cursor:pointer;
+}
+
+#betaList{
+  margin-top:10px;
+  font-size:13px;
+  opacity:0.8;
+}
+
+.beta-cta{
+  margin-top: 12px;
+  font-weight: 600;
+  display: inline-block;
+  padding: 6px 12px;
+  background: rgba(120,120,255,0.12);
+  border-radius: 10px;
+}
+
+
+.devlog {
+  margin-top: 60px;
+  text-align: center;
+}
+
+.devlog-list {
+  max-width: 700px;
+  margin: 30px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.devlog-item {
+  background: rgba(255,255,255,0.06);
+  padding: 12px 18px;
+  border-radius: 10px;
+  backdrop-filter: blur(6px);
+  font-size: 14px;
+}
+
+.dev-date {
+  font-weight: bold;
+  color: #b8c6ff;
+  margin-right: 6px;
+}
+
+
+

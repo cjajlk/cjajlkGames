@@ -66,7 +66,7 @@ smoothLinks.forEach(link => {
 document.addEventListener("DOMContentLoaded", () => {
 
   const MAX_TESTERS = 12;
-  const CURRENT_TESTERS = 6; // ← TU MODIFIES ICI
+  const CURRENT_TESTERS = 7; // ← TU MODIFIES ICI
 
   const countText = document.getElementById("betaCountText");
   const progressBar = document.getElementById("betaProgressBar");
@@ -79,3 +79,28 @@ document.addEventListener("DOMContentLoaded", () => {
   updateCounter();
 
 });
+
+function loadBetaNames(){
+  const list = JSON.parse(localStorage.getItem("betaNames") || "[]");
+  document.getElementById("betaList").innerHTML =
+    list.map(n => "• " + n).join("<br>");
+}
+
+function addBetaName(){
+  const input = document.getElementById("betaName");
+  const name = input.value.trim();
+
+  if(!name) return;
+
+  let list = JSON.parse(localStorage.getItem("betaNames") || "[]");
+
+  if(!list.includes(name)){
+    list.push(name);
+    localStorage.setItem("betaNames", JSON.stringify(list));
+  }
+
+  input.value = "";
+  loadBetaNames();
+}
+
+window.addEventListener("load", loadBetaNames);
