@@ -6,11 +6,7 @@
 
 /* === Apparition douce au chargement === */
 window.addEventListener('load', () => {
-  document.body.style.opacity = '0';
-  document.body.style.transition = 'opacity 1.5s ease';
-  requestAnimationFrame(() => {
-    document.body.style.opacity = '1';
-  });
+  document.body.classList.add('is-ready');
 });
 
 /* === Bascule de la section "Aider le dveloppeur" === */
@@ -18,15 +14,19 @@ const toggleButton = document.querySelector('.support-toggle');
 const supportOptions = document.querySelector('.support-options');
 
 if (toggleButton && supportOptions) {
+  toggleButton.setAttribute('aria-expanded', 'false');
+  supportOptions.setAttribute('aria-hidden', 'true');
+
   toggleButton.addEventListener('click', () => {
     const visible = supportOptions.classList.toggle('visible');
-    supportOptions.classList.toggle('hidden', !visible);
+    toggleButton.setAttribute('aria-expanded', String(visible));
+    supportOptions.setAttribute('aria-hidden', String(!visible));
 
     // effet sonore doux (optionnel si tu ajoutes un petit son dans assets)
     if (visible) {
-      toggleButton.textContent = " Merci pour ton soutien";
+      toggleButton.textContent = "Merci pour ton soutien";
     } else {
-      toggleButton.textContent = " Aider le dveloppeur";
+      toggleButton.textContent = "Aider le développeur";
     }
   });
 }
@@ -71,6 +71,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const countText = document.getElementById("betaCountText");
   const progressBar = document.getElementById("betaProgressBar");
 
+  if (!countText || !progressBar) {
+    return;
+  }
+
   function updateCounter() {
     countText.textContent = `${CURRENT_TESTERS} / ${MAX_TESTERS}`;
     progressBar.style.width = `${(CURRENT_TESTERS / MAX_TESTERS) * 100}%`;
@@ -81,13 +85,18 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadBetaNames(){
+  const listEl = document.getElementById("betaList");
+  if (!listEl) return;
+
   const list = JSON.parse(localStorage.getItem("betaNames") || "[]");
-  document.getElementById("betaList").innerHTML =
-    list.map(n => "• " + n).join("<br>");
+  listEl.innerHTML = list.map(n => "• " + n).join("<br>");
 }
 
 function addBetaName(){
   const input = document.getElementById("betaName");
+  const listEl = document.getElementById("betaList");
+  if (!input || !listEl) return;
+
   const name = input.value.trim();
 
   if(!name) return;

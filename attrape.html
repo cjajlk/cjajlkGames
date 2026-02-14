@@ -3,10 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Attrape-les-tous  CJajlk Games</title>
+  <meta name="description" content="Attrape-les-tous, un jeu d'adresse nocturne et poétique de CJajlk Games." />
+  <meta name="theme-color" content="#0a0620" />
+  <meta property="og:title" content="Attrape-les-tous" />
+  <meta property="og:description" content="Un jeu d'adresse rythmique et couleur, calme et nocturne." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/images/banner-catch.png" />
+  <meta property="og:locale" content="fr_FR" />
+  <link rel="canonical" href="https://cjajlk.github.io/cjajlkGames/attrape.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" />
+  <title>Attrape-les-tous - CJajlk Games</title>
+  <script>document.documentElement.classList.add('js');</script>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="page-jeu">
+  <a class="skip-link" href="#main">Aller au contenu</a>
 
   <!-- ======== BANNIRE DU JEU ======== -->
   <header class="banner-jeu" style="background-image: url('assets/images/banner-catch.png');">
@@ -17,6 +31,8 @@
       <p>Plonge dans la frénésie colorée sous la lumière Nocturne.</p>
     </div>
   </header>
+
+  <main id="main">
 
   <!-- ======== DESCRIPTION ======== -->
   <section class="jeu-description">
@@ -130,9 +146,9 @@
     </div>
   </div>
 
-  ><!-- 📊 Compteur bêta -->
-<div class="beta-counter-wrap">
-  <div class="beta-counter">
+  <!-- 📊 Compteur bêta -->
+  <div class="beta-counter-wrap">
+    <div class="beta-counter">
 
     <div class="beta-counter-top">
       <span class="beta-counter-label">Testeurs inscrits</span>
@@ -152,8 +168,8 @@
       <em>(le compteur se met à jour progressivement)</em>
     </p>
 
+    </div>
   </div>
-</div>
 
 
   <!-- 🧪 Inscription -->
@@ -161,19 +177,19 @@
 
   <h3 class="card-title" style="text-align:center;">💌 Rejoindre la bêta Android</h3>
 
-  <p class="card-text" style="text-align:center; max-width:720px; margin:0 auto 20px;">
+  <p class="card-text" style="text-align:center; max-width:720px; margin:0 auto 16px;">
     Pour participer à la bêta Android, écris-moi directement par email.
-    <br>
-    Cela me permet de :
+  </p>
 
-garder un contact humain et direct
+  <ul class="beta-points">
+    <li>Garder un contact humain et direct</li>
+    <li>T'envoyer personnellement l'invitation au test</li>
+    <li>Gérer la bêta simplement et sereinement 🌙</li>
+  </ul>
 
-t’envoyer personnellement l’invitation au test
-
-, simplement et sereinement 🌙
-
-👉 La bêta se fait par invitation manuelle, dans un esprit calme et bienveillant.
-🌙 La bêta Android est destinée à un public majeur, dans un cadre de test calme et responsable.
+  <p class="card-text" style="text-align:center; max-width:720px; margin:0 auto 20px;">
+    👉 La bêta se fait par invitation manuelle, dans un esprit calme et bienveillant.
+    🌙 La bêta Android est destinée à un public majeur, dans un cadre de test calme et responsable.
   </p>
 
   <div style="text-align:center;">
@@ -215,6 +231,8 @@ t’envoyer personnellement l’invitation au test
     src="assets/images/event_noel.png"
     alt="Événement de Noël Attrape-les-tous"
     class="evenement-image"
+    loading="lazy"
+    decoding="async"
   >
 
   <p>
@@ -236,6 +254,8 @@ t’envoyer personnellement l’invitation au test
     src="assets/images/stvalentin.png" 
     alt="Pack Saint-Valentin Attrape-les-tous"
     class="evenement-image"
+    loading="lazy"
+    decoding="async"
   >
 
   <p>
@@ -244,9 +264,10 @@ t’envoyer personnellement l’invitation au test
   </p>
 </section>
 
-
+<section class="section">
+  <h2>En développement</h2>
   <p>
-    Attrape-les-tous est actuellement en cours de développement.  
+    Attrape-les-tous est actuellement en cours de développement.
     De nouvelles fonctionnalités, équilibrages et événements viendront enrichir le jeu.
   </p>
 </section>
@@ -257,7 +278,7 @@ t’envoyer personnellement l’invitation au test
 
   <!-- ======== IMAGE DE GAMEPLAY ======== -->
   <section class="jeu-visuel">
-    <img src="assets/images/screenshot-catch.jpg" alt="Capture de jeu Attrape-les-tous">
+    <img src="assets/images/screenshot-catch.jpg" alt="Capture de jeu Attrape-les-tous" loading="lazy" decoding="async">
   </section>
 <!-- ======== DEVLOG / MISES À JOUR ======== -->
 <section class="section devlog">
@@ -311,17 +332,17 @@ t’envoyer personnellement l’invitation au test
   <div class="galerie-grid">
 
     <!-- Gameplay -->
-    <img src="assets/images/gallery/gameplay1.png" alt="Gameplay Attrape-les-tous">
+    <img src="assets/images/gallery/gameplay1.png" alt="Gameplay Attrape-les-tous" loading="lazy" decoding="async">
 
     <!-- Mascottes -->
-    <img src="assets/images/gallery/girl6.png" alt="Mascotte">
-    <img src="assets/images/gallery/pack-futuriste.png" alt="Mascotte futuriste">
+    <img src="assets/images/gallery/girl6.png" alt="Mascotte" loading="lazy" decoding="async">
+    <img src="assets/images/gallery/pack-futuriste.png" alt="Mascotte futuriste" loading="lazy" decoding="async">
 
     <!-- Orbes -->
-    <img src="assets/images/gallery/orbes1.png" alt="Orbes colorées">
+    <img src="assets/images/gallery/orbes1.png" alt="Orbes colorées" loading="lazy" decoding="async">
 
     <!-- Fonds -->
-    <img src="assets/images/gallery/fond-neige.png" alt="Fond neige animé">
+    <img src="assets/images/gallery/fond-neige.png" alt="Fond neige animé" loading="lazy" decoding="async">
 
   </div>
 </section>
@@ -333,10 +354,12 @@ t’envoyer personnellement l’invitation au test
     <h2>Le mot du créateur</h2>
     <p>
       Attrape-les-tous est mon premier vrai pas dans le développement.
-      c'est un jeu simple, mais chaque animation, chaque couleur est un petit bout de rêve.
+      C'est un jeu simple, mais chaque animation, chaque couleur est un petit bout de rêve.
       Je voulais que même un clic devienne une lumière.
     </p>
   </section>
+
+  </main>
 
   <!-- ======== LIEN RETOUR ======== -->
   <footer class="jeu-footer">
@@ -344,7 +367,7 @@ t’envoyer personnellement l’invitation au test
   </footer>
 
   
-  <script src="assets/js/script.js"></script>
+  <script src="assets/js/script.js" defer></script>
 
 </body>
 </html>
