@@ -108,9 +108,15 @@ section {
 h2 {
   color: #d9c9ff;
   text-align: center;
-  font-size: 2rem;
-  margin-bottom: 25px;
+  font-size: clamp(1.7rem, 2.2vw, 2.2rem);
+  margin-bottom: 22px;
   text-shadow: 0 0 10px #835cff;
+  letter-spacing: 0.3px;
+}
+
+h3 {
+  font-size: clamp(1.1rem, 1.4vw, 1.4rem);
+  margin-bottom: 10px;
 }
 
 /* ==== INTRO ==== */
@@ -323,10 +329,6 @@ footer {
   margin: 0 auto 18px;
 }
 
-.breaker-section h2 {
-  font-size: 1.9rem;
-  margin-bottom: 18px;
-}
 
 .breaker-list {
   list-style: none;
