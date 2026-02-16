@@ -545,9 +545,10 @@ footer {
 }
 
 .footer-credit {
-  margin-top: 10px;
-  font-size: 0.9rem;
-  opacity: 0.6;
+  margin-top: 15px;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  color: #d9c4ff;
 }
 /* ===== GALERIE DES SAISONS ===== */
 .section-saisons {
@@ -1394,5 +1395,438 @@ footer {
   width: 100%;
   max-width: 560px;
   border: 0;
+}
+
+/* ==== SECTION CJ UNIVERSELS ==== */
+.cj-section {
+  position: relative;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(40, 20, 70, 0.4), rgba(30, 15, 60, 0.6));
+  border: 1px solid rgba(150, 110, 230, 0.3);
+  border-radius: 20px;
+  padding: 60px 10%;
+  margin: 50px auto;
+  max-width: 1000px;
+  box-shadow: 0 0 20px rgba(120, 80, 200, 0.25);
+  overflow: hidden;
+}
+
+/* Orbe violette animée en décor */
+.cj-orb {
+  position: absolute;
+  top: -50px;
+  right: 10%;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(150, 100, 255, 0.4), rgba(100, 60, 200, 0.1));
+  border-radius: 50%;
+  filter: blur(30px);
+  animation: floatOrb 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes floatOrb {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(20px) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.cj-section h2 {
+  position: relative;
+  z-index: 1;
+  color: #d9c9ff;
+  font-size: clamp(1.8rem, 2.5vw, 2.5rem);
+  margin-bottom: 30px;
+  text-shadow: 0 0 15px rgba(160, 120, 255, 0.6);
+}
+
+.cj-content {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cj-intro {
+  color: #d6d1ff;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 40px;
+}
+
+.cj-points {
+  background: rgba(20, 10, 50, 0.4);
+  border: 1px solid rgba(160, 120, 255, 0.2);
+  border-radius: 15px;
+  padding: 30px;
+  margin: 30px auto;
+  max-width: 650px;
+}
+
+.cj-points h3 {
+  color: #c9b7ff;
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  text-shadow: 0 0 8px rgba(150, 110, 255, 0.4);
+}
+
+.cj-list {
+  list-style: none;
+  text-align: left;
+  color: #ddd7ff;
+  font-size: 1rem;
+  line-height: 2;
+}
+
+.cj-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(160, 120, 255, 0.1);
+  transition: color 0.3s ease;
+}
+
+.cj-list li:last-child {
+  border-bottom: none;
+}
+
+.cj-list li:hover {
+  color: #e7deff;
+}
+
+.cj-future {
+  min-height: 50px;
+  margin-top: 30px;
+  /* Zone réservée pour le futur */
+}
+
+/* ==== SCHÉMA ÉCOSYSTÈME CJ ==== */
+.cj-ecosystem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  margin: 50px auto;
+  padding: 40px 20px;
+  position: relative;
+  max-width: 900px;
+}
+
+/* Cercle central CJ - Orbe violette profonde */
+.cj-center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 190px;
+  height: 190px;
+  background: radial-gradient(circle at 35% 35%, 
+    rgba(160, 110, 255, 0.9) 0%, 
+    rgba(100, 60, 200, 0.85) 35%, 
+    rgba(60, 30, 130, 0.95) 70%, 
+    rgba(30, 15, 80, 1) 100%);
+  border: 2px solid rgba(180, 140, 255, 0.5);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 20px rgba(140, 100, 220, 0.5),
+    0 0 40px rgba(120, 80, 200, 0.4),
+    0 0 60px rgba(100, 60, 180, 0.2),
+    inset 0 0 30px rgba(180, 140, 255, 0.15);
+  animation: orbPulse 9s ease-in-out infinite;
+  z-index: 2;
+}
+
+/* Glow interne pour effet de brume */
+.cj-center::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(circle at 30% 30%, 
+    rgba(200, 160, 255, 0.3) 0%, 
+    transparent 60%);
+  border-radius: 50%;
+  animation: innerGlow 9s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Halo externe subtil */
+.cj-center::after {
+  content: '';
+  position: absolute;
+  top: -15%;
+  left: -15%;
+  width: 130%;
+  height: 130%;
+  background: radial-gradient(circle, 
+    rgba(140, 100, 220, 0.15) 0%, 
+    transparent 70%);
+  border-radius: 50%;
+  animation: haloBreath 9s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes orbPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.95;
+    box-shadow: 
+      0 0 20px rgba(140, 100, 220, 0.5),
+      0 0 40px rgba(120, 80, 200, 0.4),
+      0 0 60px rgba(100, 60, 180, 0.2),
+      inset 0 0 30px rgba(180, 140, 255, 0.15);
+  }
+  50% {
+    transform: scale(1.015);
+    opacity: 1;
+    box-shadow: 
+      0 0 25px rgba(140, 100, 220, 0.6),
+      0 0 50px rgba(120, 80, 200, 0.45),
+      0 0 70px rgba(100, 60, 180, 0.25),
+      inset 0 0 35px rgba(180, 140, 255, 0.2);
+  }
+}
+
+@keyframes innerGlow {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes haloBreath {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+.cj-center-text {
+  position: relative;
+  z-index: 3;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  opacity: 0.95;
+}
+
+/* Nœuds (jeux) */
+.cj-node {
+  position: relative;
+  padding: 18px 28px;
+  background: rgba(30, 20, 60, 0.6);
+  border: 1px solid rgba(160, 120, 255, 0.3);
+  border-radius: 12px;
+  color: #ddd7ff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+  min-width: 140px;
+  box-shadow: 0 0 12px rgba(120, 80, 200, 0.2);
+  transition: all 0.3s ease;
+}
+
+.cj-node:hover {
+  border-color: rgba(180, 140, 255, 0.5);
+  box-shadow: 0 0 18px rgba(140, 100, 220, 0.35);
+}
+
+/* Lignes de connexion via pseudo-elements */
+.cj-node-game:first-child::after,
+.cj-node-game:nth-child(3)::before {
+  content: '';
+  position: absolute;
+  width: 50px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(180, 140, 255, 0.3), transparent);
+  top: 50%;
+}
+
+.cj-node-game:first-child::after {
+  right: -55px;
+}
+
+.cj-node-game:nth-child(3)::before {
+  left: -55px;
+}
+
+/* Ligne vers projets futurs (en dessous) */
+.cj-node-future::before {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 50px;
+  background: linear-gradient(180deg, rgba(180, 140, 255, 0.3), transparent);
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 30px;
+}
+
+.cj-node-future {
+  position: absolute;
+  bottom: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.8;
+  font-style: italic;
+}
+
+/* ==== SECTION ANIMAT_CJAJLK ==== */
+.animat-section {
+  text-align: center;
+  background: linear-gradient(135deg, rgba(40, 20, 70, 0.4), rgba(30, 15, 60, 0.6));
+  border: 1px solid rgba(150, 110, 230, 0.3);
+  border-radius: 16px;
+  padding: 35px 10%;
+  margin: 40px auto;
+  max-width: 800px;
+  color: #d6d1ff;
+}
+
+.animat-section h2 {
+  color: #d9c9ff;
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+  margin-top: 0;
+  text-shadow: none;
+  font-weight: 600;
+}
+
+.animat-section p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 8px 0;
+  opacity: 0.9;
+}
+
+.animat-status {
+  color: #b8a5ff;
+  font-size: 0.85rem;
+  margin-top: 12px;
+  opacity: 0.75;
+  font-style: italic;
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+  .animat-section {
+    padding: 25px 8%;
+    margin: 30px 5%;
+  }
+  
+  .animat-section h2 {
+    font-size: 1.2rem;
+  }
+  
+  .animat-section p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+  .cj-ecosystem {
+    flex-direction: column;
+    gap: 50px;
+    padding: 30px 15px;
+  }
+  
+  .cj-center {
+    width: 160px;
+    height: 160px;
+    order: 2;
+  }
+  
+  .cj-center-text {
+    font-size: 0.85rem;
+  }
+  
+  .cj-node {
+    min-width: 160px;
+  }
+  
+  .cj-node-game:first-child {
+    order: 1;
+  }
+  
+  .cj-node-game:nth-child(3) {
+    order: 3;
+  }
+  
+  .cj-node-future {
+    position: static;
+    order: 4;
+    transform: none;
+  }
+  
+  /* Lignes verticales sur mobile */
+  .cj-node-game:first-child::after,
+  .cj-node-game:nth-child(3)::before {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(180deg, transparent, rgba(180, 140, 255, 0.3), transparent);
+    left: 50%;
+    transform: translateX(-50%);
+    top: auto;
+    right: auto;
+  }
+  
+  .cj-node-game:first-child::after {
+    bottom: -45px;
+  }
+  
+  .cj-node-game:nth-child(3)::before {
+    top: -45px;
+    left: 50%;
+  }
+  
+  .cj-node-future::before {
+    height: 40px;
+    margin-bottom: 5px;
+  }
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+  .cj-section {
+    padding: 40px 8%;
+    margin: 30px 5%;
+  }
+  
+  .cj-orb {
+    width: 80px;
+    height: 80px;
+    top: -30px;
+    right: 5%;
+  }
+  
+  .cj-intro {
+    font-size: 1rem;
+  }
+  
+  .cj-points {
+    padding: 20px;
+  }
+  
+  .cj-list {
+    font-size: 0.95rem;
+  }
 }
 
