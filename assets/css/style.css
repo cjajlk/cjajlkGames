@@ -514,6 +514,52 @@ footer {
   box-shadow: 0 0 30px rgba(200, 160, 255, 0.6);
 }
 
+/* === Section Mise à jour === */
+.update-section {
+  text-align: center;
+  background: linear-gradient(135deg, rgba(40, 20, 70, 0.4), rgba(30, 15, 60, 0.6));
+  border: 1px solid rgba(150, 110, 230, 0.3);
+  border-radius: 16px;
+  padding: 40px 10%;
+  margin: 50px auto;
+  max-width: 900px;
+  color: #d6d1ff;
+}
+
+.update-section h2 {
+  color: #d9c9ff;
+  font-size: 1.3rem;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.update-content {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.update-list {
+  list-style: none;
+  text-align: left;
+  font-size: 0.95rem;
+  line-height: 2;
+  color: #ddd7ff;
+}
+
+.update-list li {
+  padding-left: 25px;
+  position: relative;
+  opacity: 0.9;
+}
+
+.update-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #b8a5ff;
+  font-weight: bold;
+}
+
 /* === Pied de page des pages jeux === */
 .jeu-footer {
   text-align: center;
@@ -1827,6 +1873,411 @@ footer {
   
   .cj-list {
     font-size: 0.95rem;
+  }
+}
+
+/* ==== SECTION TEST : COMPTE CJAJLK ==== */
+.account-test-section {
+  text-align: center;
+  background: rgba(50, 30, 100, 0.3);
+  border: 1px solid rgba(150, 110, 230, 0.2);
+  border-radius: 12px;
+  padding: 30px 10%;
+  margin: 40px auto;
+  max-width: 850px;
+  color: #d6d1ff;
+}
+
+.account-test-section h2 {
+  color: #d9c9ff;
+  font-size: 1.2rem;
+  margin: 0 0 20px 0;
+  text-shadow: none;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.account-display {
+  margin: 20px 0;
+}
+
+.account-info {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.account-card {
+  background: rgba(70, 50, 120, 0.2);
+  border-left: 3px solid rgba(160, 120, 255, 0.4);
+  border-radius: 8px;
+  padding: 18px 20px;
+  text-align: left;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: #ddd7ff;
+}
+
+.account-pseudo,
+.account-balance,
+.account-total {
+  margin: 8px 0;
+}
+
+.account-pseudo strong,
+.account-balance strong,
+.account-total strong {
+  color: #b8a5ff;
+  font-weight: 600;
+}
+
+.account-games {
+  margin-top: 18px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(160, 120, 255, 0.2);
+}
+
+.games-title {
+  font-size: 0.9rem;
+  color: #c9b7ff;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  opacity: 0.9;
+}
+
+.games-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.game-item {
+  font-size: 0.9rem;
+  color: #ddd7ff;
+  margin: 0;
+  padding-left: 12px;
+}
+
+.game-item strong {
+  color: #b8a5ff;
+  font-weight: 600;
+}
+
+.account-test-info {
+  font-size: 0.8rem;
+  color: #a897ff;
+  margin-top: 15px;
+  opacity: 0.75;
+}
+
+.account-test-info code {
+  background: rgba(70, 50, 120, 0.3);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #c9b7ff;
+  font-family: 'Courier New', monospace;
+}
+
+.account-actions {
+  margin-top: 20px;
+}
+
+.shop-link {
+  display: inline-block;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, rgba(100, 70, 180, 0.3), rgba(80, 60, 150, 0.3));
+  border: 1px solid rgba(160, 120, 255, 0.4);
+  border-radius: 8px;
+  color: #d9c9ff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(120, 80, 200, 0.2);
+}
+
+.shop-link:hover {
+  background: linear-gradient(90deg, rgba(120, 80, 200, 0.4), rgba(100, 70, 180, 0.4));
+  border-color: rgba(180, 140, 255, 0.6);
+  box-shadow: 0 0 15px rgba(140, 100, 220, 0.3);
+}
+
+/* ==== PAGE BOUTIQUE CJ ==== */
+.page-shop {
+  background-color: #0a0620;
+  color: #e6e3ff;
+}
+
+/* Bannière boutique */
+.shop-banner {
+  position: relative;
+  height: 50vh;
+  background: linear-gradient(135deg, #1a0f4d, #0a0620);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.shop-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(80, 40, 150, 0.3), rgba(10, 0, 40, 0.8));
+  z-index: 1;
+}
+
+.shop-banner-content {
+  position: relative;
+  z-index: 2;
+  color: #f7f4ff;
+  text-shadow: 0 0 15px #b197ff;
+}
+
+.shop-banner-content h1 {
+  font-size: 2.5rem;
+  letter-spacing: 1px;
+  margin: 0 0 10px 0;
+  color: #d9c9ff;
+}
+
+.shop-banner-content p {
+  font-size: 1.1rem;
+  color: #b8a5ff;
+  margin: 0;
+}
+
+/* Solde */
+.shop-balance {
+  text-align: center;
+  padding: 40px 10%;
+}
+
+.balance-card {
+  background: rgba(70, 50, 120, 0.2);
+  border: 1px solid rgba(160, 120, 255, 0.3);
+  border-radius: 12px;
+  padding: 20px 30px;
+  max-width: 400px;
+  margin: 0 auto;
+  box-shadow: 0 0 15px rgba(120, 80, 200, 0.2);
+}
+
+.balance-label {
+  color: #b8a5ff;
+  font-size: 0.95rem;
+  margin: 0 0 10px 0;
+  opacity: 0.9;
+}
+
+.balance-amount {
+  font-size: 2.2rem;
+  color: #d9c9ff;
+  margin: 0;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(160, 120, 255, 0.5);
+}
+
+/* Catalogue */
+.shop-catalog {
+  padding: 50px 10%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.shop-catalog h2 {
+  color: #d9c9ff;
+  font-size: 1.8rem;
+  margin-bottom: 40px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(160, 120, 255, 0.4);
+}
+
+/* Placeholder boutique (mode dormant) */
+.cj-placeholder {
+  text-align: center;
+  padding: 60px 20px;
+  color: #a897ff;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.placeholder-subtitle {
+  display: block;
+  font-size: 0.95rem;
+  margin-top: 10px;
+  opacity: 0.7;
+}
+
+/* Grille d'items */
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+/* Carte item */
+.item-card {
+  background: linear-gradient(135deg, rgba(50, 30, 100, 0.4), rgba(40, 20, 70, 0.6));
+  border: 1px solid rgba(160, 120, 255, 0.3);
+  border-radius: 12px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 0 15px rgba(120, 80, 200, 0.2);
+  transition: all 0.3s ease;
+}
+
+.item-card:hover {
+  border-color: rgba(180, 140, 255, 0.5);
+  box-shadow: 0 0 25px rgba(140, 100, 220, 0.3);
+  transform: translateY(-2px);
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.item-name {
+  color: #d9c9ff;
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.item-type {
+  font-size: 0.75rem;
+  color: #a897ff;
+  background: rgba(100, 70, 180, 0.3);
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.item-description {
+  color: #ddd7ff;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid rgba(160, 120, 255, 0.2);
+}
+
+.item-price {
+  color: #b8a5ff;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.item-button {
+  padding: 8px 16px;
+  border: 1px solid rgba(160, 120, 255, 0.4);
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(80, 60, 150, 0.3), rgba(100, 70, 180, 0.3));
+  color: #d9c9ff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.item-button:hover:not(.disabled):not(.purchased) {
+  background: linear-gradient(90deg, rgba(100, 80, 180, 0.5), rgba(120, 90, 200, 0.5));
+  border-color: rgba(180, 140, 255, 0.6);
+  box-shadow: 0 0 12px rgba(140, 100, 220, 0.4);
+}
+
+.item-button.purchased {
+  background: rgba(80, 120, 100, 0.3);
+  border-color: rgba(120, 180, 150, 0.4);
+  color: #b8e0c6;
+  cursor: default;
+}
+
+.item-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.item-card.purchased-flash {
+  animation: itemPurchaseFlash 0.6s ease;
+}
+
+@keyframes itemPurchaseFlash {
+  0%, 100% {
+    background: linear-gradient(135deg, rgba(50, 30, 100, 0.4), rgba(40, 20, 70, 0.6));
+  }
+  50% {
+    background: linear-gradient(135deg, rgba(80, 120, 100, 0.4), rgba(60, 100, 80, 0.5));
+  }
+}
+
+/* Pied de page boutique */
+.shop-footer {
+  text-align: center;
+  padding: 40px 10px;
+  background: rgba(20, 15, 35, 0.6);
+  border-top: 1px solid rgba(200, 150, 255, 0.2);
+  color: #d9c4ff;
+  margin-top: 80px;
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+  .shop-banner-content h1 {
+    font-size: 1.8rem;
+  }
+
+  .balance-amount {
+    font-size: 1.8rem;
+  }
+
+  .shop-catalog {
+    padding: 30px 8%;
+  }
+
+  .shop-catalog h2 {
+    font-size: 1.4rem;
+    margin-bottom: 30px;
+  }
+
+  .items-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .item-card {
+    padding: 20px;
+  }
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+  .account-test-section {
+    padding: 20px 8%;
+    margin: 30px 5%;
+  }
+  
+  .account-test-section h2 {
+    font-size: 1rem;
+  }
+  
+  .account-card {
+    font-size: 0.9rem;
   }
 }
 
