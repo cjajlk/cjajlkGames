@@ -24,6 +24,9 @@
   <!-- ==== BANNIRE ==== -->
   <header class="nocturne-banner">
     <div class="banner-overlay"></div>
+    <div class="cj-balance-top">
+      <span id="cj-display-top">💎 CJ : 0</span>
+    </div>
     <div class="banner-content">
       <h1>CJajlkGames</h1>
       <p>Des jeux pour rêver, sous la lueur Nocturne.<br>
@@ -36,17 +39,37 @@
 
   <!-- ==== SECTION 1 : PRESENTATION ==== -->
   <section class="intro-section">
-    <h2>Bienvenue dans l'univers Nocturne</h2>
-    <p>
-      CJajlk Games, c'est la rencontre entre calme, poésie et jeu.  
-      Un lieu où chaque clic devient un moment, chaque partie une respiration.  
-      Ici, on rêve, on construit, on attrape sans se presser.
+    <h2>Un univers connecté</h2>
+    <p class="intro-tagline">
+      <strong>Jouez. Gagnez des CJ. Débloquez des récompenses.</strong>
+    </p>
+    <p class="intro-text">
+      Les CJ gagnés dans les jeux sont utilisables dans la Boutique CJ. 
+      Tout est lié, tout est connecté. Vous jouez, et votre progression suit partout.
     </p>
   </section>
   
-  
-
-
+  <!-- ==== SECTION : COMMENT CA MARCHE ==== -->
+  <section class="how-it-works-section">
+    <h2>Comment ça fonctionne</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3>🎮 Jouez</h3>
+        <p>Entrez dans un jeu et jouez activement.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3>✨ Gagnez des CJ</h3>
+        <p>Chaque 10 minutes de jeu actif = +1 CJ.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3>🛍️ Boutique</h3>
+        <p>Utilisez vos CJ pour débloquer des récompenses.</p>
+      </div>
+    </div>
+  </section>
 
   <!-- ==== SECTION 2 : JEUX ==== -->
   <section id="jeux" class="games-section">
@@ -94,11 +117,13 @@
     <a href="games/attrape/" class="game-card-link">
       <div class="game-card">
         <img src="assets/images/banner-attrape.png" alt="Attrape-les-tous" loading="lazy" decoding="async" />
+        <div class="game-card-overlay">
+          <span class="game-cta">🎮 Jouer et gagner des CJ →</span>
+        </div>
         <div class="game-info">
           <h3>Attrape-les-tous</h3>
-          <p>Un jeu d'adresse rythmique et couleur. Change de skin, progresse et entre dans la frénésie Nocturne !</p>
-          <p>Clique pour entrer dans l'univers nocturne.</p>
-          <p class="beta-cta">Envie de participer à l'aventure ? Inscris-toi à la bêta ici.</p>
+          <p>Un jeu d'adresse rythmique et couleur.</p>
+          <p class="game-reward">Gagnez des CJ en jouant activement.</p>
         </div>
       </div>
     </a>
@@ -107,11 +132,14 @@
     <a href="games/breaker/" class="game-card-link">
       <div class="game-card">
         <img src="assets/images/banner-breaker.png" alt="Breaker - L'Orbe du Veilleur" loading="lazy" decoding="async" />
+        <div class="game-card-overlay">
+          <span class="game-cta">🎮 Jouer et gagner des CJ →</span>
+        </div>
         <div class="game-info">
           <h3>Breaker - L'Orbe du Veilleur</h3>
-          <p>Un casse-briques nocturne, mystique et immersif dans l'univers CJajlkGames.</p>
-          <p>Entre dans la ville endormie et réveille l'orbe.</p>
-          <span class="status-badge">En cours de développement</span>
+          <p>Un casse-briques nocturne et immersif.</p>
+          <p class="game-reward">Gagnez des CJ en jouant activement.</p>
+          <span class="status-badge">En développement</span>
         </div>
       </div>
     </a>
@@ -290,7 +318,7 @@
     <code>CJajlkAccount.debug()</code> pour plus d'infos
   </p>
   <div class="account-actions">
-    <a href="shop/" class="shop-link">🛍️ Visiter la Boutique CJ</a>
+    <a href="shop/" class="shop-link">🛍️ Utiliser mes CJ →</a>
   </div>
 </section>
 

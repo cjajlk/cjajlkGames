@@ -66,6 +66,28 @@ html.js body.is-ready {
   z-index: 1;
 }
 
+.cj-balance-top {
+  position: absolute;
+  top: 25px;
+  right: 40px;
+  z-index: 3;
+  background: rgba(83, 50, 168, 0.8);
+  padding: 12px 24px;
+  border-radius: 25px;
+  border: 1px solid rgba(200, 140, 255, 0.4);
+  color: #f7f4ff;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-shadow: 0 0 5px #b197ff;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(130, 90, 255, 0.3);
+}
+
+#cj-display-top {
+  display: inline-block;
+  animation: subtle-pulse 2s ease-in-out infinite;
+}
+
 .banner-content {
   position: relative;
   z-index: 2;
@@ -2474,6 +2496,182 @@ footer {
   
   .account-card {
     font-size: 0.9rem;
+  }
+}
+
+/* ==== INTRO AMELIOREE ==== */
+.intro-section {
+  text-align: center;
+  background: rgba(50,30,100,0.3);
+  border-radius: 16px;
+  padding: 50px 30px !important;
+  border: 1px solid rgba(160,120,255,0.2);
+}
+
+.intro-tagline {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #d9c9ff;
+  margin: 20px 0;
+  letter-spacing: 0.5px;
+}
+
+.intro-text {
+  font-size: 1.05rem;
+  color: #cfcaff;
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+/* ==== SECTION : COMMENT CA MARCHE ==== */
+.how-it-works-section {
+  padding: 60px 15% !important;
+  background: linear-gradient(135deg, rgba(50,30,100,0.2), rgba(30,50,100,0.2));
+  border-radius: 16px;
+  margin: 40px 15%;
+}
+
+.how-it-works-section h2 {
+  margin-bottom: 50px;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.step-card {
+  background: rgba(60,40,120,0.5);
+  border: 1px solid rgba(180,140,255,0.3);
+  border-radius: 12px;
+  padding: 30px 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.step-card:hover {
+  transform: translateY(-5px);
+  background: rgba(80,50,140,0.6);
+  border-color: rgba(200,160,255,0.5);
+  box-shadow: 0 10px 30px rgba(130,90,255,0.2);
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #7c5cff, #b197ff);
+  border-radius: 50%;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 0 15px rgba(130,90,255,0.4);
+}
+
+.step-card h3 {
+  font-size: 1.3rem;
+  color: #d9c9ff;
+  margin: 0;
+}
+
+.step-card p {
+  font-size: 1rem;
+  color: #cfcaff;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ==== CARTES DE JEUX AMELIOREES ==== */
+.game-card-link {
+  position: relative;
+}
+
+.game-card {
+  position: relative;
+}
+
+.game-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+  border-radius: 16px;
+}
+
+.game-card-link:hover .game-card-overlay {
+  opacity: 1;
+}
+
+.game-cta {
+  background: linear-gradient(135deg, #7c5cff, #b197ff);
+  color: #fff;
+  padding: 14px 30px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-shadow: 0 0 5px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(130,90,255,0.5);
+  transition: all 0.2s ease;
+}
+
+.game-card-link:hover .game-cta {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(130,90,255,0.7);
+}
+
+.game-reward {
+  color: #b8f7c9 !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: 8px !important;
+}
+
+@media (max-width: 768px) {
+  .how-it-works-section {
+    margin: 40px 5%;
+    padding: 40px 20px !important;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .cj-balance-top {
+    top: 15px;
+    right: 15px;
+    padding: 10px 18px;
+    font-size: 0.95rem;
+  }
+
+  .intro-section {
+    padding: 40px 20px !important;
+  }
+
+  .intro-tagline {
+    font-size: 1.3rem;
+  }
+
+  .intro-text {
+    font-size: 0.95rem;
   }
 }
 

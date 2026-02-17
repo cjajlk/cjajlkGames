@@ -7,7 +7,25 @@
 /* === Apparition douce au chargement === */
 window.addEventListener('load', () => {
   document.body.classList.add('is-ready');
+  updateCJDisplay(); // Mettre à jour le solde CJ
 });
+
+/* === Mettre à jour l'affichage du solde CJ === */
+function updateCJDisplay() {
+  const balanceEl = document.getElementById('cj-display-top');
+  if (!balanceEl) return;
+
+  try {
+    const playerData = JSON.parse(localStorage.getItem('cjPlayerData') || '{}');
+    const totalCJ = playerData.stats?.totalCJ || 0;
+    balanceEl.textContent = `💎 CJ : ${totalCJ}`;
+  } catch (e) {
+    balanceEl.textContent = '💎 CJ : 0';
+  }
+}
+
+// Mettre à jour le solde toutes les secondes (pour voir les CJ accumuler)
+setInterval(updateCJDisplay, 1000);
 
 /* === Bascule de la section "Aider le dveloppeur" === */
 const toggleButton = document.querySelector('.support-toggle');
