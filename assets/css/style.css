@@ -12,7 +12,7 @@ html, body {
   font-family: 'Poppins', 'Segoe UI', sans-serif;
   scroll-behavior: smooth;
   overflow-x: hidden;
-  font-size: 16px;
+  font-size: clamp(16px, 2.3vw, 18px);
   line-height: 1.6;
 }
 
@@ -888,8 +888,8 @@ footer {
   display: inline-block;
   background: linear-gradient(135deg, #7c5cff, #b197ff);
   color: #fff;
-  padding: 20px 60px;
-  font-size: 1.3rem;
+  padding: clamp(15px, 3vw, 20px) clamp(40px, 8vw, 60px);
+  font-size: clamp(1.15rem, 3vw, 1.4rem);
   font-weight: 700;
   border-radius: 35px;
   text-decoration: none;
@@ -935,7 +935,7 @@ footer {
 
 /* ==== HERO DESCRIPTION NARRATIVE ==== */
 .hero-description {
-  font-size: 1.2rem;
+  font-size: clamp(1.15rem, 3vw, 1.3rem);
   color: #d6cfff;
   max-width: 700px;
   margin: 0 auto;
@@ -948,7 +948,7 @@ footer {
 }
 
 .connected-text {
-  font-size: 1.3rem;
+  font-size: clamp(1.2rem, 3.5vw, 1.5rem);
   background: linear-gradient(90deg, #b8f7c9, #9fc8ff);
   background-clip: text;
   -webkit-background-clip: text;
@@ -1052,7 +1052,7 @@ body.debug-mode .debug-only {
 }
 
 .section-subtitle {
-  font-size: 1.2rem;
+  font-size: clamp(1.05rem, 2.5vw, 1.3rem);
   color: #cfcaff;
   margin: 0;
   line-height: 1.6;
@@ -1128,7 +1128,7 @@ body.debug-mode .debug-only {
 .game-card-info p {
   color: #cfcaff;
   margin: 0;
-  font-size: 1.05rem;
+  font-size: clamp(0.95rem, 2.2vw, 1.1rem);
   line-height: 1.7;
 }
 
@@ -1199,7 +1199,7 @@ body.debug-mode .debug-only {
   color: #cfcaff;
   margin: 0;
   line-height: 1.7;
-  font-size: 1.05rem;
+  font-size: clamp(0.95rem, 2.2vw, 1.1rem);
 }
 
 /* ==== ANIMATIONS ==== */
@@ -1405,13 +1405,12 @@ body.debug-mode .debug-only {
 
 /* === OPTIMISATION MOBILE SUPPLMENTAIRE === */
 @media (max-width: 768px) {
-  html, body {
-    font-size: 15px;
-    line-height: 1.6;
+  section {
+    padding: 40px 5%;
   }
 
   .banner-content h1 {
-    font-size: 1.8rem;
+    font-size: clamp(1.6rem, 4vw, 1.9rem);
     line-height: 1.3;
   }
 
@@ -1419,34 +1418,26 @@ body.debug-mode .debug-only {
     font-size: 0.95rem;
   }
 
-  section {
-    padding: 40px 5%;
-  }
-
-  /* Amélioration lisibilité sections */
+  /* Deixer clamp() global gérer les tailles */
   .section-header h2 {
-    font-size: 2rem;
-  }
-
-  .section-subtitle {
-    font-size: 1.15rem;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
   }
 
   .game-card-info h3 {
-    font-size: 1.4rem;
+    font-size: clamp(1.2rem, 3.5vw, 1.5rem);
   }
 
   .game-card-info p {
-    font-size: 1.02rem;
+    font-size: clamp(0.95rem, 2.2vw, 1.08rem);
     line-height: 1.7;
   }
 
   .step-modern h3 {
-    font-size: 1.3rem;
+    font-size: clamp(1.2rem, 3.2vw, 1.4rem);
   }
 
   .step-modern p {
-    font-size: 1.02rem;
+    font-size: clamp(0.95rem, 2.2vw, 1.05rem);
   }
 
   .game-card {
@@ -1516,18 +1507,10 @@ body.debug-mode .debug-only {
     font-size: 1.6rem;
   }
 
-  /* Mobile lisibilité améliorée */
-  body {
-    font-size: 16px;
-  }
-
+  /* Mobile lisibilité améliorée - sans override du clamp() global */
   .section-header h2 {
-    font-size: 1.8rem;
+    font-size: clamp(1.6rem, 4vw, 2rem);
     margin: 0 0 10px 0;
-  }
-
-  .section-subtitle {
-    font-size: 1.1rem;
   }
 
   .games-grid {
@@ -1537,17 +1520,17 @@ body.debug-mode .debug-only {
   }
 
   .game-card-info h3 {
-    font-size: 1.3rem;
+    font-size: clamp(1.2rem, 4vw, 1.4rem);
     margin: 10px 0;
   }
 
   .game-card-info p {
-    font-size: 1rem;
+    font-size: clamp(0.95rem, 2.5vw, 1.05rem);
     line-height: 1.7;
   }
 
   .game-ecosystem {
-    font-size: 0.92rem;
+    font-size: clamp(0.88rem, 2vw, 0.95rem);
   }
 
   .how-it-works {
@@ -1555,7 +1538,7 @@ body.debug-mode .debug-only {
   }
 
   .how-it-works h2 {
-    font-size: 1.8rem;
+    font-size: clamp(1.6rem, 4vw, 2rem);
     margin-bottom: 40px;
   }
 
@@ -1570,20 +1553,24 @@ body.debug-mode .debug-only {
   }
 
   .step-modern h3 {
-    font-size: 1.2rem;
+    font-size: clamp(1.1rem, 3.5vw, 1.3rem);
   }
 
   .step-modern p {
-    font-size: 1rem;
+    font-size: clamp(0.95rem, 2.5vw, 1.05rem);
   }
 
   .small-text {
-    font-size: 0.9rem;
+    font-size: clamp(0.88rem, 2vw, 0.95rem);
   }
 
   .hero-description {
-    font-size: 1.1rem;
+    font-size: clamp(1.1rem, 3vw, 1.25rem);
     padding: 0 15px;
+  }
+
+  .hero-section {
+    padding: 40px 15px;
   }
 }
 .evenement-image {
