@@ -27,6 +27,17 @@ function updateCJDisplay() {
 // Mettre à jour le solde toutes les secondes (pour voir les CJ accumuler)
 setInterval(updateCJDisplay, 1000);
 
+/* === Smooth Scroll pour les ancres === */
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
 /* === Bascule de la section "Aider le dveloppeur" === */
 const toggleButton = document.querySelector('.support-toggle');
 const supportOptions = document.querySelector('.support-options');

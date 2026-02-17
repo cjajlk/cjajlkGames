@@ -27,7 +27,7 @@
     <div class="header-content">
       <h1>CJajlkGames</h1>
       <div class="cj-info">
-        <span id="cj-display-header" class="cj-display" title="Les CJ sont gagnés en jouant">💎 CJ : 0</span>
+        <span id="cj-display-header" class="cj-display cj-display-tooltip" title="Les CJ sont gagnés en jouant">💎 CJ : 0</span>
       </div>
     </div>
   </header>
@@ -39,15 +39,20 @@
     <div class="hero-background">
       <div class="hero-glow"></div>
       <div class="hero-particles"></div>
+      <div class="nocturne-lights"></div>
     </div>
     
     <div class="hero-content">
-      <h2 class="hero-title">🎮 Bienvenue dans CJajlkGames</h2>
-      <p class="hero-subtitle">Joue. Gagne des CJ. Débloque des récompenses.<br><span class="highlight">Tout est connecté.</span></p>
+      <h2 class="hero-title" data-aos="fade-up">🎮 Bienvenue dans CJajlkGames</h2>
+      <div class="hero-description" data-aos="fade-up" data-aos-delay="200">
+        <p>CJajlkGames est le centre de ton univers Nocturne.</p>
+        <p>Ta progression est partagée entre tous les jeux.</p>
+        <p class="connected-text"><strong>Tout est connecté.</strong></p>
+      </div>
       
-      <a href="games/attrape/" class="btn-hero">👉 Commencer à jouer</a>
+      <a href="#jeux" class="btn-hero" data-scroll="smooth" data-aos="fade-up" data-aos-delay="400">👉 Descendre dans l'univers</a>
       
-      <div class="hero-benefits">
+      <div class="hero-benefits" data-aos="fade-up" data-aos-delay="600">
         <div class="benefit-item">
           <span class="benefit-check">✔</span>
           <span>Sauvegarde automatique</span>
@@ -64,8 +69,8 @@
     </div>
   </section>
 
-  <!-- ==== SECTION : NOS JEUX (REMONTEE) ==== -->
-  <section class="games-showcase">
+  <!-- ==== SECTION : NOS JEUX (ID ANCHOR) ==== -->
+  <section id="jeux" class="games-showcase">
     <div class="section-header">
       <h2>Nos jeux</h2>
       <p class="section-subtitle">Joue et gagne des CJ</p>
@@ -80,6 +85,7 @@
             <h3>🎯 Attrape-les-tous</h3>
             <p>Capture les orbes mystiques et développe ta collection.</p>
             <span class="game-cta-large">[ Jouer ]</span>
+            <p class="game-ecosystem">✔ Progression partagée avec ton compte Cjajlk</p>
           </div>
         </div>
       </a>
@@ -92,6 +98,7 @@
             <h3>🔥 Breaker Nocturne</h3>
             <p>Détruis les briques et maîtrise la puissance des compagnons.</p>
             <span class="game-cta-large">[ Jouer ]</span>
+            <p class="game-ecosystem">✔ Progression partagée avec ton compte Cjajlk</p>
           </div>
         </div>
       </a>
@@ -103,28 +110,28 @@
     <h2>Le flux en 3 étapes</h2>
     
     <div class="steps-modern">
-      <div class="step-modern">
+      <div class="step-modern" data-aos="fade-up">
         <div class="step-icon">1️⃣</div>
         <h3>Joue</h3>
-        <p>Entre dans un jeu et progresse.</p>
+        <p>Explore un monde nocturne et progresse.</p>
       </div>
       
-      <div class="step-modern">
+      <div class="step-modern" data-aos="fade-up" data-aos-delay="100">
         <div class="step-icon">2️⃣</div>
         <h3>Gagne des CJ</h3>
-        <p>+1 CJ toutes les 10 minutes actives.</p>
+        <p>+1 CJ toutes les 10 minutes actives.<br><span class="small-text">Ta progression te suit partout.</span></p>
       </div>
       
-      <div class="step-modern">
+      <div class="step-modern" data-aos="fade-up" data-aos-delay="200">
         <div class="step-icon">3️⃣</div>
         <h3>Débloque</h3>
-        <p>Utilise-les dans la Boutique CJ.</p>
+        <p>Utilise-les dans la Boutique CJ<br><span class="small-text">pour personnaliser ton univers.</span></p>
       </div>
     </div>
   </section>
 
-  <!-- ==== SECTION 2 : JEUX ==== -->
-  <section id="jeux" class="games-section">
+  <!-- ==== SECTION 2 : ACTUALITÉS NOCTURNES ==== -->
+  <section id="news" class="games-section">
 
     <section class="news-section" aria-labelledby="news-title">
       <h3 id="news-title">Actualités nocturnes</h3>
@@ -359,7 +366,7 @@
 
 
 <!-- ==== TEST : COMPTE CJAJLK ==== -->
-<section id="cjajlk-account-test" class="account-test-section">
+<section id="cjajlk-account-test" class="account-test-section debug-only">
   <h2>🧪 Compte CJajlk (Test local)</h2>
   <div id="account-display" class="account-display">
     <p>Chargement du compte...</p>
