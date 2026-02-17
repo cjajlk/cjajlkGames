@@ -1509,8 +1509,13 @@ body.debug-mode .debug-only {
 
   /* Mobile lisibilité améliorée - sans override du clamp() global */
   .section-header h2 {
-    font-size: clamp(1.6rem, 4vw, 2rem);
+    font-size: clamp(1.8rem, 5vw, 2.2rem);
     margin: 0 0 10px 0;
+  }
+
+  .section-subtitle {
+    font-size: clamp(1.1rem, 3.2vw, 1.3rem);
+    line-height: 1.7;
   }
 
   .games-grid {
@@ -1520,17 +1525,17 @@ body.debug-mode .debug-only {
   }
 
   .game-card-info h3 {
-    font-size: clamp(1.2rem, 4vw, 1.4rem);
+    font-size: clamp(1.3rem, 4.5vw, 1.6rem);
     margin: 10px 0;
   }
 
   .game-card-info p {
-    font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+    font-size: clamp(1.05rem, 3vw, 1.2rem);
     line-height: 1.7;
   }
 
   .game-ecosystem {
-    font-size: clamp(0.88rem, 2vw, 0.95rem);
+    font-size: clamp(0.98rem, 2.6vw, 1.1rem);
   }
 
   .how-it-works {
@@ -1538,7 +1543,7 @@ body.debug-mode .debug-only {
   }
 
   .how-it-works h2 {
-    font-size: clamp(1.6rem, 4vw, 2rem);
+    font-size: clamp(1.8rem, 5vw, 2.2rem);
     margin-bottom: 40px;
   }
 
@@ -1549,24 +1554,37 @@ body.debug-mode .debug-only {
   }
 
   .step-modern {
-    padding: 30px 20px;
+    padding: 34px 24px;
   }
 
   .step-modern h3 {
-    font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+    font-size: clamp(1.25rem, 4vw, 1.45rem);
   }
 
   .step-modern p {
-    font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+    font-size: clamp(1.05rem, 3vw, 1.2rem);
   }
 
   .small-text {
-    font-size: clamp(0.88rem, 2vw, 0.95rem);
+    font-size: clamp(0.98rem, 2.6vw, 1.1rem);
   }
 
   .hero-description {
-    font-size: clamp(1.1rem, 3vw, 1.25rem);
+    font-size: clamp(1.2rem, 3.5vw, 1.35rem);
     padding: 0 15px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.2rem, 8vw, 3rem);
+  }
+
+  .btn-hero {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    padding: clamp(18px, 4vw, 24px) clamp(44px, 10vw, 64px);
+  }
+
+  .game-card-info {
+    padding: 34px 26px;
   }
 
   .hero-section {

@@ -762,6 +762,11 @@ function transitionBackgroundCinematic(nextBackgroundCallback) {
 let canvasInitialized = false;
 
 async function startGame(GameData) {
+    // Restaurer le plein écran s'il était activé
+    if (typeof window.restoreFullscreen === "function") {
+        window.restoreFullscreen();
+    }
+    
     if (!Game.canvas) {
         Game.canvas = document.getElementById("gameCanvas");
         Game.ctx = Game.canvas.getContext("2d");
@@ -2993,6 +2998,11 @@ function startTimerMode() {
     closeAllMenus();
     showGameUI();
     hideCoffreNocturne();
+
+    // Maintenir le plein ecran si active dans les options
+    if (typeof window.restoreFullscreen === "function") {
+        window.restoreFullscreen();
+    }
 
 
     // 🎵 Musique

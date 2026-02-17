@@ -43,9 +43,29 @@
 
         if (document.fullscreenElement) {
             document.exitFullscreen().catch(() => {});
+            localStorage.setItem("attrapeFullscreenEnabled", "false");
         } else {
             root.requestFullscreen().catch(() => {});
+            localStorage.setItem("attrapeFullscreenEnabled", "true");
         }
+    }
+
+    function restoreFullscreen() {
+        const enabled = localStorage.getItem("attrapeFullscreenEnabled") === "true";
+        if (!enabled) return;
+        
+        const root = document.documentElement;
+        if (!root || !root.requestFullscreen || document.fullscreenElement) return;
+        
+        root.requestFullscreen().catch(() => {});
+    }
+
+    function handleFullscreenChange() {
+        updateFullscreenLabel();
+        localStorage.setItem(
+            "attrapeFullscreenEnabled",
+            document.fullscreenElement ? "true" : "false"
+        );
     }
 
     function setLanguage(lang) {
@@ -142,7 +162,7 @@
             resetBtn.addEventListener("click", openResetConfirm);
         }
 
-        document.addEventListener("fullscreenchange", updateFullscreenLabel);
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
         initResetConfirm();
     }
 
@@ -150,4 +170,5 @@
 
     window.openOptions = openOptions;
     window.closeOptions = closeOptions;
+    window.restoreFullscreen = restoreFullscreen;
 })();

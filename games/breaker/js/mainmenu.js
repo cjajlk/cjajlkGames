@@ -126,8 +126,10 @@ if (fullscreenBtn) {
       }
       if (document.fullscreenElement) {
         await document.exitFullscreen();
+        localStorage.setItem("breakerFullscreenEnabled", "false");
       } else {
         await document.documentElement.requestFullscreen();
+        localStorage.setItem("breakerFullscreenEnabled", "true");
       }
       updateFullscreenLabel(lang);
     } catch (err) {
@@ -157,6 +159,10 @@ if (resetProfileBtn) {
 }
 
 document.addEventListener("fullscreenchange", () => {
+  localStorage.setItem(
+    "breakerFullscreenEnabled",
+    document.fullscreenElement ? "true" : "false"
+  );
   updateFullscreenLabel(getCurrentLang());
 });
 updateLanguageButtons(getCurrentLang());
