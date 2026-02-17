@@ -1,0 +1,203 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+html, body { 
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: url("../assets/backgrounds/ecurie/ecurie_nocturne.jpg")
+              no-repeat center center fixed;
+  background-size: cover;
+}
+
+canvas {
+  display: block;
+  background: transparent;
+}
+
+
+
+
+
+
+#orbHUD{
+    position:absolute;
+    top: 80px;
+    left:20px;
+
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+
+    color:#9fd3ff;
+    font-size:14px;
+    opacity:0.9;
+
+    z-index: 5;   /* couche basse */
+}
+
+/* Responsive amélioré pour ecurie */
+
+/* 📱 MOBILE PORTRAIT (< 480px) */
+@media (max-width: 480px) {
+    #orbHUD {
+        top: 50px;
+        left: 8px;
+        gap: 8px;
+        font-size: 11px;
+    }
+    
+    .orbItem {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .backBtn {
+        top: 8px;
+        left: 8px;
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+}
+
+/* 📱 MOBILE PAYSAGE (481px-768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    #orbHUD {
+        top: 60px;
+        left: 10px;
+        gap: 10px;
+        font-size: 12px;
+    }
+    
+    .orbItem {
+        padding: 5px 9px;
+    }
+
+    .backBtn {
+        top: 10px;
+        left: 10px;
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}
+
+/* 💻 TABLETTE (769px-1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    #orbHUD {
+        top: 70px;
+        left: 15px;
+        gap: 10px;
+        font-size: 13px;
+    }
+
+    .orbItem {
+        padding: 6px 10px;
+    }
+
+    .backBtn {
+        top: 15px;
+        left: 15px;
+        padding: 7px 13px;
+        font-size: 13px;
+    }
+}
+
+/* 🖥 DESKTOP (> 1024px) */
+@media (min-width: 1025px) {
+    #orbHUD {
+        top: 80px;
+        left: 20px;
+    }
+
+    .backBtn:hover {
+        transform: scale(1.05);
+        transition: transform 0.2s ease;
+    }
+}
+
+
+.orbItem{
+    background:rgba(10,20,40,0.6);
+    padding:6px 10px;
+    border-radius:8px;
+    border:1px solid #2b5a7a;
+}
+
+.backBtn{
+    position:absolute;
+    top:20px;
+    left:20px;
+
+    padding:8px 14px;
+    border:2px solid #8fd3ff;
+    border-radius:8px;
+
+    color:#8fd3ff;
+    text-decoration:none;
+    font-size:14px;
+
+    background:rgba(10,20,40,0.5);
+
+    z-index: 20;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Responsive back button */
+@media (max-width: 767px) {
+    .backBtn {
+        top: 10px;
+        left: 10px;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .backBtn {
+        top: 15px;
+        left: 15px;
+        padding: 7px 12px;
+        font-size: 13px;
+    }
+}
+
+
+.backBtn:hover {
+    background: rgba(80,140,255,0.3);
+    box-shadow: 0 0 12px rgba(143, 211, 255, 0.5);
+}
+
+#stableIntro{
+  position: fixed;
+  inset: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  object-fit: cover;
+
+  z-index: 50;
+  background: black;
+}
+
+.videoOverlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 9999;
+  display: none;
+  background: black;
+}
+
+@keyframes pulseGlow {
+  from { box-shadow: 0 0 10px rgba(78,203,255,0.4); }
+  to   { box-shadow: 0 0 25px rgba(78,203,255,0.8); }
+}
+
+

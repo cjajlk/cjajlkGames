@@ -1,0 +1,315 @@
+/* Section contenant l'image de fond */
+#shop-container {
+    background-image: url('../assets/backgrounds/shop/fond_shop.png'); /* Chemin vers ton image de fond */
+    background-size: cover; /* Assure que l'image couvre toute la section */
+    background-position: center center; /* Centrer l'image */
+    background-attachment: fixed; /* Fixe l'image de fond pour un effet parallax léger */
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    min-height: 100vh; /* Utilisation de toute la hauteur de l'écran, permet le scroll si nécessaire */
+    overflow-y: auto; /* Permet le scroll vertical si le contenu dépasse */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Rendre les éléments de la boutique plus espacés pour la visibilité */
+.item {
+    /* Fond semi-transparent pour laisser l'image visible */
+    border-radius: 10px;
+    padding: 5px; 
+    margin: 10px;
+    text-align: center;
+    box-sizing: border-box;
+    position: relative; /* Permet aux éléments d'être bien positionnés sur le fond */
+    z-index: 1;
+    
+    flex-direction: column;
+    align-items: center;
+    min-height: 140px; /* Hauteur minimale pour contenir tous les éléments */
+    justify-content: space-between; /* Espace les éléments verticalement */
+}
+
+/* Styles pour le nom de la mascotte */
+.item .name {
+    margin: 2px 0;
+    font-weight: bold;
+    font-size: 0.8em;
+}
+
+/* Styles pour le coût en diamants */
+.item .cost {
+    margin: 2px 0;
+    color: #00bcd4;
+    font-size: 0.7em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item .cost::before {
+    content: "💎"; /* Symbole diamant */
+    margin-right: 5px;
+}
+
+/* Bouton en bas de la case */
+.item button {
+    margin-top: auto;
+    width: 100%;
+    max-width: 120px;
+    padding: 6px 12px;
+    font-size: 0.8em;
+}
+
+/* Ajout de la transparence aux titres et texte */
+h1, h2, p {
+    color: white;
+}
+
+/* Styles pour le header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#back-btn {
+    background-color: #00bcd4;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#back-btn:hover {
+    background-color: #0097a7;
+}
+
+#currency {
+    font-size: 1.2em;
+    color: white;
+}
+
+/* Styles pour la navigation */
+#categories {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.category-btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid white;
+    padding: 10px 20px;
+    margin: 0 5px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.category-btn.active {
+    background-color: #00bcd4;
+}
+
+.category-btn:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Grille responsive pour les items */
+#items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    flex: 1;
+}
+
+/* Ajustement de la taille des images */
+.item img {
+    width: 100%;
+    max-width: 150px; /* Limiter la taille maximale des images */
+    height: auto;
+    margin: 10px 0;
+    display: block; /* Assure un bon alignement */
+    animation: breathe 2s ease-in-out infinite; /* Animation de respiration */
+}
+
+/* Animation de respiration pour les images */
+@keyframes breathe {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Boutons plus adaptés à la taille de l'écran */
+button {
+    background-color: #00bcd4;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+button:hover {
+    background-color: #0097a7;
+}
+
+/* Responsivité améliorée */
+
+/* 📱 MOBILE PORTRAIT (< 480px) */
+@media (max-width: 480px) {
+    #shop-container {
+        padding: 8px;
+    }
+
+    header {
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    header h1 {
+        font-size: 1.3rem;
+        margin: 0;
+    }
+
+    #back-btn {
+        width: 100%;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+
+    #currency {
+        font-size: 1rem;
+    }
+
+    #categories {
+        margin-bottom: 15px;
+    }
+
+    .category-btn {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+        margin: 0 3px;
+    }
+
+    #items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+    }
+
+    .item {
+        padding: 8px;
+        margin: 0;
+        min-height: 160px;
+    }
+
+    .item img {
+        max-width: 90px;
+    }
+
+    .item .name {
+        font-size: 0.75em;
+    }
+
+    .item .cost {
+        font-size: 0.65em;
+    }
+
+    .item button {
+        padding: 5px 10px;
+        font-size: 0.75em;
+        max-width: 100px;
+    }
+}
+
+/* 📱 MOBILE PAYSAGE (481px-768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    #shop-container {
+        padding: 12px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    #back-btn {
+        padding: 9px 18px;
+    }
+
+    #items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .item {
+        padding: 10px;
+        min-height: 150px;
+    }
+
+    .item img {
+        max-width: 110px;
+    }
+
+    .item button {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
+}
+
+/* 💻 TABLETTE (769px-1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    #shop-container {
+        padding: 16px;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    #currency {
+        font-size: 1.3em;
+    }
+
+    #items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 16px;
+    }
+
+    .item {
+        padding: 12px;
+    }
+
+    .item img {
+        max-width: 140px;
+    }
+}
+
+/* 🖥 DESKTOP (> 1024px) */
+@media (min-width: 1025px) {
+    #items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 20px;
+    }
+
+    .item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    button:active {
+        transform: scale(0.95);
+    }
+}
+

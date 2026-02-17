@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Boutique CJ – Achetez des items cosmétiques avec vos CJ Universels." />
+  <meta name="theme-color" content="#0a0620" />
+  <meta property="og:title" content="Boutique CJ" />
+  <meta property="og:description" content="Dépensez vos CJ Universels dans la boutique de l'écosystème CJajlk." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml" />
+  <title>Boutique CJ - CJajlkGames</title>
+  <script>document.documentElement.classList.add('js');</script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <style>
+    /* Fallback styles si le CSS principal ne charge pas */
+    html, body {
+      background-color: #0a0620;
+      color: #e6e3ff;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body class="page-shop">
+  <a class="skip-link" href="#main">Aller au contenu</a>
+
+  <!-- ======== BANNIÈRE ======== -->
+  <header class="shop-banner">
+    <div class="shop-overlay"></div>
+    <div class="shop-banner-content">
+      <h1>🔮 Boutique CJ</h1>
+      <p>Dépensez vos CJ Universels</p>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ======== SOLDE ======== -->
+    <section class="shop-balance">
+      <div class="balance-card">
+        <p class="balance-label">Votre solde CJ</p>
+        <p class="balance-amount" id="shop-balance">0</p>
+      </div>
+    </section>
+
+    <!-- ======== BOUTIQUE BADGES - PHASE 1 ======== -->
+    <section class="shop-catalog">
+      <h2>🏆 Badges</h2>
+      <p class="catalog-subtitle">Débloquez des badges cosmétiques avec vos CJ</p>
+      <div id="shop-catalog-items" class="catalog-grid">
+        <!-- Items générés par JavaScript -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======== PIED DE PAGE ======== -->
+  <footer class="shop-footer">
+    <a href="../index.html" class="btn-retour">← Retour à CJajlkGames</a>
+    <p class="footer-credit">© 2026 CJajlk • Tous droits réservés</p>
+  </footer>
+
+  <!-- Charger cjAccount.js SANS defer pour garantir l'ordre -->
+  <script src="../core/cjAccount.js"></script>
+  <!-- Puis charger cjShop.js -->
+  <script src="../assets/js/cjShop.js"></script>
+
+  <script>
+    // Ajouter la classe is-ready pour rendre la page visible
+    document.addEventListener('DOMContentLoaded', function() {
+      document.body.classList.add('is-ready');
+      console.log("✅ Page shop ready!");
+    });
+  </script>
+</body>
+</html>

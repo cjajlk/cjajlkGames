@@ -1,0 +1,1663 @@
+/* =====================================================
+   🌙 BREAKER – GAMEPLAY CLEAN VERSION
+   by CJ + Alia
+===================================================== */
+
+/* =============================
+   1️⃣ CONFIG
+============================= */
+
+const DPR = window.devicePixelRatio || 1;
+
+// ⏱️ CJ System - Time tracking for deltaMs calculation
+let lastFrameTime = 0;
+
+let viewW = 0;
+let viewH = 0;
+
+const rows = 5;
+const cols = 8;
+
+let brickW, brickH, gap;
+
+/* =============================
+   2️⃣ GAME STATE
+   
+   ⚠️ IMPORTANT - PROGRESSION SYSTÈME :
+   
+   📊 state.stage (1-6)
+   → Niveau de la PARTIE en cours
+   → Détermine la difficulté (HP briques, densité, vitesse)
+   → Boss activé au stage 6
+   → Choix du background
+   → Réinitialisé à chaque nouvelle partie
+   
+   🌟 state.playerLevel (calculé depuis XP)
+   → Niveau GLOBAL du joueur
+   → Basé sur l'XP accumulée (1000 XP = 1 level)
+   → Persiste entre les parties
+   → Affiché dans le HUD
+   
+   ✅ Cette séparation évite les bugs de progression
+============================= */
+const state = {
+    running: true,
+    score: 0,
+    highScore: 0,
+    xp: 0,
+    stage: 1,        // ← Niveau de la partie (1-6)
+    playerLevel: 1,  // ← Niveau du joueur (basé sur XP global)
+    playStartTime: Date.now() // ⏱️ Timestamp de début de partie
+};
+
+/**
+ * 🎮 Breaker - Expose game state for CJ System (défini tôt pour cjSystem.js)
+ * Called by cjSystem to check if game is actively running
+ */
+window.getGameState = function () {
+    return {
+        running: state.running
+    };
+};
+
+// Function to calculate player level based on XP
+function calculatePlayerLevel(xp) {
+    return Math.floor(xp / 1000) + 1;
+}
+
+// ⏱️ Function to save current play session time
+function savePlayTime() {
+    const playDuration = Math.floor((Date.now() - state.playStartTime) / 1000);
+    console.log("⏱️ Session duration:", playDuration, "seconds (", Math.floor(playDuration / 60), "min", playDuration % 60, "sec)");
+    
+    if (typeof addPlayTime === "function" && playDuration > 0) {
+        addPlayTime(playDuration);
+        console.log("✅ Play time saved to profile");
+        // Reset pour éviter de sauver deux fois
+        state.playStartTime = Date.now();
+    } else if (!window.addPlayTime) {
+        console.warn("⚠️ addPlayTime function not available");
+    }
+}
+
+// Function to show level up popup
+function showLevelUpPopup(newLevel) {
+    Popup.confirm(i18nT("gameplay.levelUpTitle", { level: newLevel }));
+}
+
+// Function to update level text in HUD (affiche le niveau JOUEUR)
+function updateLevelText() {
+    const levelText = document.getElementById("levelText");
+    if (levelText) {
+        levelText.textContent = `${i18nT("gameplay.levelShort")} ${state.playerLevel}`;
+    }
+}
+
+// Function to update stage text in HUD (affiche le stage actuel)
+function updateStageText() {
+    const stageText = document.getElementById("stageText");
+    if (stageText) {
+        stageText.textContent = "Stage " + state.stage;
+    }
+}
+
+const bricks = [];
+let bricksDestroyed = 0;
+let levelComplete = false;
+
+/* =============================
+   💀 BOSS SYSTEM
+============================= */
+const boss = {
+    active: false,
+    phase: 1,
+    maxPhases: 3,
+    moveDirection: 1,
+    moveSpeed: 1.5,
+    moveTimer: 0
+};
+
+/* =============================
+   🌟 ORBS SYSTEM (placeholder)
+============================= */
+
+const orbs = []; // orbes actives dans la scène
+const popups = [];
+
+const ball = {
+    x: 0,
+    y: 0,
+    dx: 0,
+    dy: 0,
+    size: 0,
+    speed: 0,
+    launched: false,
+    trail: []
+};
+
+const paddle = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    speed: 0
+};
+
+/* =============================
+   3️⃣ CANVAS SETUP
+============================= */
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+    viewW = window.innerWidth;
+    viewH = window.innerHeight;
+
+    canvas.width = viewW * DPR;
+    canvas.height = viewH * DPR;
+
+    canvas.style.width = viewW + "px";
+    canvas.style.height = viewH + "px";
+
+    canvas.style.touchAction = "none";
+
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    /* =============================
+   RESPONSIVE SIZES
+============================= */
+
+    // paddle = ~30% largeur écran
+    applyPaddleSizeBonus(); // Applique le bonus du compagnon
+    paddle.height = viewW * 0.05;
+
+    // balle = ~4% largeur écran, plus grosse sur mobile
+    ball.size = viewW < 768 ? viewW * 0.08 : viewW * 0.05;
+
+    /* responsive bricks */
+    brickW = viewW * 0.10;
+    brickH = brickW * 0.5;
+    gap = brickW * 0.05;
+
+    createBricks();
+    resetBall();
+}
+
+/* =============================
+   🎨 ASSETS
+============================= */
+
+const assets = {
+    // Images des briques
+    brick: new Image(),
+    brickCracked: new Image(),
+
+    // Autres assets
+    backgrounds: [],
+    bossBackground: new Image(),
+    barBase: new Image(),
+    barFill: new Image(),
+    ballNormal: new Image(),
+    ballPower: new Image(),
+
+    // Sons associés
+    sounds: {}
+};
+
+// Attribution des chemins aux assets
+assets.brick.src = "../assets/bricks/brick_energy.png";
+assets.brickCracked.src = "../assets/bricks/brick_energy_cracked.png";
+
+assets.barBase.src = "../assets/ui/bars/bar_base.png";
+assets.barFill.src = "../assets/ui/bars/bar_fill.png";
+
+/* =============================
+   🐾 COMPANION SYSTEM (AAA)
+============================= */
+const companion = {
+    image: null,
+    loaded: false,
+    id: null,
+    element: null,
+    
+    // Position & Animation
+    x: 0,
+    y: 0,
+    size: 120,
+    scale: 1,
+    opacity: 0,
+    
+    // État d'encouragement
+    showing: false,
+    message: "",
+    messageLife: 0,
+    bounceOffset: 0,
+    bounceSpeed: 0,
+    
+    // Timers
+    showTimer: 0,
+    hideTimer: 0,
+    animTimer: 0
+};
+
+// 💬 Messages d'encouragement AAA par événement
+const encouragements = {
+    orb: [
+        "Excellent ! ✨",
+        "Bien joué ! 🌟",
+        "Continue ! 💫",
+        "Magnifique ! ⭐",
+        "Super ! 🎆"
+    ],
+    combo: [
+        "Combo incroyable ! 🔥",
+        "En feu ! 🔥",
+        "Unstoppable ! ⚡",
+        "Parfait ! 💥",
+        "Incroyable ! 🌟"
+    ],
+    stage: [
+        "Stage complété ! 🎉",
+        "Victoire ! 🏆",
+        "Bravo champion ! 👑",
+        "Fantastique ! 🌟",
+        "Tu es le meilleur ! ⭐"
+    ],
+    levelup: [
+        "Level Up ! 🎊",
+        "Tu progresses ! 📈",
+        "Plus fort ! 💪",
+        "Évolution ! ✨",
+        "Nouvelle puissance ! ⚡"
+    ],
+    milestone: [
+        "Score incroyable ! 🎯",
+        "Légende ! 👑",
+        "Record battu ! 🏆",
+        "Champion ! 🌟",
+        "Impressionnant ! 💎"
+    ],
+    boss: [
+        "Victoire épique ! 🏆",
+        "Boss vaincu ! 👑",
+        "Héros ! ⚔️",
+        "Triomphe ! 🎊",
+        "Gloire éternelle ! ✨"
+    ]
+};
+
+function getEncouragements(type) {
+    if (window.I18n) {
+        const list = window.I18n.t(`encouragements.${type}`);
+        if (Array.isArray(list)) return list;
+    }
+    return encouragements[type] || encouragements.orb;
+}
+
+// 🎮 Charger le compagnon équipé
+function loadCompanion() {
+    try {
+        const profile = typeof getPlayerProfile === 'function' ? getPlayerProfile() : null;
+        
+        if (!profile || !profile.equippedCompanion) {
+            console.log("🐾 Aucun compagnon équipé");
+            return;
+        }
+        
+        companion.id = profile.equippedCompanion;
+        companion.element = profile.equippedCompanion; // Pour les couleurs
+        
+        // Charger l'image (gestion spéciale pour astral)
+        companion.image = new Image();
+        
+        if (companion.id === 'astral') {
+            companion.image.src = "../shop/categories/companions/light/astral_idle.png";
+        } else {
+            companion.image.src = `../assets/companions/${companion.id}/${companion.id}_idle.png`;
+        }
+        
+        companion.image.onload = () => {
+            companion.loaded = true;
+            console.log("✅ Compagnon chargé:", companion.id);
+        };
+        
+        companion.image.onerror = () => {
+            console.error("❌ Erreur chargement compagnon:", companion.id);
+        };
+        
+    } catch (error) {
+        console.error("❌ Erreur loadCompanion:", error);
+    }
+}
+
+// 🎬 Afficher un encouragement
+function showCompanionEncouragement(type = 'orb') {
+    if (!companion.loaded || companion.showing) return;
+    
+    // Message aléatoire du type
+    const messages = getEncouragements(type);
+    companion.message = messages[Math.floor(Math.random() * messages.length)];
+    
+    // Animation d'apparition
+    companion.showing = true;
+    companion.showTimer = 0;
+    companion.messageLife = 120; // 2 secondes à 60fps
+    companion.bounceSpeed = 0.15;
+    companion.animTimer = 0;
+    
+    console.log("💬", companion.id, "dit:", companion.message);
+}
+
+// 🔧 Polyfill pour roundRect (compatibilité navigateurs)
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+        if (w < 2 * r) r = w / 2;
+        if (h < 2 * r) r = h / 2;
+        this.beginPath();
+        this.moveTo(x + r, y);
+        this.arcTo(x + w, y, x + w, y + h, r);
+        this.arcTo(x + w, y + h, x, y + h, r);
+        this.arcTo(x, y + h, x, y, r);
+        this.arcTo(x, y, x + w, y, r);
+        this.closePath();
+        return this;
+    };
+}
+
+// 🎨 Dessiner le compagnon avec encouragement
+function drawCompanion() {
+    if (!companion.loaded) return;
+    
+    // Position bottom-left responsive
+    companion.x = viewW * 0.08;
+    companion.y = viewH - companion.size - viewH * 0.08;
+    
+    // Animation d'apparition/disparition
+    if (companion.showing && companion.messageLife > 0) {
+        // Fade in rapide
+        if (companion.showTimer < 15) {
+            companion.opacity = companion.showTimer / 15;
+            companion.scale = 0.5 + (companion.showTimer / 15) * 0.5;
+            companion.showTimer++;
+        } else if (companion.messageLife < 30) {
+            // Fade out
+            companion.opacity = companion.messageLife / 30;
+        } else {
+            companion.opacity = 1;
+            companion.scale = 1;
+        }
+        
+        // Bounce animation
+        companion.animTimer += companion.bounceSpeed;
+        companion.bounceOffset = Math.sin(companion.animTimer) * 8;
+        
+        companion.messageLife--;
+        
+        if (companion.messageLife <= 0) {
+            companion.showing = false;
+            companion.opacity = 0;
+        }
+    } else if (!companion.showing) {
+        // Idle state (toujours visible mais discret)
+        companion.opacity = 0.3;
+        companion.scale = 0.8;
+        companion.bounceOffset = Math.sin(Date.now() * 0.001) * 3;
+    }
+    
+    ctx.save();
+    ctx.globalAlpha = companion.opacity;
+    
+    // Dessiner le compagnon
+    const drawX = companion.x;
+    const drawY = companion.y + companion.bounceOffset;
+    const drawSize = companion.size * companion.scale;
+    
+    // Ombre portée
+    if (companion.showing) {
+        ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetY = 10;
+    }
+    
+    ctx.drawImage(
+        companion.image,
+        drawX - drawSize / 2,
+        drawY - drawSize / 2,
+        drawSize,
+        drawSize
+    );
+    
+    ctx.shadowColor = "transparent";
+    
+    // Bulle de dialogue (glass-morphism AAA)
+    if (companion.showing && companion.message && companion.messageLife > 10) {
+        const bubbleX = drawX + drawSize * 0.6;
+        const bubbleY = drawY - drawSize * 0.3;
+        
+        // Mesurer le texte
+        ctx.font = "bold 18px 'Segoe UI', sans-serif";
+        const textWidth = ctx.measureText(companion.message).width;
+        const bubbleWidth = textWidth + 40;
+        const bubbleHeight = 50;
+        
+        // Couleur selon élément
+        const elementColors = {
+            aqua: "rgba(92, 200, 255, 0.15)",
+            ignis: "rgba(255, 107, 61, 0.15)",
+            astral: "rgba(255, 216, 107, 0.15)",
+            flora: "rgba(139, 255, 123, 0.15)",
+            aube: "rgba(200, 150, 255, 0.15)"
+        };
+        
+        const borderColors = {
+            aqua: "rgba(92, 200, 255, 0.6)",
+            ignis: "rgba(255, 107, 61, 0.6)",
+            astral: "rgba(255, 216, 107, 0.6)",
+            flora: "rgba(139, 255, 123, 0.6)",
+            aube: "rgba(200, 150, 255, 0.6)"
+        };
+        
+        const bgColor = elementColors[companion.element] || "rgba(255, 255, 255, 0.15)";
+        const borderColor = borderColors[companion.element] || "rgba(255, 255, 255, 0.6)";
+        
+        // Bulle glass-morphism
+        ctx.save();
+        
+        // Backdrop blur effect
+        ctx.fillStyle = bgColor;
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 2;
+        
+        // Forme arrondie
+        const radius = 15;
+        ctx.beginPath();
+        ctx.roundRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight, radius);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Petit triangle pointer
+        ctx.fillStyle = bgColor;
+        ctx.strokeStyle = borderColor;
+        ctx.beginPath();
+        ctx.moveTo(bubbleX - 10, bubbleY + bubbleHeight / 2);
+        ctx.lineTo(bubbleX, bubbleY + bubbleHeight / 2 - 8);
+        ctx.lineTo(bubbleX, bubbleY + bubbleHeight / 2 + 8);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        // Texte
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 18px 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(
+            companion.message,
+            bubbleX + bubbleWidth / 2,
+            bubbleY + bubbleHeight / 2
+        );
+        
+        ctx.restore();
+    }
+    
+    ctx.restore();
+}
+
+assets.ballNormal.src = "../assets/ball/ball_normal.png";
+assets.ballPower.src = "../assets/ball/ball_power.png";
+
+// Sons (tu peux ajouter des sons ici de manière similaire)
+assets.sounds.ballFall = new Audio("../assets/audio/ball_fall_nocturne.wav");
+assets.sounds.brickHit = new Audio("../assets/audio/brick_hit.wav");
+assets.sounds.brickBreak = new Audio("../assets/audio/brick_break_crash.wav");
+assets.sounds.magicBreak = new Audio("../assets/audio/brick_break_magic.wav");
+assets.sounds.paddleHit = new Audio("../assets/audio/paddle_hit_soft.wav");
+assets.sounds.wallHit = new Audio("../assets/audio/wall_hit_soft.wav");
+
+for (let i = 1; i <= 5; i++) {
+    const img = new Image();
+    img.src = `../assets/backgrounds/gameplay/theme1_city_reborn/bg${i}.png`;
+    assets.backgrounds.push(img);
+}
+
+// Boss background
+assets.bossBackground.src = "../assets/backgrounds/gameplay/theme1_city_reborn/boss.png";
+
+const soundPools = new Map();
+
+function registerSoundPool(sound, poolSize) {
+    const pool = [];
+    for (let i = 0; i < poolSize; i++) {
+        const node = sound.cloneNode();
+        node.volume = 0.5;
+        pool.push(node);
+    }
+    soundPools.set(sound, { pool, index: 0 });
+}
+
+registerSoundPool(assets.sounds.ballFall, 2);
+registerSoundPool(assets.sounds.brickHit, 8);
+registerSoundPool(assets.sounds.brickBreak, 4);
+registerSoundPool(assets.sounds.magicBreak, 3);
+registerSoundPool(assets.sounds.paddleHit, 4);
+registerSoundPool(assets.sounds.wallHit, 4);
+
+function playSound(sound) {
+    const entry = soundPools.get(sound);
+    if (!entry) {
+        const s = sound.cloneNode();
+        s.volume = 0.5;
+        s.play().catch(() => {});
+        return;
+    }
+
+    const node = entry.pool[entry.index];
+    entry.index = (entry.index + 1) % entry.pool.length;
+    node.currentTime = 0;
+    node.play().catch(() => {});
+}
+
+/* =============================
+   🐾 COMPANION BONUSES
+============================= */
+
+let activeCompanionBonus = null;
+
+function loadActiveCompanionBonus() {
+    if (typeof getActiveCompanionBonus === 'function') {
+        activeCompanionBonus = getActiveCompanionBonus();
+        if (activeCompanionBonus) {
+            console.log("🐾 Bonus actif:", activeCompanionBonus.companionName, "-", activeCompanionBonus.formatted);
+        } else {
+            console.log("🐾 Aucun bonus de compagnon actif");
+        }
+    }
+}
+
+function applyPaddleSizeBonus() {
+    // Applique le bonus de taille de paddle (Flora)
+    if (activeCompanionBonus && activeCompanionBonus.type === 'paddle_size') {
+        const bonusMultiplier = 1 + (activeCompanionBonus.value / 100);
+        paddle.width = (viewW * 0.20) * bonusMultiplier;
+        console.log(`🛡️ Bonus paddle: ${activeCompanionBonus.value}% (${paddle.width.toFixed(0)}px)`);
+    } else {
+        paddle.width = viewW * 0.20;
+    }
+}
+
+function applyBallSpeedBonus() {
+    // Le bonus de vitesse sera appliqué dans updateBall()
+    if (activeCompanionBonus && activeCompanionBonus.type === 'ball_speed') {
+        console.log(`💨 Bonus vitesse: ${activeCompanionBonus.value}%`);
+    }
+}
+
+function applyXPBonus(baseXP) {
+    // Applique le bonus d'XP (Aube)
+    if (activeCompanionBonus && activeCompanionBonus.type === 'xp_multiplier') {
+        const bonusMultiplier = 1 + (activeCompanionBonus.value / 100);
+        return Math.floor(baseXP * bonusMultiplier);
+    }
+    return baseXP;
+}
+
+function applyOrbDropBonus() {
+    // Applique le bonus de drop d'orbes (Astral)
+    if (activeCompanionBonus && activeCompanionBonus.type === 'orb_drop') {
+        const bonusMultiplier = 1 + (activeCompanionBonus.value / 100);
+        return 0.18 * bonusMultiplier; // Base 18% chance
+    }
+    return 0.18; // Base chance
+}
+
+function applyBrickDamageBonus(baseDamage = 1) {
+    // Applique le bonus de dégâts (Ignis)
+    if (activeCompanionBonus && activeCompanionBonus.type === 'brick_damage') {
+        const bonusMultiplier = 1 + (activeCompanionBonus.value / 100);
+        return Math.ceil(baseDamage * bonusMultiplier);
+    }
+    return baseDamage;
+}
+
+/* =============================
+   4️⃣ BRICKS
+============================= */
+
+const BRICK_BREAK_DURATION = 20;
+const BRICK_HIT_FLASH = 6;
+
+function createBrickBreakFx() {
+    const shards = [];
+    const shardCount = 12;
+
+    for (let i = 0; i < shardCount; i++) {
+        shards.push({
+            angle: Math.random() * Math.PI * 2,
+            distance: 12 + Math.random() * 22,
+            size: 2 + Math.random() * 4
+        });
+    }
+
+    return shards;
+}
+
+function createBricks() {
+    bricks.length = 0;
+
+    // Déterminer si c'est un boss (basé sur le STAGE ou les données du niveau)
+    boss.active = currentLevelData && currentLevelData.isBoss;
+    boss.phase = 1;
+    boss.moveTimer = 0;
+    boss.bossType = currentLevelData ? currentLevelData.bossType : 'city_guardian';
+
+    let currentRows = rows;
+    let currentCols = cols;
+    let density = 0.8;
+    let hp = 2;
+
+    if (boss.active) {
+        // Configuration du boss (depuis les données du niveau)
+        currentRows = currentLevelData.rows || 8;
+        currentCols = currentLevelData.cols || 10;
+        density = currentLevelData.brickDensity || 0.8;
+        hp = currentLevelData.brickHp || 5;
+        boss.maxPhases = currentLevelData.bossPhases || 3;
+        boss.moveSpeed = currentLevelData.moveSpeed || 1.5;
+        
+        // Configuration spécifique du Gardien Astral
+        if (boss.bossType === 'astral_guardian') {
+            console.log('✨ BOSS: Gardien Astral activé!');
+            boss.groundMode = false; // Phase 1: gravité normale
+            boss.invertMode = false; // Phase 2: gravité inversée
+            boss.coreMode = false;   // Phase 3: noyau cosmique
+        }
+    } else if (currentLevelData) {
+        // Configuration normale (depuis levels.json)
+        currentRows = currentLevelData.rows || currentRows;
+        currentCols = currentLevelData.cols || currentCols;
+        density = currentLevelData.brickDensity || density;
+        hp = currentLevelData.brickHp || hp;
+    } else {
+        // Configuration normale (basée sur le STAGE)
+        const densityMap = {
+            1: 0.9,
+            2: 0.8,
+            3: 0.7,
+            4: 0.6,
+            5: 0.5
+        };
+        density = densityMap[state.stage] || 0.8;
+        
+        const hpMap = {
+            1: 1,
+            2: 2,
+            3: 2,
+            4: 3,
+            5: 3
+        };
+        hp = hpMap[state.stage] || 2;
+
+        if (state.stage >= 3) currentRows = 6;
+        if (state.stage >= 4) currentCols = 9;
+        if (state.stage >= 5) currentRows = 7;
+    }
+
+    const offsetX = (viewW - currentCols * (brickW + gap)) / 2;
+    const offsetY = viewH * 0.12;
+
+    for (let r = 0; r < currentRows; r++) {
+        for (let c = 0; c < currentCols; c++) {
+            if (Math.random() > density) continue;
+
+            bricks.push({
+                x: offsetX + c * (brickW + gap),
+                y: offsetY + r * (brickH + gap),
+                initialX: offsetX + c * (brickW + gap), // Position initiale pour le boss
+                row: r, // Stocker la rangée pour le mouvement
+                w: brickW,
+                h: brickH,
+                hp,
+                maxHp: hp,
+                cracked: false,
+                crackLevel: 0,
+                sprite: assets.brick,
+                breakFx: null,
+                hitTimer: 0,
+                destroyed: false,
+                destroying: false,
+                destroyTimer: 0
+            });
+        }
+    }
+} 
+
+/* =============================
+   5️⃣ BALL / PADDLE RESET
+============================= */
+
+function resetBall() {
+    paddle.y = viewH * 0.85;
+    paddle.x = viewW / 2 - paddle.width / 2;
+
+    ball.launched = false;
+    ball.x = paddle.x + paddle.width / 2;
+    ball.y = paddle.y - ball.size;
+
+    ball.dx = 0;
+    ball.dy = 0;
+
+    ball.trail = [];
+}
+
+function launchBall() {
+    if (ball.launched) return;  // La balle ne doit être lancée qu'une seule fois
+
+    ball.launched = true;  // Marque la balle comme lancée
+
+    // Vitesse de base
+    let baseSpeed = viewW * 0.006 + state.stage * 0.3;
+    
+    // Applique le bonus de vitesse (Aqua)
+    if (activeCompanionBonus && activeCompanionBonus.type === 'ball_speed') {
+        const bonusMultiplier = 1 + (activeCompanionBonus.value / 100);
+        baseSpeed *= bonusMultiplier;
+    }
+    
+    ball.speed = baseSpeed;
+
+    ball.dx = ball.speed;
+    ball.dy = -ball.speed;
+}
+
+/* =============================
+   6️⃣ UPDATE
+============================= */
+
+function updateBall() {
+    if (!ball.launched) {
+        ball.x = paddle.x + paddle.width / 2;
+        ball.y = paddle.y - ball.size;
+        return;
+    }
+
+    ball.x += ball.dx;
+    ball.y += ball.dy;
+
+    ball.trail.push({ x: ball.x, y: ball.y });
+
+    if (ball.trail.length > 12) {
+        ball.trail.shift();
+    }
+
+    /* paddle collision */
+    if (
+        ball.y + ball.size / 2 > paddle.y &&
+        ball.y - ball.size / 2 < paddle.y + paddle.height &&
+        ball.x > paddle.x &&
+        ball.x < paddle.x + paddle.width &&
+        ball.dy > 0
+    ) {
+        ball.dy *= -1;
+
+        playSound(assets.sounds.paddleHit);
+
+        const hit = (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
+        ball.dx = hit * ball.speed * 2;
+    }
+
+    /* walls */
+    if (ball.x < 0 || ball.x > viewW) {
+        ball.dx *= -1;
+        playSound(assets.sounds.wallHit);
+    }
+
+    if (ball.y < 0) {
+        ball.dy *= -1;
+        playSound(assets.sounds.wallHit);
+    }
+
+    if (ball.y > viewH) {
+        playSound(assets.sounds.ballFall);
+        gameOver();
+        resetBall();
+    }
+}
+
+function updateOrbHUD() {
+    const o = getPlayerProfile().orbs;
+
+    if (orbEls.aqua) orbEls.aqua.textContent = "x" + (o.water || 0);
+    if (orbEls.ignis) orbEls.ignis.textContent = "x" + (o.fire || 0);
+    if (orbEls.astral) orbEls.astral.textContent = "x" + (o.light || 0);
+    if (orbEls.flora) orbEls.flora.textContent = "x" + (o.nature || 0);
+    if (orbEls.void) orbEls.void.textContent = "x" + (o.void || 0);
+}
+
+function updatePaddle() {
+    paddle.x += paddle.speed;
+
+    paddle.x = Math.max(0, Math.min(viewW - paddle.width, paddle.x));
+}
+
+function spawnOrb(x, y) {
+    const orbDropChance = applyOrbDropBonus(); // Bonus Astral
+    
+    if (Math.random() > orbDropChance) return; // 18% chance → longevity 👍
+
+    const types = ["water", "fire", "light", "nature", "void"];
+    const type = types[Math.floor(Math.random() * types.length)];
+
+    orbs.push({
+        x,
+        y,
+        vy: 2,
+        r: 6,
+        type,
+        time: 0, // Pour animation de pulsation
+        rotation: Math.random() * Math.PI * 2 // Rotation aléatoire des particules
+    });
+}
+
+/* =============================
+   7️⃣ COLLISIONS
+============================= */
+
+function updateBrickCollision() {
+    for (const b of bricks) {
+        if (b.destroyed) continue;
+
+        // 🌙 collision balle / brique
+        if (
+            ball.x + ball.size / 2 > b.x &&
+            ball.x - ball.size / 2 < b.x + b.w &&
+            ball.y + ball.size / 2 > b.y &&
+            ball.y - ball.size / 2 < b.y + b.h
+        ) {
+            // Determine bounce direction based on overlap
+            const overlapLeft = (ball.x + ball.size / 2) - b.x;
+            const overlapRight = (b.x + b.w) - (ball.x - ball.size / 2);
+            const overlapTop = (ball.y + ball.size / 2) - b.y;
+            const overlapBottom = (b.y + b.h) - (ball.y - ball.size / 2);
+
+            const minOverlapX = Math.min(overlapLeft, overlapRight);
+            const minOverlapY = Math.min(overlapTop, overlapBottom);
+
+            if (minOverlapX < minOverlapY) {
+                // Horizontal bounce
+                ball.dx *= -1;
+                // Position correction based on brick center
+                if (ball.x < b.x + b.w / 2) {
+                    ball.x = b.x - ball.size / 2;
+                } else {
+                    ball.x = b.x + b.w + ball.size / 2;
+                }
+            } else {
+                // Vertical bounce
+                ball.dy *= -1;
+                // Position correction based on brick center
+                if (ball.y < b.y + b.h / 2) {
+                    ball.y = b.y - ball.size / 2;
+                } else {
+                    ball.y = b.y + b.h + ball.size / 2;
+                }
+            }
+
+            // dégâts
+            const damage = applyBrickDamageBonus(1); // Bonus Ignis
+            b.hp -= damage;
+
+            const hitsTaken = Math.min(b.maxHp, b.maxHp - b.hp);
+            const crackSteps = state.stage >= 2 ? 2 : 1;
+
+            if (b.maxHp > 1 && hitsTaken > 0) {
+                b.cracked = true;
+                b.crackLevel = Math.min(
+                    crackSteps,
+                    Math.max(1, Math.ceil((hitsTaken / b.maxHp) * crackSteps))
+                );
+                b.sprite = assets.brickCracked;
+            }
+
+            b.hitTimer = BRICK_HIT_FLASH;
+
+            // 🔊 hit doux
+            playSound(assets.sounds.brickHit);
+
+            // 💥 destruction
+            if (b.hp <= 0) {
+                if (!b.cracked && b.maxHp > 1) {
+                    b.cracked = true;
+                    b.crackLevel = Math.max(1, b.crackLevel || 1);
+                    b.sprite = assets.brickCracked;
+                }
+
+                b.destroying = true;
+                b.destroyTimer = BRICK_BREAK_DURATION; // duration of animation in frames
+                b.breakFx = b.breakFx || createBrickBreakFx();
+
+                // 🌟 Spawn orbe (18% chance)
+                spawnOrb(b.x + b.w / 2, b.y + b.h / 2);
+
+                bricksDestroyed++;
+                state.score += 10;
+
+                // � Encouragement combo (toutes les 10 briques)
+                if (bricksDestroyed % 10 === 0) {
+                    showCompanionEncouragement('combo');
+                }
+
+                // �🔊 son break magique parfois
+                if (Math.random() < 0.3) playSound(assets.sounds.magicBreak);
+            }
+
+            break; // stop après 1 collision
+        }
+    }
+}
+
+function updateBricks() {
+    // 👹 BOSS: Mouvement des briques
+    if (boss.active) {
+        boss.moveTimer++;
+        
+        // Mouvement horizontal en vague
+        if (boss.moveTimer % 2 === 0) {
+            const moveAmount = boss.moveSpeed * boss.moveDirection;
+            
+            for (const b of bricks) {
+                if (b.destroyed || b.destroying) continue;
+                
+                b.x += moveAmount;
+                
+                // Inverser direction si on atteint les bords
+                const margin = 20;
+                if (b.x < margin || b.x + b.w > viewW - margin) {
+                    boss.moveDirection *= -1;
+                }
+            }
+        }
+
+        // 🎯 Gestion des phases du boss
+        const totalBricks = bricks.length;
+        const remainingBricks = bricks.filter(b => !b.destroyed && !b.destroying).length;
+        const percentRemaining = remainingBricks / totalBricks;
+
+        if (boss.bossType === 'astral_guardian') {
+            // 🌀 GARDIEN ASTRAL - Phases spéciales
+            if (percentRemaining <= 0.66 && boss.phase === 1) {
+                boss.phase = 2;
+                boss.moveSpeed = 1.0; // Momentum plus doux pour phase 2
+                boss.invertMode = true; // Activer inversion gravité
+                ball.dy = -ball.dy; // Inverser la direction de la balle
+                Popup.notify(i18nT("gameplay.astralPhase2"));
+                console.log("✨ Phase 2: Inversion des Flux activée");
+            }
+
+            if (percentRemaining <= 0.33 && boss.phase === 2) {
+                boss.phase = 3;
+                boss.coreMode = true; // Noyau cosmique
+                boss.moveSpeed = 0; // Immobile
+                Popup.notify(i18nT("gameplay.astralPhase3"));
+                console.log("💫 Phase 3: Cœur Cosmique activé");
+            }
+        } else {
+            // 👹 GARDIEN DE LA CITÉ - Phases standards
+            if (percentRemaining <= 0.66 && boss.phase === 1) {
+                boss.phase = 2;
+                boss.moveSpeed = 2.5; // Plus rapide
+                Popup.notify(i18nT("gameplay.bossPhase2"));
+            }
+
+            if (percentRemaining <= 0.33 && boss.phase === 2) {
+                boss.phase = 3;
+                boss.moveSpeed = 3.5; // Encore plus rapide
+                Popup.notify(i18nT("gameplay.bossPhase3"));
+            }
+        }
+    }
+
+    for (const b of bricks) {
+        if (b.hitTimer > 0) {
+            b.hitTimer--;
+        }
+    }
+
+    // Animation de destruction
+    for (let i = bricks.length - 1; i >= 0; i--) {
+        const b = bricks[i];
+        if (b.destroying) {
+            b.destroyTimer--;
+            if (b.destroyTimer <= 0) {
+                b.destroyed = true;
+                b.destroying = false;
+            }
+        }
+    }
+
+    // Check for level completion after all animations are done
+    const destroyedCount = bricks.filter(b => b.destroyed).length;
+    if (destroyedCount >= bricks.length && !levelComplete) {
+        levelComplete = true;
+        bricksDestroyed = 0;
+
+        if (boss.active) {
+            // 🏆 BOSS VAINCU
+            // Enregistrer la défaite du boss dans le profil
+            let profile = JSON.parse(localStorage.getItem('breaker_profile')) || {};
+            if (!profile.bossesCompleted) profile.bossesCompleted = [];
+            if (!profile.levelsCompleted) profile.levelsCompleted = [];
+            
+            if (!profile.bossesCompleted.includes(state.stage)) {
+                profile.bossesCompleted.push(state.stage);
+            }
+            profile.levelsCompleted.push(state.stage);
+            localStorage.setItem('breaker_profile', JSON.stringify(profile));
+
+            // Déterminer le message de victoire selon le type de boss
+            const bossXP = applyXPBonus(500); // Bonus Aube
+            state.xp += bossXP;
+            localStorage.setItem("breakerXP", state.xp);
+            
+            // 💬 Encouragement boss
+            showCompanionEncouragement('boss');
+            
+            // ⏱️ Sauvegarder le temps avant de quitter
+            savePlayTime();
+            
+            let defeatMessage = i18nT("gameplay.bossDefeated", { xp: bossXP });
+            if (boss.bossType === 'astral_guardian') {
+                defeatMessage = i18nT("gameplay.astralDefeat", { xp: bossXP });
+            }
+            
+            Popup.confirm(defeatMessage, () => {
+                window.location.href = "../pages/campaign.html";
+            });
+        } else {
+            // Niveau normal - Passage au STAGE suivant
+            // Enregistrer que le niveau est complété
+            let profile = JSON.parse(localStorage.getItem('breaker_profile')) || {};
+            if (!profile.levelsCompleted) profile.levelsCompleted = [];
+            if (!profile.levelsCompleted.includes(state.stage)) {
+                profile.levelsCompleted.push(state.stage);
+            }
+            localStorage.setItem('breaker_profile', JSON.stringify(profile));
+            
+            state.stage++;
+            const stageXP = applyXPBonus(100); // Bonus Aube
+            state.xp += stageXP;
+            localStorage.setItem("breakerXP", state.xp);
+
+            // 💬 Encouragement stage complété
+            showCompanionEncouragement('stage');
+
+            // Check for player level up
+            const previousPlayerLevel = state.playerLevel;
+            state.playerLevel = calculatePlayerLevel(state.xp);
+            updateLevelText();
+
+            if (state.playerLevel > previousPlayerLevel) {
+                // 💬 Encouragement level up
+                showCompanionEncouragement('levelup');
+                showLevelUpPopup(state.playerLevel);
+            }
+
+            createBricks();
+            resetBall();
+            levelComplete = false;
+        }
+    }
+}
+
+function updatePopups() {
+    for (let i = popups.length - 1; i >= 0; i--) {
+        const p = popups[i];
+
+        p.y -= 0.6; // monte doucement
+        p.life--;
+
+        if (p.life <= 0) {
+            popups.splice(i, 1);
+        }
+    }
+}
+
+function drawPopups() {
+    ctx.save();
+
+    const colors = {
+        water: "#5cc8ff",
+        fire: "#ff6b3d",
+        light: "#ffd86b",
+        nature: "#6bbf5a",
+        void: "#c26bff"
+    };
+
+    ctx.font = "bold 18px Arial";
+    ctx.textAlign = "center";
+
+    for (const p of popups) {
+        ctx.globalAlpha = p.life / 40; // fade smooth
+        ctx.font = "bold 22px Arial"; // plus gros
+
+        ctx.fillStyle = colors[p.type] || "#fff";
+        ctx.fillText(p.text, p.x, p.y);
+    }
+
+    ctx.restore();
+}
+
+// =====================
+// ORBS UPDATE
+// =====================
+function updateOrbs() {
+    for (let i = orbs.length - 1; i >= 0; i--) {
+        const o = orbs[i];
+
+        o.y += o.vy;
+        
+        // Animation de rotation des particules
+        if (o.rotation !== undefined) {
+            o.rotation += 0.05; // Rotation douce
+        }
+
+        // collision paddle
+        if (
+            o.y + o.r > paddle.y &&
+            o.x > paddle.x &&
+            o.x < paddle.x + paddle.width
+        ) {
+            // ✅ ajoute l'orbe
+            addOrb(o.type, 1);
+
+            // ✅ rafraîchit le HUD
+            updateOrbHUD();
+
+            // 💬 Encouragement compagnon
+            showCompanionEncouragement('orb');
+
+            // ✅ popup
+            popups.push({
+                x: o.x,
+                y: o.y,
+                text: "+1",
+                type: o.type,
+                life: 40
+            });
+
+            // ✅ suppression orbe
+            orbs.splice(i, 1);
+            continue;
+        }
+
+        // hors écran
+        if (o.y > viewH) {
+            orbs.splice(i, 1);
+        }
+    }
+}
+
+/* =============================
+   8️⃣ DRAW
+============================= */
+
+function clear() {
+    ctx.clearRect(0, 0, viewW, viewH);
+}
+
+function drawUI() {
+    ctx.fillStyle = "#fff";
+    ctx.font = "16px Arial";
+
+    ctx.fillText("Score : " + state.score, 20, 30);
+    ctx.fillText("Best : " + state.highScore, 20, 50);
+
+    // 👹 Afficher la phase du boss
+    if (boss.active) {
+        ctx.save();
+        ctx.font = "bold 24px Arial";
+        ctx.fillStyle = boss.phase === 3 ? "#ff3333" : boss.phase === 2 ? "#ffaa33" : "#ffff33";
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 3;
+        const text = `⚔️ BOSS - PHASE ${boss.phase}/${boss.maxPhases} ⚔️`;
+        const textWidth = ctx.measureText(text).width;
+        const x = (viewW - textWidth) / 2;
+        ctx.strokeText(text, x, 40);
+        ctx.fillText(text, x, 40);
+        ctx.restore();
+    }
+}
+
+function drawBricks() {
+    for (const b of bricks) {
+        if (b.destroyed) continue;
+
+        const img = b.sprite || ((b.hp < b.maxHp) ? assets.brickCracked : assets.brick);
+
+        let drawX = b.x;
+        let drawY = b.y;
+        let drawW = b.w;
+        let drawH = b.h;
+
+        if (b.hitTimer > 0 && !b.destroying) {
+            const hitProgress = b.hitTimer / BRICK_HIT_FLASH;
+            const punch = hitProgress * 1.5;
+            drawX += (Math.random() - 0.5) * punch;
+            drawY += (Math.random() - 0.5) * punch;
+        }
+
+        if (b.destroying) {
+            // Gold effect with zoom
+            const progress = 1 - (b.destroyTimer / BRICK_BREAK_DURATION); // 0 to 1
+            const scale = 1 + progress * 0.3; // slight zoom
+            const centerX = b.x + b.w / 2;
+            const centerY = b.y + b.h / 2;
+            const scaledW = b.w * scale;
+            const scaledH = b.h * scale;
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = 1 - progress * 0.35; // fade out
+
+            ctx.drawImage(
+                img,
+                centerX - scaledW / 2,
+                centerY - scaledH / 2,
+                scaledW,
+                scaledH
+            );
+
+            if (b.breakFx) {
+                const glowAlpha = Math.max(0, 1 - progress * 1.1);
+                ctx.strokeStyle = `rgba(150, 220, 255, ${0.95 * glowAlpha})`;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, b.w * 0.55 * progress, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = `rgba(180, 230, 255, ${0.95 * glowAlpha})`;
+                for (const shard of b.breakFx) {
+                    const dx = Math.cos(shard.angle) * shard.distance * progress;
+                    const dy = Math.sin(shard.angle) * shard.distance * progress;
+                    const size = shard.size * (1 - progress * 0.5);
+                    ctx.beginPath();
+                    ctx.arc(centerX + dx, centerY + dy, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            ctx.restore();
+        } else {
+            ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+            if (b.crackLevel > 1) {
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                ctx.globalAlpha = 0.22 + 0.08 * b.crackLevel;
+                ctx.drawImage(img, drawX - 1, drawY - 1, drawW + 2, drawH + 2);
+                ctx.restore();
+            }
+
+            if (b.hitTimer > 0) {
+                const hitProgress = b.hitTimer / BRICK_HIT_FLASH;
+                ctx.save();
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.globalAlpha = 0.25 + 0.3 * hitProgress;
+                ctx.drawImage(img, drawX - 1, drawY - 1, drawW + 2, drawH + 2);
+                ctx.restore();
+            }
+        }
+    }
+}
+
+function drawBackground() {
+    // 👹 Utiliser le background du boss si actif
+    if (boss.active) {
+        ctx.drawImage(
+            assets.bossBackground,
+            0,
+            0,
+            viewW,
+            viewH
+        );
+    } else {
+        const index = (state.stage - 1) % assets.backgrounds.length;
+
+        ctx.drawImage(
+            assets.backgrounds[index],
+            0,
+            0,
+            viewW,
+            viewH
+        );
+    }
+
+}
+
+function drawBall() {
+    // 🌙 TRAÎNÉE
+    for (let i = 0; i < ball.trail.length; i++) {
+        const t = ball.trail[i];
+        const alpha = i / ball.trail.length;
+        const pulse = Math.sin(Date.now() * 0.01) * 2;
+        const s = ball.size + pulse;
+
+        ctx.globalAlpha = alpha * 0.4;
+
+        ctx.drawImage(
+            assets.ballNormal,
+            t.x - ball.size / 2,
+            t.y - ball.size / 2,
+            ball.size,
+            ball.size
+        );
+    }
+
+    ctx.globalAlpha = 1;
+
+    // ✨ Balle principale
+    ctx.drawImage(
+        assets.ballNormal,
+        ball.x - ball.size / 2,
+        ball.y - ball.size / 2,
+        ball.size,
+        ball.size
+    );
+}
+
+function drawPaddle() {
+    // base
+    ctx.drawImage(
+        assets.barBase,
+        paddle.x,
+        paddle.y,
+        paddle.width,
+        paddle.height
+    );
+
+    // fill lumineux (léger effet énergie)
+    ctx.drawImage(
+        assets.barFill,
+        paddle.x,
+        paddle.y,
+        paddle.width,
+        paddle.height
+    );
+}
+
+function gameOver() {
+    state.running = false;
+
+    // 🎮 Reset CJEngine timer for next game
+    if (window.CJEngine && typeof window.CJEngine.reset === "function") {
+        window.CJEngine.reset("breaker");
+    }
+
+    // ⏱️ Sauvegarder le temps de jeu
+    savePlayTime();
+
+    // Always gain XP from the score (10 points = 1 XP)
+    const xpGained = Math.floor(state.score / 10);
+    const previousPlayerLevel = state.playerLevel;
+    state.xp += xpGained;
+    localStorage.setItem("breakerXP", state.xp);
+
+    // Update player level based on new XP
+    state.playerLevel = calculatePlayerLevel(state.xp);
+    updateLevelText();
+
+    // Check for player level up
+    if (state.playerLevel > previousPlayerLevel) {
+        showLevelUpPopup(state.playerLevel);
+    }
+
+    if (state.score > state.highScore) {
+        state.highScore = state.score;
+        localStorage.setItem("breakerHighScore", state.highScore);
+    }
+
+    state.score = 0; // reset pour la prochaine partie
+    playSound(assets.sounds.ballFall);
+}
+
+function drawOrbs() {
+    const colors = {
+        water: "#5cc8ff",
+        fire: "#ff6b3d",
+        light: "#ffd86b",
+        nature: "#6bff9c",
+        void: "#c26bff"
+    };
+
+    // Couleurs secondaires pour gradients
+    const lightColors = {
+        water: "#aae5ff",
+        fire: "#ffaa77",
+        light: "#fff4aa",
+        nature: "#aaffcc",
+        void: "#e5aaff"
+    };
+
+    for (const o of orbs) {
+        o.time = (o.time || 0) + 0.1; // Animation time
+        
+        const pulse = 1 + Math.sin(o.time) * 0.15; // Pulsation douce
+        const currentR = o.r * pulse;
+        
+        ctx.save();
+        
+        // 1️⃣ GLOW extérieur (halo lumineux)
+        const glowGradient = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, currentR * 2.5);
+        glowGradient.addColorStop(0, colors[o.type] + "88"); // Semi-transparent au centre
+        glowGradient.addColorStop(0.4, colors[o.type] + "44");
+        glowGradient.addColorStop(1, colors[o.type] + "00"); // Transparent à l'extérieur
+        
+        ctx.fillStyle = glowGradient;
+        ctx.beginPath();
+        ctx.arc(o.x, o.y, currentR * 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 2️⃣ Anneau brillant externe
+        ctx.strokeStyle = lightColors[o.type] + "aa";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(o.x, o.y, currentR * 1.4, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // 3️⃣ Orbe principale avec gradient 3D
+        const mainGradient = ctx.createRadialGradient(
+            o.x - currentR * 0.3, 
+            o.y - currentR * 0.3, 
+            0,
+            o.x, 
+            o.y, 
+            currentR
+        );
+        mainGradient.addColorStop(0, lightColors[o.type]); // Highlight
+        mainGradient.addColorStop(0.5, colors[o.type]);
+        mainGradient.addColorStop(1, colors[o.type] + "cc"); // Ombre légère
+        
+        ctx.fillStyle = mainGradient;
+        ctx.beginPath();
+        ctx.arc(o.x, o.y, currentR, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 4️⃣ Point lumineux (reflet)
+        const highlightGradient = ctx.createRadialGradient(
+            o.x - currentR * 0.4,
+            o.y - currentR * 0.4,
+            0,
+            o.x - currentR * 0.4,
+            o.y - currentR * 0.4,
+            currentR * 0.5
+        );
+        highlightGradient.addColorStop(0, "#ffffff" + "dd");
+        highlightGradient.addColorStop(0.6, "#ffffff" + "44");
+        highlightGradient.addColorStop(1, "#ffffff" + "00");
+        
+        ctx.fillStyle = highlightGradient;
+        ctx.beginPath();
+        ctx.arc(o.x - currentR * 0.4, o.y - currentR * 0.4, currentR * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 5️⃣ Particules scintillantes autour
+        const particleCount = 4;
+        for (let i = 0; i < particleCount; i++) {
+            const angle = (o.rotation || 0) + (Math.PI * 2 * i) / particleCount;
+            const distance = currentR * 1.8;
+            const px = o.x + Math.cos(angle) * distance;
+            const py = o.y + Math.sin(angle) * distance;
+            const particleSize = 1 + Math.sin(o.time + i) * 0.5;
+            
+            ctx.fillStyle = lightColors[o.type] + "cc";
+            ctx.beginPath();
+            ctx.arc(px, py, particleSize, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        ctx.restore();
+    }
+}
+
+function draw() {
+    clear();
+
+    drawBackground(); // fond
+    drawBricks();
+    drawBall();
+    drawOrbs();
+    drawPaddle();
+    drawCompanion(); // 🐾 Compagnon avec encouragements
+    drawUI();
+
+    drawPopups(); // ⭐ EN DERNIER
+}
+
+/* =============================
+   9️⃣ MAIN LOOP
+============================= */
+
+function gameLoop() {
+    updateBall();
+    updatePaddle();
+    updateBrickCollision();
+    updateBricks();
+    updateOrbs(); // ← ICI ❤️
+    updatePopups();
+
+    draw(); // 👈 UNE seule entrée graphique
+
+    // ⏱️ CJEngine tick - Moteur centralisé de gestion des CJ
+    if (window.CJEngine && typeof window.CJEngine.tick === "function") {
+        const now = performance.now();
+        const deltaMs = lastFrameTime ? (now - lastFrameTime) : 0;
+        lastFrameTime = now;
+        window.CJEngine.tick(deltaMs, "breaker");
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+
+/* =============================
+   🔟 INPUT / INIT
+============================= */
+state.highScore = Number(localStorage.getItem("breakerHighScore")) || 0;
+state.xp = Number(localStorage.getItem("breakerXP")) || 0;
+
+// Initialize player level based on XP
+state.playerLevel = calculatePlayerLevel(state.xp);
+// Charger le niveau sélectionné depuis localStorage (par défaut 1)
+const selectedLevelId = Number(localStorage.getItem("selectedLevel")) || 1;
+state.stage = selectedLevelId;
+
+// Charger les données du niveau depuis levels.json
+let currentLevelData = null;
+async function loadAndStartGame() {
+    try {
+        const response = await fetch('../data/levels.json');
+        const data = await response.json();
+        currentLevelData = data.levels.find(l => l.id === state.stage);
+        if (!currentLevelData) {
+            console.error('Niveau non trouvé:', state.stage);
+            state.stage = 1;
+            currentLevelData = data.levels.find(l => l.id === 1);
+        }
+        console.log('📍 Niveau chargé:', currentLevelData);
+        
+        // Démarrer le jeu une fois les données chargées
+        initializeGame();
+    } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+        state.stage = 1;
+        initializeGame();
+    }
+}
+
+function initializeGame() {
+    // 🎮 Reset CJEngine timer at game start
+    lastFrameTime = 0;
+    if (window.CJEngine && typeof window.CJEngine.reset === "function") {
+        window.CJEngine.reset("breaker");
+    }
+
+    updateOrbHUD();
+    updateLevelText(); // Initialize level text
+    loadCompanion(); // 🐾 Charger le compagnon équipé
+    loadActiveCompanionBonus(); // 🎮 Charger les bonus du compagnon
+    applyBallSpeedBonus(); // Log du bonus de vitesse
+    resizeCanvas();
+    gameLoop();
+}
+
+window.addEventListener("resize", resizeCanvas);
+canvas.addEventListener("click", launchBall);
+
+const menuBtn = document.getElementById("menuBtn");
+
+if (menuBtn) {
+    menuBtn.addEventListener("click", () => {
+        // ⏱️ Sauvegarder le temps avant de quitter
+        savePlayTime();
+        window.location.href = "../pages/mainmenu.html";
+    });
+}
+
+// 🌙 MOBILE TOUCH
+canvas.addEventListener("touchmove", e => {
+    e.preventDefault();
+
+    const touch = e.touches[0];
+    paddle.x = touch.clientX - paddle.width / 2;
+});
+
+document.addEventListener("keydown", e => {
+    if (e.code === "ArrowLeft") paddle.speed = -7;
+    if (e.code === "ArrowRight") paddle.speed = 7;
+    if (e.code === "Space") launchBall();
+});
+
+document.addEventListener("keyup", () => {
+    paddle.speed = 0;
+});
+
+const orbBtn = document.getElementById("orbBtn");
+const orbPanel = document.getElementById("orbPanel");
+
+orbBtn.addEventListener("click", () => {
+    orbPanel.classList.toggle("hidden");
+});
+
+const orbEls = {
+    aqua: document.getElementById("orbAqua"),
+    ignis: document.getElementById("orbIgnis"),
+    astral: document.getElementById("orbAstral"),
+    flora: document.getElementById("orbFlora"),
+    void: document.getElementById("orbVoid")
+};
+
+// Attendre le chargement des données avant de démarrer
+window.addEventListener("DOMContentLoaded", loadAndStartGame);
+
+document.addEventListener("languagechange", () => {
+    updateLevelText();
+});

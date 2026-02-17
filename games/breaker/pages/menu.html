@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title data-i18n="titles.menu">Breaker — Menu</title>
+   
+  <link rel="stylesheet" href="../css/menu.css" />
+</head>
+
+<body class="menu">
+
+  <div class="screen">
+
+  <video id="introVideo" class="introVideo" playsinline>
+
+  <source src="../assets/video/menu.mp4" type="video/mp4">
+</video>
+
+
+    <picture class="bg">
+      <source media="(max-width:768px)" srcset="../assets/backgrounds/menu/intro_mobile.png">
+      <img src="../assets/backgrounds/menu/intro_mobile.png" /> 
+    </picture>
+
+    <!-- mascottes  -->
+    <img class="mascotte tl" src="../assets/mascottes/blue.png">
+    <img class="mascotte tr" src="../assets/mascottes/light.png">
+    <img class="mascotte bl" src="../assets/mascottes/fire.png">
+    <img class="mascotte br" src="../assets/mascottes/nature.png">
+
+
+     <canvas id="gameCanvas" class="game-canvas"></canvas>
+    
+    <!-- bouton brique -->
+    <div class="enterBtn" id="enterBtn" data-i18n="menu.enter">
+      ENTREZ
+    </div>
+
+   
+
+  </div>
+  
+  <script src="../js/i18n.js" defer></script>
+  <script src="../js/popup.js" defer></script>
+  <script src="../js/menu.js" defer></script>
+  
+
+</body>
+</html>

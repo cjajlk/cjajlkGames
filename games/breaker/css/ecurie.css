@@ -1,0 +1,724 @@
+/* ==========================================
+   🐾 BREAKER ÉCURIE - AAA PROFESSIONAL EDITION
+   ========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: url("../assets/backgrounds/ecurie/ecurie_nocturne.jpg")
+                no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+}
+
+/* Dark overlay for better readability */
+body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 20, 0.3);
+    z-index: 0;
+}
+
+/* ==========================================
+   HEADER
+   ========================================== */
+.ecurie-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 100%);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+    border-bottom: 1px solid rgba(143, 211, 255, 0.2);
+}
+
+.header-title {
+    text-align: center;
+    flex: 1;
+}
+
+.header-title h1 {
+    color: #8fd3ff;
+    font-size: 1.8rem;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(143, 211, 255, 0.5);
+}
+
+.header-title .subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Back Button */
+.btn-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, rgba(143, 211, 255, 0.2), rgba(143, 211, 255, 0.1));
+    border: 2px solid #8fd3ff;
+    border-radius: 25px;
+    color: #8fd3ff;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.btn-back:hover {
+    background: linear-gradient(135deg, rgba(143, 211, 255, 0.4), rgba(143, 211, 255, 0.2));
+    transform: translateX(-5px);
+    box-shadow: 0 4px 15px rgba(143, 211, 255, 0.4);
+}
+
+.btn-icon {
+    font-size: 1.2em;
+}
+
+/* ==========================================
+   ORB COUNTER
+   ========================================== */
+.orb-counter {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.orbItem {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(10, 20, 40, 0.7);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(143, 211, 255, 0.3);
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.orbItem:hover {
+    background: rgba(10, 20, 40, 0.9);
+    border-color: rgba(143, 211, 255, 0.6);
+    transform: scale(1.05);
+}
+
+.orb-icon {
+    font-size: 1.2em;
+}
+
+.orb-count {
+    color: #8fd3ff;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* ==========================================
+   MAIN CANVAS AREA
+   ========================================== */
+.companion-showcase {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    right: 0;
+    bottom: 180px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+
+#ecurieCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: transparent;
+}
+
+/* ==========================================
+   COMPANION INFO PANEL (Floating on Canvas)
+   ========================================== */
+.companion-info-panel {
+    position: fixed;
+    right: 20px;
+    top: 120px;
+    width: 280px;
+    background: linear-gradient(145deg, rgba(10, 20, 40, 0.85), rgba(5, 15, 35, 0.85));
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(143, 211, 255, 0.3);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(143, 211, 255, 0.2);
+}
+
+.info-header h2 {
+    color: #fff;
+    font-size: 1.5rem;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(143, 211, 255, 0.5);
+}
+
+.companion-level {
+    background: linear-gradient(135deg, #8fd3ff, #6bb8ff);
+    color: #0a1428;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.info-stats {
+    margin: 15px 0;
+}
+
+.stat-item {
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.stat-bar {
+    width: 100%;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(143, 211, 255, 0.3);
+}
+
+.stat-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6bb8ff, #8fd3ff);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(143, 211, 255, 0.5);
+}
+
+/* Bonus Display */
+.bonus-display {
+    padding: 10px 15px;
+    background: linear-gradient(135deg, rgba(255, 215, 107, 0.15), rgba(255, 180, 107, 0.1));
+    border: 2px solid rgba(255, 215, 107, 0.4);
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+}
+
+.bonus-display .stat-label {
+    color: rgba(255, 215, 107, 0.9);
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.bonus-value {
+    color: #ffd76b;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(255, 215, 107, 0.5);
+}
+
+.info-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-action {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(143, 211, 255, 0.2), rgba(143, 211, 255, 0.1));
+    border: 2px solid rgba(143, 211, 255, 0.4);
+    border-radius: 15px;
+    color: #8fd3ff;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.btn-action:hover {
+    background: linear-gradient(135deg, rgba(143, 211, 255, 0.4), rgba(143, 211, 255, 0.2));
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(143, 211, 255, 0.4);
+}
+
+.btn-action:active {
+    transform: translateY(0);
+}
+
+.btn-action .btn-icon {
+    font-size: 1.5em;
+}
+
+.btn-equip:hover {
+    border-color: #ffa500;
+    color: #ffa500;
+}
+
+.btn-feed:hover {
+    border-color: #4caf50;
+    color: #4caf50;
+}
+
+/* ==========================================
+   COMPANION SLOTS (Bottom)
+   ========================================== */
+.companion-slots {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 160px;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 100%);
+    backdrop-filter: blur(10px);
+    border-top: 2px solid rgba(143, 211, 255, 0.2);
+    z-index: 50;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.slots-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    min-width: 100%;
+    height: 100%;
+}
+
+.companion-slot {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(143, 211, 255, 0.3);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.companion-slot:hover {
+    transform: translateY(-8px) scale(1.05);
+    border-color: rgba(143, 211, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(143, 211, 255, 0.4);
+}
+
+.companion-slot.selected {
+    border-color: #8fd3ff;
+    box-shadow: 0 0 20px rgba(143, 211, 255, 0.6);
+    transform: translateY(-5px) scale(1.08);
+}
+
+.companion-slot.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+}
+
+.companion-slot.locked::before {
+    content: '🔒';
+    position: absolute;
+    font-size: 2.5em;
+    z-index: 10;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.companion-slot img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+    transition: all 0.3s ease;
+}
+
+.companion-slot:hover img {
+    transform: scale(1.1);
+}
+
+.companion-slot.locked img {
+    filter: grayscale(100%) brightness(0.5) blur(2px);
+}
+
+.orb-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: rgba(10, 20, 40, 0.85);
+    border: 1px solid rgba(143, 211, 255, 0.45);
+    color: #e6f2ff;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    z-index: 12;
+}
+
+.companion-slot.locked .orb-badge {
+    opacity: 0.6;
+}
+
+.orb-hint {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: rgba(10, 20, 40, 0.55);
+    border: 1px solid rgba(143, 211, 255, 0.25);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+/* ==========================================
+   VIDEO OVERLAY
+   ========================================== */
+.videoOverlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: 9999;
+    display: none;
+    background: black;
+}
+
+.feed-skip-btn {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(143, 211, 255, 0.45);
+    background: rgba(10, 20, 40, 0.75);
+    color: #8fd3ff;
+    font-size: 0.95rem;
+    font-weight: bold;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    z-index: 10001;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease, background 0.25s ease;
+    backdrop-filter: blur(8px);
+}
+
+.feed-skip-btn.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.feed-skip-btn:hover {
+    background: rgba(20, 40, 80, 0.85);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* ==========================================
+   TOAST NOTIFICATIONS
+   ========================================== */
+.toast {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-size: 1.1em;
+    font-weight: bold;
+    z-index: 10000;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(10px);
+}
+
+.toast.show {
+    bottom: 30px;
+}
+
+.toast-success {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.95), rgba(56, 142, 60, 0.95));
+    border: 2px solid #4caf50;
+}
+
+.toast-error {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.95), rgba(211, 47, 47, 0.95));
+    border: 2px solid #f44336;
+}
+
+.toast-info {
+    background: linear-gradient(135deg, rgba(143, 211, 255, 0.95), rgba(107, 184, 255, 0.95));
+    border: 2px solid #8fd3ff;
+}
+
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(143, 211, 255, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(143, 211, 255, 0.8);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+/* 📱 MOBILE PORTRAIT (< 480px) */
+@media (max-width: 480px) {
+    html, body {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .ecurie-header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .header-title h1 {
+        font-size: 1.3rem;
+    }
+
+    .header-title .subtitle {
+        font-size: 0.75rem;
+    }
+
+    .btn-back {
+        width: 100%;
+        justify-content: center;
+        padding: 8px 14px;
+        font-size: 0.9rem;
+    }
+
+    .orb-counter {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .orbItem {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+
+    .orb-icon {
+        font-size: 1em;
+    }
+
+    .companion-showcase {
+        top: 140px;
+        bottom: 140px;
+    }
+
+    .companion-info-panel {
+        position: fixed;
+        right: 10px;
+        left: 10px;
+        top: auto;
+        bottom: 160px;
+        width: auto;
+        padding: 15px;
+    }
+
+    .info-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .companion-level {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+    }
+
+    .info-actions {
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 10px;
+        font-size: 0.75rem;
+    }
+
+    .btn-action .btn-icon {
+        font-size: 1.3em;
+    }
+
+    .companion-slots {
+        height: 140px;
+    }
+
+    .slots-container {
+        gap: 10px;
+        padding: 15px 10px;
+    }
+
+    .companion-slot {
+        width: 80px;
+        height: 80px;
+    }
+
+    .companion-slot.locked::before {
+        font-size: 2em;
+    }
+}
+
+/* 📱 MOBILE LANDSCAPE (481px-768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .ecurie-header {
+        padding: 12px 15px;
+    }
+
+    .header-title h1 {
+        font-size: 1.5rem;
+    }
+
+    .btn-back {
+        padding: 9px 16px;
+    }
+
+    .orb-counter {
+        gap: 6px;
+    }
+
+    .orbItem {
+        padding: 5px 10px;
+    }
+
+    .companion-showcase {
+        top: 100px;
+        bottom: 160px;
+    }
+
+    .companion-info-panel {
+        right: 15px;
+        top: 110px;
+        width: 240px;
+        padding: 18px;
+    }
+
+    .info-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .companion-slots {
+        height: 150px;
+    }
+
+    .companion-slot {
+        width: 90px;
+        height: 90px;
+    }
+}
+
+/* 💻 TABLET (769px-1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .header-title h1 {
+        font-size: 1.6rem;
+    }
+
+    .companion-info-panel {
+        width: 260px;
+        right: 18px;
+        top: 115px;
+    }
+}
+
+/* 🖥 DESKTOP (> 1024px) */
+@media (min-width: 1025px) {
+    .btn-back:hover .btn-icon {
+        animation: float 1s ease-in-out infinite;
+    }
+
+    .companion-slot:hover {
+        animation: pulseGlow 2s ease-in-out infinite;
+    }
+}
+
+/* Prevent text selection on UI elements */
+.btn-action,
+.btn-back,
+.companion-slot,
+.orbItem {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+

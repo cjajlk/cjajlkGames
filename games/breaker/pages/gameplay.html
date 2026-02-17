@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title data-i18n="titles.gameplay">Breaker – Gameplay</title>
+
+  <link rel="stylesheet" href="../css/gameplay.css" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+
+<body>
+
+   <div id="hud">
+
+    <!-- gauche -->
+    
+
+    <!-- droite -->
+    <div class="hud-right">
+        <div id="orbBtn">🔮</div>
+
+        <div id="orbPanel" class="hidden">
+            <div class="orb-row">
+                <img src="../assets/ui/icons/companions/aqua_icon.png" class="orb-icon">
+                <span id="orbAqua">x0</span>
+            </div>
+
+            <div class="orb-row">
+                <img src="../assets/ui/icons/companions/ignis_icon.png" class="orb-icon">
+                <span id="orbIgnis">x0</span>
+            </div>
+
+            <div class="orb-row">
+                <img src="../assets/ui/icons/companions/astral_icon.png" class="orb-icon">
+                <span id="orbAstral">x0</span>
+            </div>
+
+            <div class="orb-row">
+                <img src="../assets/ui/icons/companions/flora_icon.png" class="orb-icon">
+                <span id="orbFlora">x0</span>
+            </div>
+
+    <div class="orb-row">
+  <img src="../assets/ui/icons/companions/aqua_icon.png" class="orb-icon">
+  <span id="orbVoid">x0</span>
+</div>
+
+
+
+        </div>
+    </div>
+
+</div>
+
+<!-- ⚠️ EN DEHORS du HUD canvas -->
+<div class="hud-bottom">
+    <span id="levelText" data-i18n="gameplay.levelShort">Lvl 1</span>
+    <button id="menuBtn" class="hudBtn" data-i18n="gameplay.menu">← Menu</button>
+</div>
+
+
+
+
+</div>
+
+  <canvas id="gameCanvas"></canvas>
+
+    <script src="../../../core/cjAccount.js"></script>
+    <script src="../../../core/cjEngine.js"></script>
+    <script src="../js/i18n.js"></script>
+    <script src="../js/profile.js"></script>
+    <script src="../js/companionBonuses.js"></script>
+    <script src="../js/popup.js"></script>
+    <script src="../js/gameplay.js"></script>
+
+
+</body>
+</html>

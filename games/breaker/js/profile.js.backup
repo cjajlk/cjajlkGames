@@ -1,0 +1,383 @@
+// Navigation
+console.log("PROFILE.JS CHARGÉ ✅", Date.now());
+
+
+const backBtn = document.getElementById("goBack");
+if (backBtn) {
+  backBtn.onclick = () => window.location.href = "../pages/mainmenu.html";
+}
+ 
+
+const goStableBtn = document.getElementById("goStable");
+const nameEl = document.getElementById("playerName");
+
+if (goStableBtn) {
+    goStableBtn.onclick = () => {
+        window.location.href = "../pages/ecurie.html";
+    };
+}
+
+
+
+// ===============================
+// Données joueur (source unique)
+// ===============================
+const data = {
+    playerName: localStorage.getItem("breaker_playerName") || "CJ",
+    title: localStorage.getItem("breaker_playerTitle") || "Titre : À débloquer",
+    titleFrame: localStorage.getItem("breaker_titleFrame") || "basic",
+    mascot: localStorage.getItem("breaker_equippedMascot") || "../assets/mascottes/nature.png",
+    xp: localStorage.getItem("breaker_mascotXP") || "124",
+    time: localStorage.getItem("breaker_playTime") || "0h 00m",
+    diamonds: localStorage.getItem("breaker_diamonds") || "0",
+    collection: localStorage.getItem("breaker_collectionPct") || "0%"
+};
+
+
+// ===============================
+// Injection DOM safe (anti-null)
+// ===============================
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function setSrc(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.src = value;
+}
+
+// appliquer
+setText("playerName", data.playerName);
+setText("playerTitle", data.title);
+setSrc("equippedMascot", data.mascot);
+setText("mascotXP", data.xp);
+setText("playTime", data.time);
+setText("diamonds", data.diamonds);
+setText("collectionPct", data.collection);
+
+
+/* ========================================
+   🌙 BREAKER – PLAYER PROFILE SYSTEM
+   Sauvegarde unique + simple + propre
+   Une seule source de vérité (localStorage)
+======================================== */
+
+const PROFILE_KEY = "breaker_profile";
+
+/* ========================
+   Profil par défaut
+======================== */
+const defaultProfile = {
+  pseudo: "CJ",
+  titre: "À débloquer",
+  mascotte: "aube",
+
+  xp: 0,
+  temps: 0,
+  diamants: 0,
+  collection: 0,
+
+  // ✅ Orbes (inventaire global)
+  orbs: {
+    water: 0,
+    fire: 0,
+    light: 0,
+    nature: 0
+  },
+
+  // ✅ Écurie / compagnons
+  equippedCompanion: "aube",
+  unlockedCompanions: ["aube"], // Add unlocked mascots array
+  companions: {
+    aube:   { level: 1, xp: 0 },
+    aqua:   { level: 1, xp: 0 },
+    astral: { level: 1, xp: 0 },
+    flora:  { level: 1, xp: 0 },
+    ignis:  { level: 1, xp: 0 }
+  }
+};
+
+
+
+/* ========================
+   LOAD
+======================== */
+function loadProfile() {
+  const raw = localStorage.getItem(PROFILE_KEY);
+
+
+  if (!raw || raw === "undefined") {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    console.warn("Profil corrompu, reset.");
+    return null;
+  }
+}
+
+
+
+
+
+
+
+function loadPseudo() {
+    const saved = localStorage.getItem("playerPseudo") || "CJ";
+    if (nameEl) nameEl.textContent = saved;
+}
+
+
+loadPseudo();
+
+
+
+
+/* sauvegarder */
+function savePseudo(name) {
+  localStorage.setItem("playerPseudo", name);
+  nameEl.textContent = name;
+}
+
+
+
+function getOrbes(type) {
+  return player.orbes[type] || 0;
+}
+
+
+
+/* clic → popup pseudo */
+if (nameEl) {
+    nameEl.onclick = () => {
+
+        Popup.input("Entre ton pseudo ✨", nameEl.textContent, (name) => {
+
+            const clean = name.trim().slice(0, 12);
+            if (!clean) return;
+
+            localStorage.setItem("playerPseudo", clean);
+            nameEl.textContent = clean;
+
+        });
+
+    };
+}
+
+
+/* init */
+loadPseudo();
+
+
+/* ========================
+   SAVE
+======================== */
+function saveProfile(profile) {
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+}
+
+// ========================
+// API UNIQUE (utilisée par gameplay.js + ecurie.js)
+// ========================
+
+function normalizeProfile(p) {
+  if (!p) p = { ...defaultProfile };
+
+  if (!p.orbs) p.orbs = { water: 0, fire: 0, light: 0, nature: 0 };
+  if (!p.companions) p.companions = {};
+  ["aube", "aqua", "astral", "flora", "ignis"].forEach((id) => {
+    if (!p.companions[id]) p.companions[id] = { level: 1, xp: 0 };
+    if (typeof p.companions[id].level !== "number") p.companions[id].level = 1;
+    if (typeof p.companions[id].xp !== "number") p.companions[id].xp = 0;
+  });
+
+  if (!p.equippedCompanion) p.equippedCompanion = "aube";
+  return p;
+}
+
+function getPlayerProfile() {
+  return normalizeProfile(loadProfile());
+}
+
+function savePlayerProfile(p) {
+  saveProfile(normalizeProfile(p));
+}
+
+// ---- ORBS ----
+function getOrbs() {
+  return getPlayerProfile().orbs;
+}
+
+function getOrbCount(type) {
+  const o = getOrbs();
+  if (type) return Number(o[type] || 0);
+  return Number(o.water || 0) + Number(o.fire || 0) + Number(o.light || 0) + Number(o.nature || 0);
+}
+
+function addOrb(type, amount = 1) {
+  const p = getPlayerProfile();
+  if (!p.orbs[type]) p.orbs[type] = 0;
+  p.orbs[type] += amount;
+  savePlayerProfile(p);
+  updateOrbHUD();
+}
+
+function consumeOrb(type, amount = 1) {
+    const p = getPlayerProfile();
+    if (!p.orbs) p.orbs = {};
+
+    if (!p.orbs[type] || p.orbs[type] < amount) {
+        return false;
+    }
+
+    p.orbs[type] -= amount;
+
+    savePlayerProfile(p);
+    
+    return true;
+}
+
+
+function updateOrbHUD() {
+    const orbs = getPlayerProfile().orbs;
+
+    const aqua   = document.getElementById("orbAqua");
+    const ignis  = document.getElementById("orbIgnis");
+    const astral = document.getElementById("orbAstral");
+    const flora  = document.getElementById("orbFlora");
+    const voidOrb= document.getElementById("orbVoid");
+
+    if (aqua)   aqua.textContent   = "x" + (orbs.water  || 0);
+    if (ignis)  ignis.textContent  = "x" + (orbs.fire   || 0);
+    if (astral) astral.textContent = "x" + (orbs.light  || 0);
+    if (flora)  flora.textContent  = "x" + (orbs.nature || 0);
+    if (voidOrb)voidOrb.textContent= "x" + (orbs.void   || 0);
+}
+
+
+
+
+
+/* ========================
+   FORMAT TEMPS
+======================== */
+function formatTime(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+
+  return `${h}h ${m}m`;
+}
+
+
+/* ========================
+   RENDER UI
+======================== */
+function renderProfile(profile) {
+
+    if (!profile) return; // 🛡 sécurité 1
+
+    const set = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    };
+
+    set("playerName", profile.pseudo);
+    set("playerTitle", profile.titre);
+    set("mascotXP", profile.xp);
+    set("diamonds", profile.diamants);
+    set("playTime", formatTime(profile.temps));
+    set("collectionPct", profile.collection + "%");
+
+    const img = document.getElementById("equippedMascot");
+    if (img) {
+        const mascotId = profile.equippedCompanion || profile.mascotte || "aube";
+        img.src = `../shop/categories/companions/${mascotId}/${mascotId}_idle.png`;
+    }
+
+    // Update level and progress bar
+    const xp = Number(localStorage.getItem("breakerXP")) || 0;
+    const level = Math.floor(xp / 1000) + 1;
+    const progressPercent = (xp % 1000) / 10; // 0-100%
+
+    set("playerLevel", level);
+    set("progressText", `${xp % 1000} / 1000`);
+
+    const progressFill = document.getElementById("progressFill");
+    if (progressFill) {
+        progressFill.style.width = progressPercent + "%";
+    }
+}
+
+
+
+
+/* ========================
+   API simple pour ton jeu
+======================== */
+
+function addXP(amount) {
+  player.xp += amount;
+  saveProfile(player);
+  renderProfile(player);
+}
+
+function addDiamants(amount) {
+  player.diamants += amount;
+  saveProfile(player);
+  renderProfile(player);
+}
+
+function addPlayTime(seconds) {
+  player.temps += seconds;
+  saveProfile(player);
+}
+
+function setMascotte(name) {
+  player.mascotte = name;
+  saveProfile(player);
+  renderProfile(player);
+}
+
+
+
+
+
+/* ========================
+   INIT AUTO
+======================== */
+
+const player = loadProfile();
+
+window.addEventListener("DOMContentLoaded", () => {
+  renderProfile(player);
+
+  loadPseudo();
+
+});
+
+
+/* ========================
+   Export global (facile)
+======================== */
+
+window.Profile = {
+  player,
+  saveProfile,
+  addXP,
+  addDiamants,
+  addPlayTime,
+  setMascotte,
+  getOrbes
+};
+
+
+
+
+
+
+
+

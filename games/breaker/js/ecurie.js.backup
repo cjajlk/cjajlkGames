@@ -1,0 +1,487 @@
+// ===== Canvas principal =====
+const canvasEl = document.getElementById("ecurieCanvas");
+if (!canvasEl) throw new Error("ecurieCanvas introuvable");
+
+const ctx = canvasEl.getContext("2d");
+
+
+function resize(){
+    canvasEl.width = window.innerWidth;
+    canvasEl.height = window.innerHeight;
+}
+
+window.addEventListener("resize", resize);
+resize();
+
+// Device detection for optimizations
+function isMobileOrTablet() {
+  return window.innerWidth < 768;
+}
+
+
+
+const companions = [
+  { id:"aube",   name:"Aube",   unlocked:true,  level:1, orbs:0 },
+  { id:"blue",   name:"Blue",   unlocked:false, level:0, orbs:0 },
+  { id:"fire",   name:"Fire",   unlocked:false, level:0, orbs:0 },
+  { id:"light",  name:"Light",  unlocked:false, level:0, orbs:0 },
+  { id:"nature", name:"Nature", unlocked:false, level:0, orbs:0 }
+];
+
+companions.forEach(c=>{
+  const img = new Image();
+  if (c.id === "aube") {
+    img.src = `../assets/companions/${c.id}/${c.id}_idle.png`;
+  } else {
+    img.src = `../assets/mascottes/${c.id}.png`;
+  }
+  c.img = img;
+});
+
+// Ensure Aube is first and equipped by default
+companions.sort((a, b) => {
+  if (a.id === "aube") return -1;
+  if (b.id === "aube") return 1;
+  return 0;
+});
+
+
+
+
+
+
+
+
+let floatTime = 0;
+let selectedIndex = 0;
+let selectedCompanion = companions[0];
+
+/* ===== Etat vidéo nourrir ===== */
+let playingFeed = false;
+let feedVideo = null;
+let loopId = null; // Track animation loop ID
+
+
+
+
+let equipTransition = 0;
+
+function showFeedMessage(text) {
+   const msg = document.createElement("div");
+    msg.textContent = text;
+
+    msg.style.position = "fixed";
+    msg.style.background = "rgba(10,20,40,0.95)";
+    msg.style.color = "#8fd3ff";
+    msg.style.padding = "12px 18px";
+    msg.style.borderRadius = "16px";
+    msg.style.border = "1px solid #4ecbff";
+    msg.style.boxShadow = "0 0 20px rgba(78,203,255,0.4)";
+    msg.style.fontSize = "14px";
+    msg.style.zIndex = "10001";
+    msg.style.maxWidth = "260px";
+    msg.style.textAlign = "center";
+
+    document.body.appendChild(msg);
+
+    // 👉 Position à côté de la mascotte
+    const canvas = document.getElementById("ecurieCanvas");
+    const rect = canvas.getBoundingClientRect();
+
+    msg.style.left = rect.left + rect.width * 0.60 + "px";
+    msg.style.top  = rect.top  + rect.height * 0.40 + "px";
+    msg.style.animation = "pulseGlow 2s infinite alternate";
+
+
+   setTimeout(() => {
+    msg.style.opacity = "1";
+    msg.style.transform = "translateY(0)";
+    }, 10);
+
+}
+
+
+function getOrbCount(type) {
+    if (typeof getPlayerProfile !== "function") return 0;
+
+    const p = getPlayerProfile();
+    const o = p.orbs || {};
+
+    if (type) return o[type] || 0;
+
+    return (o.water || 0)
+         + (o.fire || 0)
+         + (o.light || 0)
+         + (o.nature || 0)
+         + (o.void || 0);
+}
+
+
+
+
+
+
+function feed() {
+
+  const pStart = getPlayerProfile();
+
+  if (!pStart || !selectedCompanion) return;
+
+  // Associe chaque mascotte à son orbe
+const companionOrbMap = {
+  aube: "water",
+  blue: "water",
+  fire: "fire",
+  light: "light",
+  nature: "nature"
+};
+
+const chosen = companionOrbMap[selectedCompanion.id];
+
+if (!chosen) return;
+
+if ((pStart.orbs?.[chosen] || 0) <= 0) {
+    showFeedMessage("✨ L’énergie s’est dissipée… Va capturer des orbes dans la nuit.");
+   
+
+    return;
+}
+
+
+
+  // consomme 1 orbe
+  if (!consumeOrb(chosen, 1)) return;
+
+  // recharge le profil APRÈS consommation
+  const p = getPlayerProfile();
+
+
+// === LEVEL UP ===
+
+const id = selectedCompanion.id;
+
+if (!p.companions) p.companions = {};
+if (!p.companions[id]) p.companions[id] = { level: 1, xp: 0 };
+
+p.companions[id].xp += 10;
+
+if (p.companions[id].xp >= 100) {
+    p.companions[id].xp = 0;
+    p.companions[id].level += 1;
+}
+
+savePlayerProfile(p);
+updateOrbHUD();
+
+// Update the companion's level in the local array for immediate UI update
+selectedCompanion.level = p.companions[id].level;
+
+console.log(`Nourri avec ${chosen} → ${id} Lv ${p.companions[id].level}`);
+
+
+  // === VIDEO ===
+  if (!feedVideo) {
+    feedVideo = document.createElement("video");
+    feedVideo.src = `../assets/video/${selectedCompanion.id}.mp4`;
+    feedVideo.muted = true;
+    feedVideo.playsInline = true;
+    feedVideo.preload = "auto";
+
+    feedVideo.classList.add("videoOverlay"); // Use CSS class for styling
+
+    document.body.appendChild(feedVideo);
+
+    feedVideo.onended = () => {
+      playingFeed = false;
+      feedVideo.remove();
+      feedVideo = null;
+
+      // Resume the animation loop after video ends
+      if (!loopId) {
+        loop();
+      }
+
+      const flash = document.createElement("div");
+      flash.style.position = "fixed";
+      flash.style.inset = "0";
+      flash.style.background = "white";
+      flash.style.opacity = "0.6";
+      flash.style.zIndex = "10000";
+      flash.style.transition = "opacity 0.4s ease";
+
+      document.body.appendChild(flash);
+
+      setTimeout(() => {
+        flash.style.opacity = "0";
+        setTimeout(() => flash.remove(), 400);
+      }, 100);
+    };
+  }
+
+  feedVideo.currentTime = 0;
+  feedVideo.play();
+  playingFeed = true;
+
+  
+  
+
+  
+}
+
+
+
+function drawCenter(){
+
+  if(!selectedCompanion?.img) return;
+
+  const cx = canvasEl.width * 0.5;
+  const cy = canvasEl.height * 0.45;
+  const floatY = Math.sin(floatTime) * 8;
+
+  let scale = 1;
+
+  if(equipTransition > 0){
+    equipTransition -= 0.05;
+    scale = 1 + equipTransition * 0.4;
+  }
+
+  ctx.save();
+  // Responsive size: smaller on mobile to gain space
+  let baseSize = 400;
+  if (canvasEl.width < 768) {
+    baseSize = 300; // Reduce on mobile
+  } else if (canvasEl.width < 1024) {
+    baseSize = 350; // Slightly reduce on tablet
+  }
+  const size = baseSize * scale;
+
+if (playingFeed && feedVideo) {
+
+    ctx.save();
+
+    
+
+    // vidéo plein écran
+    ctx.drawImage(
+        feedVideo,
+        0,
+        0,
+        canvasEl.width,
+        canvasEl.height
+    );
+
+    ctx.restore();
+
+    return; // important : on ne dessine rien d’autre
+}
+ else {
+    ctx.drawImage(selectedCompanion.img, cx - size/2, cy - size/2, size, size);
+}
+
+
+  ctx.restore();
+}
+
+function drawSlot(x,y,size,locked,selected,img){
+
+  ctx.globalAlpha = locked ? 0.25 : 1;
+
+  if(locked){
+    ctx.fillStyle="#8fd3ff";
+    ctx.font="18px sans-serif";
+    ctx.textAlign="center";
+    ctx.fillText("🔒",x,y+6);
+  } else if(img && img.complete){
+    const padding = 10;
+    ctx.drawImage(img, x - size/2 + padding, y - size/2 + padding, size - 2*padding, size - 2*padding);
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+function drawGrid(){
+
+  const count = companions.length;
+  const spacing = canvasEl.width/(count+1);
+  const y = canvasEl.height * 0.82;
+  const size = canvasEl.width < 768 ? 140 : canvasEl.width < 1024 ? 120 : 100; // Responsive size: mobile larger for touch, PC smaller
+
+  companions.forEach((c,i)=>{
+    const x = spacing*(i+1);
+
+    drawSlot(
+      x,
+      y,
+      size,
+      !c.unlocked,
+      i===selectedIndex,
+      c.img
+    );
+  });
+}
+
+function drawInfoPanel(){
+
+  // Responsive dimensions and position
+  let w, h, x, y, fontSize, btnGap, btnW, btnH;
+
+  if (canvasEl.width < 768) { // Mobile
+    w = 220;
+    h = 140;
+    x = Math.max(20, canvasEl.width - w - 20); // Ensure not off-screen
+    y = 40;
+    fontSize = "14px";
+    btnGap = 100;
+    btnW = 80;
+    btnH = 25;
+  } else if (canvasEl.width < 1024) { // Tablet
+    w = 240;
+    h = 150;
+    x = canvasEl.width - w - 30;
+    y = 50;
+    fontSize = "16px";
+    btnGap = 120;
+    btnW = 90;
+    btnH = 28;
+  } else { // PC
+    w = 260;
+    h = 170;
+    x = canvasEl.width - w - 40;
+    y = 60;
+    fontSize = "18px";
+    btnGap = 140;
+    btnW = 100;
+    btnH = 30;
+  }
+
+  ctx.strokeStyle="#8fd3ff";
+  ctx.lineWidth=2;
+
+  ctx.beginPath();
+  ctx.roundRect(x,y,w,h,20);
+  ctx.stroke();
+
+  ctx.fillStyle="#ffffff";
+  ctx.font= fontSize + " sans-serif";
+  ctx.textAlign="left";
+
+  ctx.fillText(selectedCompanion.name, x+20, y+40);
+  ctx.fillText("Niveau : Lv " + selectedCompanion.level, x+20, y+70);
+
+  drawButton(x+20 + btnGap*0, y+120, "Equiper", () => equip(), btnW, btnH);
+  drawButton(x+20 + btnGap*1, y+120, "Manger",  () => feed(), btnW, btnH);
+
+
+
+}
+ 
+function checkSlotClick(mx,my){
+
+  const count=companions.length;
+  const spacing=canvasEl.width/(count+1);
+  const y=canvasEl.height*0.82;
+  const size = canvasEl.width < 768 ? 140 : canvasEl.width < 1024 ? 120 : 100; // Match responsive size from drawGrid
+
+  for(let i=0;i<count;i++){
+
+    const x=spacing*(i+1);
+    const half=size/2;
+
+    if(mx>x-half && mx<x+half && my>y-half && my<y+half){
+      selectCompanion(i);
+    }
+  }
+}
+
+
+let currentButtons=[];
+
+function drawButton(x,y,label,action, w=100, h=30){
+
+  ctx.strokeRect(x,y,w,h);
+
+  ctx.fillStyle="#fff";
+  ctx.fillText(label,x+15,y+20);
+
+  currentButtons.push({x,y,w,h,action});
+}
+
+canvasEl.addEventListener("click", (e) => {
+
+    const rect = canvasEl.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    // boutons HUD
+    for (const b of currentButtons) {
+        if (mx > b.x && mx < b.x + b.w && my > b.y && my < b.y + b.h) {
+            b.action();
+            return;
+        }
+    }
+
+    checkSlotClick(mx, my);
+});
+
+
+
+function selectCompanion(i){
+
+  if(!companions[i].unlocked) return;
+
+  selectedIndex=i;
+  selectedCompanion=companions[i];
+}
+
+function equip(){
+  equipTransition=1;
+  console.log("Équipé :",selectedCompanion.id);
+
+  // Save equipped companion to profile
+  const p = getPlayerProfile();
+  p.equippedCompanion = selectedCompanion.id;
+  savePlayerProfile(p);
+}
+
+
+
+
+
+function loop(){
+
+  currentButtons=[];
+
+  ctx.clearRect(0,0,canvasEl.width,canvasEl.height);
+
+
+  drawCenter();
+  drawGrid();
+  drawInfoPanel();
+  floatTime += 0.03;
+
+  loopId = requestAnimationFrame(loop);
+}
+
+// ========================
+// INIT ÉCURIE
+// ========================
+
+document.addEventListener("DOMContentLoaded", () => {
+    const profile = getPlayerProfile(); // recharge proprement
+    updateOrbHUD();                     // met à jour le HUD
+
+    // Sync companion levels and unlocked status with profile
+    companions.forEach(c => {
+        if (profile.companions && profile.companions[c.id]) {
+            c.level = profile.companions[c.id].level;
+        }
+        c.unlocked = profile.unlockedCompanions && profile.unlockedCompanions.includes(c.id);
+    });
+});
+
+
+
+
+loop();
+
+
