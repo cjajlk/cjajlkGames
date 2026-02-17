@@ -12,6 +12,8 @@ html, body {
   font-family: 'Poppins', 'Segoe UI', sans-serif;
   scroll-behavior: smooth;
   overflow-x: hidden;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 body {
@@ -933,7 +935,7 @@ footer {
 
 /* ==== HERO DESCRIPTION NARRATIVE ==== */
 .hero-description {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   color: #d6cfff;
   max-width: 700px;
   margin: 0 auto;
@@ -973,17 +975,19 @@ footer {
   padding-top: 12px;
   border-top: 1px solid rgba(184, 247, 201, 0.2);
   color: #b8f7c9 !important;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
+  line-height: 1.6;
 }
 
 /* ==== SMALL TEXT IN STEPS ==== */
 .small-text {
   display: block;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #a8b8ff;
   margin-top: 8px;
   font-weight: 400;
+  line-height: 1.6;
 }
 
 /* ==== DEBUG MODE ONLY ==== */
@@ -1048,9 +1052,12 @@ body.debug-mode .debug-only {
 }
 
 .section-subtitle {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #cfcaff;
   margin: 0;
+  line-height: 1.6;
+}
+  line-height: 1.6;
 }
 
 .games-grid {
@@ -1121,8 +1128,8 @@ body.debug-mode .debug-only {
 .game-card-info p {
   color: #cfcaff;
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 1.05rem;
+  line-height: 1.7;
 }
 
 .game-cta-large {
@@ -1181,17 +1188,18 @@ body.debug-mode .debug-only {
 }
 
 .step-modern h3 {
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   color: #d9c9ff;
   margin: 0;
   font-weight: 700;
+  line-height: 1.6;
 }
 
 .step-modern p {
   color: #cfcaff;
   margin: 0;
-  line-height: 1.6;
-  font-size: 1rem;
+  line-height: 1.7;
+  font-size: 1.05rem;
 }
 
 /* ==== ANIMATIONS ==== */
@@ -1398,7 +1406,8 @@ body.debug-mode .debug-only {
 /* === OPTIMISATION MOBILE SUPPLMENTAIRE === */
 @media (max-width: 768px) {
   html, body {
-    font-size: 14px;
+    font-size: 15px;
+    line-height: 1.6;
   }
 
   .banner-content h1 {
@@ -1412,6 +1421,32 @@ body.debug-mode .debug-only {
 
   section {
     padding: 40px 5%;
+  }
+
+  /* Amélioration lisibilité sections */
+  .section-header h2 {
+    font-size: 2rem;
+  }
+
+  .section-subtitle {
+    font-size: 1.15rem;
+  }
+
+  .game-card-info h3 {
+    font-size: 1.4rem;
+  }
+
+  .game-card-info p {
+    font-size: 1.02rem;
+    line-height: 1.7;
+  }
+
+  .step-modern h3 {
+    font-size: 1.3rem;
+  }
+
+  .step-modern p {
+    font-size: 1.02rem;
   }
 
   .game-card {
@@ -1479,6 +1514,76 @@ body.debug-mode .debug-only {
   .support-section h2,
   .section-calme h2 {
     font-size: 1.6rem;
+  }
+
+  /* Mobile lisibilité améliorée */
+  body {
+    font-size: 16px;
+  }
+
+  .section-header h2 {
+    font-size: 1.8rem;
+    margin: 0 0 10px 0;
+  }
+
+  .section-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .games-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    padding: 0 15px;
+  }
+
+  .game-card-info h3 {
+    font-size: 1.3rem;
+    margin: 10px 0;
+  }
+
+  .game-card-info p {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .game-ecosystem {
+    font-size: 0.92rem;
+  }
+
+  .how-it-works {
+    padding: 60px 15px;
+  }
+
+  .how-it-works h2 {
+    font-size: 1.8rem;
+    margin-bottom: 40px;
+  }
+
+  .steps-modern {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    padding: 0 15px;
+  }
+
+  .step-modern {
+    padding: 30px 20px;
+  }
+
+  .step-modern h3 {
+    font-size: 1.2rem;
+  }
+
+  .step-modern p {
+    font-size: 1rem;
+  }
+
+  .small-text {
+    font-size: 0.9rem;
+  }
+
+  .hero-description {
+    font-size: 1.1rem;
+    padding: 0 15px;
   }
 }
 .evenement-image {
