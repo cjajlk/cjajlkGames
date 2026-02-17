@@ -733,6 +733,234 @@ footer {
   color: #cbb8ff;
   text-shadow: 0 0 6px rgba(180,100,255,0.3);
 }
+
+/* ==== HEADER SIMPLE ==== */
+.simple-header {
+  background: linear-gradient(135deg, rgba(50, 30, 100, 0.8), rgba(30, 50, 100, 0.8));
+  border-bottom: 2px solid rgba(180, 140, 255, 0.3);
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.simple-header h1 {
+  font-size: 1.8rem;
+  color: #d9c9ff;
+  margin: 0;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #d9c9ff, #9fc8ff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+#cj-display-header {
+  font-size: 1.1rem;
+  color: #b8f7c9;
+  margin: 0;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(184, 247, 201, 0.3);
+}
+
+/* ==== WELCOME BLOCK ==== */
+.welcome-block {
+  background: linear-gradient(180deg, rgba(60, 35, 130, 0.5), rgba(40, 50, 120, 0.5));
+  padding: 80px 30px;
+  text-align: center;
+}
+
+.welcome-container {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.welcome-block h2 {
+  font-size: 2.5rem;
+  margin: 0;
+  color: #f7f4ff;
+  text-shadow: 0 0 15px #b197ff;
+}
+
+.welcome-tagline {
+  font-size: 1.3rem;
+  color: #d6cfff;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Bouton principal */
+.btn-primary {
+  display: inline-block;
+  background: linear-gradient(135deg, #7c5cff, #b197ff);
+  color: #fff;
+  padding: 18px 50px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-radius: 30px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 30px rgba(130, 90, 255, 0.5);
+  border: 2px solid transparent;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 50px rgba(130, 90, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Trust message */
+.trust-message {
+  background: rgba(90, 200, 150, 0.15);
+  border: 1px solid rgba(90, 200, 150, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  color: #b8f7c9;
+  font-size: 1rem;
+}
+
+.trust-message p {
+  margin: 8px 0;
+}
+
+.trust-message strong {
+  color: #f0f7f0;
+  font-weight: 700;
+}
+
+/* ==== FLOW SECTION ==== */
+.flow-section {
+  padding: 60px 30px;
+  background: rgba(30, 40, 80, 0.3);
+  text-align: center;
+}
+
+.flow-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.flow-section h2 {
+  margin-bottom: 50px;
+  font-size: 1.8rem;
+}
+
+.flow-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.flow-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #7c5cff, #b197ff);
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(130, 90, 255, 0.5);
+}
+
+.flow-step p {
+  font-size: 1rem;
+  color: #d9c9ff;
+  margin: 0;
+  font-weight: 600;
+}
+
+.flow-arrow {
+  font-size: 1.8rem;
+  color: #b197ff;
+  opacity: 0.6;
+}
+
+/* ==== VERSION MOBILE ==== */
+@media (max-width: 768px) {
+  .simple-header {
+    padding: 15px 20px;
+  }
+
+  .simple-header h1 {
+    font-size: 1.4rem;
+  }
+
+  #cj-display-header {
+    font-size: 0.95rem;
+  }
+
+  .welcome-block {
+    padding: 50px 20px;
+  }
+
+  .welcome-block h2 {
+    font-size: 1.8rem;
+  }
+
+  .welcome-tagline {
+    font-size: 1.1rem;
+  }
+
+  .btn-primary {
+    padding: 15px 40px;
+    font-size: 1.1rem;
+  }
+
+  .flow-steps {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .flow-arrow {
+    display: none;
+  }
+
+  .flow-circle {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+
+  .flow-step p {
+    font-size: 0.95rem;
+  }
+}
+
 /* === OPTIMISATION MOBILE SUPPLMENTAIRE === */
 @media (max-width: 768px) {
   html, body {

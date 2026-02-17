@@ -12,7 +12,7 @@ window.addEventListener('load', () => {
 
 /* === Mettre à jour l'affichage du solde CJ === */
 function updateCJDisplay() {
-  const balanceEl = document.getElementById('cj-display-top');
+  const balanceEl = document.getElementById('cj-display-header');
   if (!balanceEl) return;
 
   try {
