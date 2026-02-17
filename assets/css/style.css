@@ -884,7 +884,8 @@ footer {
   font-weight: 700;
 }
 
-.btn-hero {
+/* Effet glow/breathing sur le bouton HERO */
+.btn-hero, .hero-cta-glow {
   display: inline-block;
   background: linear-gradient(135deg, #7c5cff, #b197ff);
   color: #fff;
@@ -893,12 +894,18 @@ footer {
   font-weight: 700;
   border-radius: 35px;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
   box-shadow: 0 0 40px rgba(130, 90, 255, 0.6);
   border: 2px solid transparent;
   letter-spacing: 0.5px;
   align-self: center;
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: hero-breath 2.8s ease-in-out infinite;
+}
+
+@keyframes hero-breath {
+  0% { transform: scale(1); box-shadow: 0 0 40px 10px #b197ff44; }
+  50% { transform: scale(1.04); box-shadow: 0 0 60px 18px #b197ff88; }
+  100% { transform: scale(1); box-shadow: 0 0 40px 10px #b197ff44; }
 }
 
 .btn-hero:hover {
@@ -1071,8 +1078,13 @@ body.debug-mode .debug-only {
 .game-card-large {
   text-decoration: none;
   color: inherit;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadein-section 0.6s cubic-bezier(.4,0,.2,1) forwards;
 }
+.games-grid .game-card-large:nth-child(1) { animation-delay: 0.1s; }
+.games-grid .game-card-large:nth-child(2) { animation-delay: 0.2s; }
 
 .game-card-content {
   background: rgba(50, 30, 100, 0.6);
@@ -1084,8 +1096,8 @@ body.debug-mode .debug-only {
 
 .game-card-large:hover .game-card-content {
   border-color: rgba(180, 140, 255, 0.7);
-  box-shadow: 0 0 30px rgba(130, 90, 255, 0.4);
-  transform: translateY(-8px);
+  box-shadow: 0 8px 30px rgba(130, 90, 255, 0.4);
+  transform: translateY(-10px) scale(1.03);
 }
 
 .game-card-content img {
@@ -1639,23 +1651,51 @@ body.debug-mode .debug-only {
   text-align: center;
 }
 @media (max-width: 768px) {
-
-  .jeu-evenement h2 {
-    font-size: 1.4rem;
+  .game-card-content img {
+    height: 180px;
   }
-
-  .pack-title {
-    font-size: 1.3rem;
+  .game-card-info {
+    padding: 18px 10px;
   }
-
-  .jeu-evenement p {
-    font-size: 0.95rem;
-    line-height: 1.5;
+  .game-card-large {
+    font-size: 0.98em;
+    min-width: 0;
+    max-width: 98vw;
+    border-radius: 14px;
   }
+  .games-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .btn-hero, .hero-cta-glow {
+    font-size: 1.15rem;
+    padding: 16px 0;
+    width: 90vw;
+    max-width: 400px;
+  }
+}
+/* Apparition fade-in des sections au scroll */
+.fadein-section {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadein-section 0.7s cubic-bezier(.4,0,.2,1) forwards;
+}
 
-  .evenement-image {
-    max-width: 100%;
-    border-radius: 12px;
+@keyframes fadein-section {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+section.fadein-section {
+  will-change: opacity, transform;
+}
+
+/* Micro animation fade-in sur mobile pour les cartes jeux */
+@media (max-width: 600px) {
+  .game-card-large {
+    animation: fadein-section 0.7s cubic-bezier(.4,0,.2,1) forwards;
   }
 }
 .jeu-visuel {
@@ -2277,23 +2317,27 @@ body.debug-mode .debug-only {
   background: linear-gradient(135deg, rgba(40, 20, 70, 0.4), rgba(30, 15, 60, 0.6));
   border: 1px solid rgba(150, 110, 230, 0.3);
   border-radius: 20px;
-  padding: 60px 10%;
-  margin: 50px auto;
+  padding: 40px 5%;
+  margin: 40px auto;
   max-width: 1000px;
   box-shadow: 0 0 20px rgba(120, 80, 200, 0.25);
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadein-section 0.7s cubic-bezier(.4,0,.2,1) forwards;
+  animation-delay: 0.3s;
 }
 
 /* Orbe violette animée en décor */
 .cj-orb {
   position: absolute;
-  top: -50px;
+  top: -40px;
   right: 10%;
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle, rgba(150, 100, 255, 0.4), rgba(100, 60, 200, 0.1));
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(circle, rgba(150, 100, 255, 0.5), rgba(100, 60, 200, 0.1));
   border-radius: 50%;
-  filter: blur(30px);
+  filter: blur(24px);
   animation: floatOrb 6s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
@@ -2353,8 +2397,8 @@ body.debug-mode .debug-only {
   list-style: none;
   text-align: left;
   color: #ddd7ff;
-  font-size: 1rem;
-  line-height: 2;
+  font-size: 1.13rem;
+  line-height: 2.1;
 }
 
 .cj-list li {
@@ -2502,17 +2546,17 @@ body.debug-mode .debug-only {
 /* Nœuds (jeux) */
 .cj-node {
   position: relative;
-  padding: 18px 28px;
+  padding: 22px 32px;
   background: rgba(30, 20, 60, 0.6);
-  border: 1px solid rgba(160, 120, 255, 0.3);
-  border-radius: 12px;
+  border: 1.5px solid rgba(160, 120, 255, 0.3);
+  border-radius: 14px;
   color: #ddd7ff;
-  font-size: 0.95rem;
+  font-size: 1.13rem;
   font-weight: 500;
   text-align: center;
   min-width: 140px;
-  box-shadow: 0 0 12px rgba(120, 80, 200, 0.2);
-  transition: all 0.3s ease;
+  box-shadow: 0 0 16px rgba(120, 80, 200, 0.22);
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
 }
 
 .cj-node:hover {
