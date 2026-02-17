@@ -1631,8 +1631,8 @@ canvas.addEventListener("touchmove", e => {
 });
 
 document.addEventListener("keydown", e => {
-    if (e.code === "ArrowLeft") paddle.speed = -7;
-    if (e.code === "ArrowRight") paddle.speed = 7;
+    if (e.code === "ArrowLeft" || e.key.toLowerCase() === "q") paddle.speed = -7;
+    if (e.code === "ArrowRight" || e.key.toLowerCase() === "d") paddle.speed = 7;
     if (e.code === "Space") launchBall();
 });
 
