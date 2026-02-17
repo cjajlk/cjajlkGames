@@ -26,53 +26,105 @@
   <header class="simple-header">
     <div class="header-content">
       <h1>CJajlkGames</h1>
-      <p id="cj-display-header">💎 CJ : 0</p>
+      <div class="cj-info">
+        <span id="cj-display-header" class="cj-display" title="Les CJ sont gagnés en jouant">💎 CJ : 0</span>
+      </div>
     </div>
   </header>
 
   <main id="main">
 
-  <!-- ==== BLOC ACCUEIL ULTRA SIMPLE ==== -->
-  <section class="welcome-block">
-    <div class="welcome-container">
-      <h2>🎮 Bienvenue dans CJajlkGames</h2>
-      <p class="welcome-tagline">Joue à nos jeux, gagne des CJ, débloque des récompenses.</p>
+  <!-- ==== HERO SECTION IMMERSIVE ==== -->
+  <section class="hero-section">
+    <div class="hero-background">
+      <div class="hero-glow"></div>
+      <div class="hero-particles"></div>
+    </div>
+    
+    <div class="hero-content">
+      <h2 class="hero-title">🎮 Bienvenue dans CJajlkGames</h2>
+      <p class="hero-subtitle">Joue. Gagne des CJ. Débloque des récompenses.<br><span class="highlight">Tout est connecté.</span></p>
       
-      <a href="games/attrape/" class="btn-primary">👉 Commencer à jouer</a>
+      <a href="games/attrape/" class="btn-hero">👉 Commencer à jouer</a>
       
-      <div class="trust-message">
-        <p><strong>✓ Aucun compte à créer</strong></p>
-        <p>Votre progression est sauvegardée automatiquement.</p>
+      <div class="hero-benefits">
+        <div class="benefit-item">
+          <span class="benefit-check">✔</span>
+          <span>Sauvegarde automatique</span>
+        </div>
+        <div class="benefit-item">
+          <span class="benefit-check">✔</span>
+          <span>Aucun compte à créer</span>
+        </div>
+        <div class="benefit-item">
+          <span class="benefit-check">✔</span>
+          <span>Progression partagée</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ==== FLUX JOUEUR MINIMALISTE ==== -->
-  <section class="flow-section">
-    <div class="flow-container">
-      <h2>Le flux en 3 étapes</h2>
-      <div class="flow-steps">
-        <div class="flow-step">
-          <span class="flow-circle">1</span>
-          <p><strong>Joue</strong></p>
+  <!-- ==== SECTION : NOS JEUX (REMONTEE) ==== -->
+  <section class="games-showcase">
+    <div class="section-header">
+      <h2>Nos jeux</h2>
+      <p class="section-subtitle">Joue et gagne des CJ</p>
+    </div>
+
+    <div class="games-grid">
+      <!-- Attrape-les-tous -->
+      <a href="games/attrape/" class="game-card-large">
+        <div class="game-card-content">
+          <img src="assets/images/banner-attrape.png" alt="Attrape-les-tous" />
+          <div class="game-card-info">
+            <h3>🎯 Attrape-les-tous</h3>
+            <p>Capture les orbes mystiques et développe ta collection.</p>
+            <span class="game-cta-large">[ Jouer ]</span>
+          </div>
         </div>
-        <span class="flow-arrow">→</span>
-        <div class="flow-step">
-          <span class="flow-circle">2</span>
-          <p><strong>Gagne des CJ</strong></p>
+      </a>
+
+      <!-- Breaker Nocturne -->
+      <a href="games/breaker/" class="game-card-large">
+        <div class="game-card-content">
+          <img src="assets/images/banner-breaker.png" alt="Breaker Nocturne" />
+          <div class="game-card-info">
+            <h3>🔥 Breaker Nocturne</h3>
+            <p>Détruis les briques et maîtrise la puissance des compagnons.</p>
+            <span class="game-cta-large">[ Jouer ]</span>
+          </div>
         </div>
-        <span class="flow-arrow">→</span>
-        <div class="flow-step">
-          <span class="flow-circle">3</span>
-          <p><strong>Débloque</strong></p>
-        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ==== SECTION : COMMENT CA MARCHE ==== -->
+  <section class="how-it-works">
+    <h2>Le flux en 3 étapes</h2>
+    
+    <div class="steps-modern">
+      <div class="step-modern">
+        <div class="step-icon">1️⃣</div>
+        <h3>Joue</h3>
+        <p>Entre dans un jeu et progresse.</p>
+      </div>
+      
+      <div class="step-modern">
+        <div class="step-icon">2️⃣</div>
+        <h3>Gagne des CJ</h3>
+        <p>+1 CJ toutes les 10 minutes actives.</p>
+      </div>
+      
+      <div class="step-modern">
+        <div class="step-icon">3️⃣</div>
+        <h3>Débloque</h3>
+        <p>Utilise-les dans la Boutique CJ.</p>
       </div>
     </div>
   </section>
 
   <!-- ==== SECTION 2 : JEUX ==== -->
   <section id="jeux" class="games-section">
-    <h2>Nos jeux</h2>
 
     <section class="news-section" aria-labelledby="news-title">
       <h3 id="news-title">Actualités nocturnes</h3>
