@@ -2110,6 +2110,182 @@ footer {
   opacity: 0.7;
 }
 
+/* === BOUTIQUE BADGES - PHASE 1 === */
+
+.catalog-subtitle {
+  text-align: center;
+  color: #a897ff;
+  font-size: 0.95rem;
+  margin: -20px 0 30px;
+  opacity: 0.9;
+}
+
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.shop-item {
+  background: linear-gradient(135deg, rgba(50, 30, 100, 0.4), rgba(40, 20, 70, 0.6));
+  border: 1px solid rgba(160, 120, 255, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  gap: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(120, 80, 200, 0.2);
+}
+
+.shop-item:hover {
+  border-color: rgba(180, 140, 255, 0.5);
+  box-shadow: 0 0 25px rgba(140, 100, 220, 0.3);
+  transform: translateY(-2px);
+}
+
+.shop-item.purchased {
+  opacity: 0.7;
+  background: linear-gradient(135deg, rgba(30, 50, 30, 0.4), rgba(20, 40, 20, 0.6));
+  border-color: rgba(100, 200, 120, 0.3);
+}
+
+.shop-item .item-icon {
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  height: 60px;
+  background: rgba(160, 120, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(160, 120, 255, 0.2);
+}
+
+.shop-item .item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shop-item .item-name {
+  color: #d9c9ff;
+  font-size: 1.05rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.shop-item .item-description {
+  color: #ddd7ff;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin: 0;
+  opacity: 0.85;
+}
+
+.shop-item .item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  gap: 10px;
+}
+
+.shop-item .item-price {
+  color: #b8a5ff;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.btn-buy,
+.btn-purchased {
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.btn-buy {
+  background: linear-gradient(90deg, rgba(80, 60, 150, 0.5), rgba(100, 70, 180, 0.5));
+  border-color: rgba(160, 120, 255, 0.4);
+  color: #d9c9ff;
+}
+
+.btn-buy:hover:not(.disabled) {
+  background: linear-gradient(90deg, rgba(100, 80, 180, 0.7), rgba(120, 90, 200, 0.7));
+  border-color: rgba(180, 140, 255, 0.6);
+  box-shadow: 0 0 15px rgba(160, 120, 255, 0.3);
+}
+
+.btn-buy.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(60, 40, 100, 0.3);
+}
+
+.btn-purchased {
+  background: rgba(40, 100, 60, 0.3);
+  border-color: rgba(100, 200, 120, 0.4);
+  color: #b0ffb0;
+  cursor: default;
+}
+
+/* Animation glow lors de l'achat */
+@keyframes purchase-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(120, 80, 200, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(180, 140, 255, 0.8), 0 0 60px rgba(180, 140, 255, 0.4); }
+}
+
+.purchase-glow {
+  animation: purchase-glow 0.8s ease-in-out;
+}
+
+/* Messages de notification */
+.shop-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateX(100px);
+  transition: all 0.3s ease;
+}
+
+.shop-message.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.shop-message-success {
+  background: linear-gradient(135deg, rgba(60, 150, 80, 0.9), rgba(40, 130, 60, 0.9));
+  border: 1px solid rgba(100, 200, 120, 0.6);
+  color: #e0ffe0;
+}
+
+.shop-message-error {
+  background: linear-gradient(135deg, rgba(150, 60, 60, 0.9), rgba(130, 40, 40, 0.9));
+  border: 1px solid rgba(200, 100, 100, 0.6);
+  color: #ffe0e0;
+}
+
+.shop-message-info {
+  background: linear-gradient(135deg, rgba(80, 100, 150, 0.9), rgba(60, 80, 130, 0.9));
+  border: 1px solid rgba(120, 150, 200, 0.6);
+  color: #e0e8ff;
+}
+
+
 /* Grille d'items */
 .items-grid {
   display: grid;
@@ -2262,6 +2438,26 @@ footer {
 
   .item-card {
     padding: 20px;
+  }
+
+  .catalog-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .shop-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .shop-item .item-icon {
+    margin: 0 auto;
+  }
+
+  .shop-message {
+    right: 10px;
+    left: 10px;
+    top: 10px;
   }
 }
 

@@ -4,38 +4,35 @@
  */
 
 /**
- * Catalogue d'items (structure évolutive)
+ * Catalogue d'items - Phase 1 : Badges
  */
 const SHOP_ITEMS = [
   {
-    id: "halo_violet",
-    name: "Halo Violet Multivers",
-    description: "Un halo mystique violet, marque de prestige.",
+    id: "badge_explorer",
+    name: "Explorateur Nocturne",
+    description: "Badge cosmétique pour explorateurs de l'univers CJajlk.",
     price: 10,
-    type: "cosmetic",
-    active: true,
-    eventId: null,
-    futureUnlock: false
+    type: "badge",
+    game: "global",
+    icon: "🌙"
   },
   {
-    id: "aura_nocturne",
-    name: "Aura Nocturne",
-    description: "Émet une lueur douce et mystérieuse.",
-    price: 15,
-    type: "cosmetic",
-    active: true,
-    eventId: null,
-    futureUnlock: false
+    id: "badge_fidele",
+    name: "Joueur Fidèle",
+    description: "Badge récompensant votre fidélité à l'écosystème.",
+    price: 25,
+    type: "badge",
+    game: "global",
+    icon: "⭐"
   },
   {
-    id: "orbe_doree",
-    name: "Orbe Dorée",
-    description: "Un trésor brillant de l'univers CJajlk.",
-    price: 20,
-    type: "cosmetic",
-    active: true,
-    eventId: null,
-    futureUnlock: false
+    id: "badge_centre",
+    name: "Compagnon du Centre",
+    description: "Badge exclusif des joueurs du centre CJajlk.",
+    price: 50,
+    type: "badge",
+    game: "global",
+    icon: "🔮"
   }
 ];
 
@@ -64,22 +61,53 @@ function updateShopBalance() {
 }
 
 /**
- * Affiche le catalogue d'items
- * MODE DORMANT : Rendu minimaliste en attente de stabilisation
+ * Affiche le catalogue d'items - Phase 1 : Badges actifs
  */
 function renderShopCatalog() {
-  // Mise à jour du solde uniquement
   updateShopBalance();
+  
+  const catalogContainer = document.getElementById('shop-catalog-items');
+  if (!catalogContainer) return;
+  
+  // Générer le HTML pour chaque badge
+  const itemsHTML = SHOP_ITEMS.map(item => {
+    const isPurchased = window.isItemPurchased ? window.isItemPurchased(item.id) : false;
+    const account = window.loadCJAccount ? window.loadCJAccount() : { cjBalance: 0 };
+    const canAfford = account.cjBalance >= item.price;
+    
+    return `
+      <div class="shop-item ${isPurchased ? 'purchased' : ''}" data-item-id="${item.id}">
+        <div class="item-icon">${item.icon}</div>
+        <div class="item-info">
+          <h3 class="item-name">${item.name}</h3>
+          <p class="item-description">${item.description}</p>
+          <div class="item-footer">
+            <span class="item-price">${item.price} CJ</span>
+            ${isPurchased 
+              ? '<button class="btn-purchased" disabled>✅ Débloqué</button>'
+              : `<button class="btn-buy ${!canAfford ? 'disabled' : ''}" 
+                   onclick="purchaseItem('${item.id}', ${item.price})" 
+                   ${!canAfford ? 'disabled' : ''}>
+                   ${!canAfford ? '🔒 CJ insuffisants' : 'Acheter'}
+                 </button>`
+            }
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  catalogContainer.innerHTML = itemsHTML;
 }
 
 /**
- * Achète un item de la boutique
- * [MODE DORMANT] Fonction en attente de réactivation du catalogue
+ * Achète un item de la boutique - Phase 1 actif
  */
 function purchaseItem(itemId, price) {
   // Vérifier que la fonction existe
   if (typeof window.buyShopItem !== 'function') {
     console.error("buyShopItem n'est pas disponible");
+    showMessage("Erreur système", "error");
     return;
   }
 
@@ -91,21 +119,44 @@ function purchaseItem(itemId, price) {
     updateShopBalance();
     renderShopCatalog();
     
-    // Feedback visuel léger
+    // Feedback visuel avec animation glow
     const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
     if (itemCard) {
-      itemCard.classList.add('purchased-flash');
-      setTimeout(() => itemCard.classList.remove('purchased-flash'), 600);
+      itemCard.classList.add('purchase-glow');
+      setTimeout(() => itemCard.classList.remove('purchase-glow'), 800);
     }
+    
+    showMessage("Badge débloqué !", "success");
   } else {
-    // Afficher un message d'erreur simple
+    // Afficher un message d'erreur
     if (typeof window.loadCJAccount === 'function') {
       const account = window.loadCJAccount();
       if (account.cjBalance < price) {
-        console.warn("CJ insuffisants");
+        showMessage("CJ insuffisants", "error");
+      } else {
+        showMessage("Déjà débloqué", "info");
       }
     }
   }
+}
+
+/**
+ * Affiche un message temporaire
+ */
+function showMessage(text, type = "info") {
+  const existing = document.querySelector('.shop-message');
+  if (existing) existing.remove();
+  
+  const message = document.createElement('div');
+  message.className = `shop-message shop-message-${type}`;
+  message.textContent = text;
+  document.body.appendChild(message);
+  
+  setTimeout(() => message.classList.add('show'), 10);
+  setTimeout(() => {
+    message.classList.remove('show');
+    setTimeout(() => message.remove(), 300);
+  }, 2000);
 }
 
 /**
