@@ -1202,6 +1202,34 @@ body.debug-mode .debug-only {
   font-size: clamp(0.95rem, 2.2vw, 1.1rem);
 }
 
+/* ==== BOUTIQUE CJ CTA ==== */
+.shop-cta {
+  padding: 40px 30px 20px;
+  text-align: center;
+}
+
+.shop-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 44px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(120, 90, 255, 0.85), rgba(90, 160, 255, 0.85));
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 0 28px rgba(130, 90, 255, 0.35);
+  border: 1px solid rgba(200, 180, 255, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.shop-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 36px rgba(130, 90, 255, 0.5);
+}
+
 /* ==== ANIMATIONS ==== */
 @keyframes pulse-glow {
   0%, 100% {
@@ -1581,6 +1609,11 @@ body.debug-mode .debug-only {
   .btn-hero {
     font-size: clamp(1.2rem, 4vw, 1.5rem);
     padding: clamp(18px, 4vw, 24px) clamp(44px, 10vw, 64px);
+  }
+
+  .shop-cta-btn {
+    font-size: clamp(1.15rem, 3.5vw, 1.3rem);
+    padding: clamp(16px, 4vw, 22px) clamp(40px, 9vw, 60px);
   }
 
   .game-card-info {

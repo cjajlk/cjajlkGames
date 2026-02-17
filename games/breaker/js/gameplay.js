@@ -1613,6 +1613,25 @@ window.addEventListener("resize", resizeCanvas);
 canvas.addEventListener("click", launchBall);
 
 const menuBtn = document.getElementById("menuBtn");
+const hubBtn = document.getElementById("hubBtn");
+
+function confirmReturnToHub() {
+    const message = "Quitter le jeu et revenir au centre de l’univers ?";
+    const proceed = () => {
+        // ⏱️ Sauvegarder le temps avant de quitter
+        savePlayTime();
+        window.location.href = "https://cjajlk.github.io/cjajlkGames/";
+    };
+
+    if (window.Popup && typeof window.Popup.confirm === "function") {
+        window.Popup.confirm(message, proceed);
+        return;
+    }
+
+    if (window.confirm(message)) {
+        proceed();
+    }
+}
 
 if (menuBtn) {
     menuBtn.addEventListener("click", () => {
@@ -1620,6 +1639,10 @@ if (menuBtn) {
         savePlayTime();
         window.location.href = "../pages/mainmenu.html";
     });
+}
+
+if (hubBtn) {
+    hubBtn.addEventListener("click", confirmReturnToHub);
 }
 
 // 🌙 MOBILE TOUCH

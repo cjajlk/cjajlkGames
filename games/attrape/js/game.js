@@ -1654,6 +1654,19 @@ function pauseToMenu() {
     console.log("↩ Retour au menu principal depuis pause");
 }
 
+function confirmReturnToHub() {
+    const ok = window.confirm("Quitter le jeu et revenir au centre de l’univers ?");
+    if (!ok) return;
+
+    const overlay = document.getElementById("pauseOverlay");
+    if (overlay) {
+        overlay.classList.remove("visible");
+        overlay.classList.add("hidden");
+    }
+
+    window.location.href = "https://cjajlk.github.io/cjajlkGames/";
+}
+
 // Afficher un indicateur de chargement avant de rafraîchir la page
 function showLoadingScreen() {
     // Créer un div pour l'écran de chargement

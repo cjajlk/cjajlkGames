@@ -23,7 +23,8 @@ const CJEngine = (function () {
         CJ_EARN_MS: 600000,      // ⏱️ 10 minutes = +1 CJ (production)
         DEBUG: false,             // Logs console désactivés par défaut
         ANIMATION_DURATION: 1200,  // Durée popup (ms)
-        MAX_FRAME_DELTA: 200       // 🔒 Protection anti delta hack (ms)
+        MAX_FRAME_DELTA: 200,      // 🔒 Protection anti delta hack (ms)
+        TEST_CJ_POPUP: true        // 🧪 TEMP (2 jours) : notif +1 CJ universel
     };
 
     // Activer debug si window.CJ_DEBUG === true
@@ -39,7 +40,8 @@ const CJEngine = (function () {
         timers: {},          // {gameName: activeMs}
         debugEl: null,
         cjPopupCount: 0,
-        engineActive: false  // 🔒 Protection anti multi-onglet
+        engineActive: false, // 🔒 Protection anti multi-onglet
+        testPopupActive: false
     };
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -167,8 +169,55 @@ const CJEngine = (function () {
             warn(`cjAccount.js non disponible pour ${gameName}`);
         }
 
-        // 🔇 Popup visuel désactivé
-        // showCJPopup(amount);
+        // 🧪 Notification temporaire +1 CJ universel (2 jours)
+        showCJTestNotification();
+    }
+
+    function ensureTestPopupStyles() {
+        if (document.getElementById("cjTestPopupStyles")) return;
+        const style = document.createElement("style");
+        style.id = "cjTestPopupStyles";
+        style.textContent = "\
+.cj-test-popup{\
+position:fixed;\
+right:20px;\
+bottom:90px;\
+z-index:10000;\
+padding:12px 18px;\
+border-radius:12px;\
+background:rgba(25,15,55,0.85);\
+border:1px solid rgba(170,140,255,0.5);\
+color:#f2eaff;\
+font-weight:700;\
+font-size:1rem;\
+text-shadow:0 0 12px rgba(180,140,255,0.6);\
+box-shadow:0 0 20px rgba(120,90,255,0.4);\
+animation:cjTestFade 1.4s ease-out forwards;\
+}\
+@keyframes cjTestFade{\
+0%{opacity:0;transform:translateY(12px);}\
+20%{opacity:1;}\
+100%{opacity:0;transform:translateY(-14px);}\
+}\
+";
+        document.head.appendChild(style);
+    }
+
+    function showCJTestNotification() {
+        if (!CONFIG.TEST_CJ_POPUP) return;
+        if (state.testPopupActive) return;
+        state.testPopupActive = true;
+
+        ensureTestPopupStyles();
+        const el = document.createElement("div");
+        el.className = "cj-test-popup";
+        el.textContent = "✨ +1 CJ universel";
+        document.body.appendChild(el);
+
+        setTimeout(() => {
+            el.remove();
+            state.testPopupActive = false;
+        }, CONFIG.ANIMATION_DURATION);
     }
 
     function showCJPopup(amount) {
