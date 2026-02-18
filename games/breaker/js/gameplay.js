@@ -1135,6 +1135,7 @@ function updateBricks() {
                 showLevelUpPopup(state.playerLevel);
             }
 
+            updateCurrentLevelData();
             createBricks();
             resetBall();
             levelComplete = false;
@@ -1608,18 +1609,24 @@ state.stage = selectedLevelId;
 
 // Charger les données du niveau depuis levels.json
 let currentLevelData = null;
-async function loadAndStartGame() {
-    try {
-        const response = await fetch('../data/levels.json');
-        const data = await response.json();
-        currentLevelData = data.levels.find(l => l.id === state.stage);
+let levelsData = null;
+
+function updateCurrentLevelData() {
+    if (levelsData) {
+        currentLevelData = levelsData.levels.find(l => l.id === state.stage);
         if (!currentLevelData) {
             console.error('Niveau non trouvé:', state.stage);
             state.stage = 1;
-            currentLevelData = data.levels.find(l => l.id === 1);
+            currentLevelData = levelsData.levels.find(l => l.id === 1);
         }
         console.log('📍 Niveau chargé:', currentLevelData);
-        
+    }
+}
+async function loadAndStartGame() {
+    try {
+        const response = await fetch('../data/levels.json');
+        levelsData = await response.json();
+        updateCurrentLevelData();
         // Démarrer le jeu une fois les données chargées
         initializeGame();
     } catch (error) {
