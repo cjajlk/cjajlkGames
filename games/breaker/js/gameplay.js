@@ -1554,12 +1554,8 @@ function gameLoop() {
     // Le CJ ne tourne que si la partie est active ET la balle lancée
     if (window.CJEngine && typeof window.CJEngine.tick === "function" && state.running && ball.launched) {
         const now = performance.now();
-
-    // Désactive la protection anti-spawn après la frame de resize
-    if (justResized) justResized = false;
-
-    if (window.CJEngine && typeof window.CJEngine.tick === "function" && state.running && ball.launched) {
-        const now = performance.now();
+        // Désactive la protection anti-spawn après la frame de resize
+        if (justResized) justResized = false;
         const deltaMs = lastFrameTime ? (now - lastFrameTime) : 0;
         lastFrameTime = now;
         window.CJEngine.tick(deltaMs, "breaker");
