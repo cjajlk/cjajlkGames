@@ -528,20 +528,35 @@ assets.sounds.wallHit = new Audio("../assets/audio/wall_hit_soft.wav");
 // Préchargement backgrounds (Promise)
 function preloadBackgrounds() {
     const promises = [];
-    for (let i = 1; i <= 5; i++) {
+    // Déterminer le thème du niveau courant
+    let themeFolder = "theme1_city_reborn";
+    let backgroundsCount = 5;
+    let bossBg = "boss.png";
+    if (typeof currentLevelData === "object" && currentLevelData.theme) {
+        // Nettoyer le nom du thème pour correspondre au dossier
+        themeFolder = currentLevelData.theme.replace(/theme\s*/i, "").replace(/\s+/g, "_").toLowerCase();
+        // Définir le nombre d'images selon le thème (par défaut 5, ajustable)
+        if (themeFolder === "sanctuaire_astral") {
+            backgroundsCount = 5; // Ajustez si besoin selon vos assets
+            bossBg = "boss.png";
+        }
+    }
+    assets.backgrounds = [];
+    for (let i = 1; i <= backgroundsCount; i++) {
         const img = new Image();
-        img.src = `../assets/backgrounds/gameplay/theme1_city_reborn/bg${i}.png`;
+        img.src = `../assets/backgrounds/gameplay/${themeFolder}/bg${i}.png`;
         assets.backgrounds.push(img);
         promises.push(new Promise((resolve) => {
             img.onload = () => resolve(img);
             img.onerror = () => {
                 console.error("Erreur chargement background:", img.src);
-                resolve(null); // On ne bloque pas tout le jeu si une image échoue
+                resolve(null);
             };
         }));
     }
     // Boss background
-    assets.bossBackground.src = "../assets/backgrounds/gameplay/theme1_city_reborn/boss.png";
+    assets.bossBackground = new Image();
+    assets.bossBackground.src = `../assets/backgrounds/gameplay/${themeFolder}/${bossBg}`;
     promises.push(new Promise((resolve) => {
         assets.bossBackground.onload = () => resolve(assets.bossBackground);
         assets.bossBackground.onerror = () => {
@@ -678,6 +693,8 @@ function createBricks() {
     boss.phase = 1;
     boss.moveTimer = 0;
     boss.bossType = currentLevelData ? currentLevelData.bossType : 'city_guardian';
+    // Recharger les backgrounds si le thème change
+    preloadBackgrounds();
 
     let currentRows = rows;
     let currentCols = cols;
@@ -1358,17 +1375,24 @@ function drawBricks() {
 function drawBackground() {
     // 👹 Utiliser le background du boss si actif
     let bgImg = null;
+    // Vérifier si le thème du niveau courant correspond à celui des backgrounds chargés
+    let themeFolder = "theme1_city_reborn";
+    if (typeof currentLevelData === "object" && currentLevelData.theme) {
+        themeFolder = currentLevelData.theme.replace(/theme\s*/i, "").replace(/\s+/g, "_").toLowerCase();
+    }
+    // Si le dossier de backgrounds ne correspond pas, on recharge
+    if (!assets.backgrounds.length || (assets.backgrounds[0] && !assets.backgrounds[0].src.includes(themeFolder))) {
+        preloadBackgrounds();
+    }
     if (boss.active) {
         bgImg = assets.bossBackground;
     } else {
         const index = (state.stage - 1) % assets.backgrounds.length;
         bgImg = assets.backgrounds[index];
     }
-    // Vérification chargement image
     if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
         ctx.drawImage(bgImg, 0, 0, viewW, viewH);
     } else {
-        // Fallback couleur nocturne
         ctx.fillStyle = "#0a0a18";
         ctx.fillRect(0, 0, viewW, viewH);
     }

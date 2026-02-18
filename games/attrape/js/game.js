@@ -3490,6 +3490,29 @@ function endgame() {
         "sad"
     );
 
+    // --- Ajout : progression de thème après boss ---
+    // Supposons que chaque "thème" correspond à un fond dans GameData.backgrounds
+    // et que le boss est battu si le niveau atteint un certain palier (ex: level >= 5)
+    // Ici, on débloque et équipe le fond suivant si possible
+    let equippedTheme = localStorage.getItem("equippedTheme");
+    let ownedBackgrounds = JSON.parse(localStorage.getItem("ownedBackgrounds") || "[]");
+    if (typeof currentBackgroundIndex === "number" && GameData.backgrounds) {
+        // Si on est à la fin d'un thème (ex: boss battu)
+        // On équipe le fond suivant si disponible
+        const nextIndex = currentBackgroundIndex + 1;
+        if (nextIndex < GameData.backgrounds.length) {
+            const nextBg = GameData.backgrounds[nextIndex];
+            if (nextBg && !nextBg.disabled) {
+                equippedTheme = nextBg.id;
+                localStorage.setItem("equippedTheme", equippedTheme);
+                if (!ownedBackgrounds.includes(nextBg.id)) {
+                    ownedBackgrounds.push(nextBg.id);
+                    localStorage.setItem("ownedBackgrounds", JSON.stringify(ownedBackgrounds));
+                }
+            }
+        }
+    }
+
     savePlayerProfile();
     playerName = localStorage.getItem("playerName") || "Invité";
     console.log("🔴 Fin de partie – endgame() déclenché");
@@ -3502,15 +3525,13 @@ function endgame() {
     gameLoopId = null;
 
     // Message mascotte
-    const randomLine = mascotteLoseLines[Math.floor(Math.random() * mascotteLoseLines.length)];
+    const randomLine = mascotteLoseLines[Math.floor(Math.random() * mascotLoseLines.length)];
     showMascotteDialog(randomLine);
 
     // ➕ Score / XP / Points cumulés
     if (score > 0) {
         playerTotalPoints += score;
         if (score > highScore) highScore = score;
-
-       
 
         addXP(score);
         checkTitlesUnlock();
