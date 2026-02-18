@@ -140,7 +140,8 @@ const paddle = {
     y: 0,
     width: 0,
     height: 0,
-    speed: 0
+    speed: 0,
+    maxSpeed: 20 // valeur stable, ajustable
 };
 
 /* =============================
@@ -770,6 +771,9 @@ function resetBall() {
 }
 
 function launchBall() {
+    // S'assure que le canvas et viewW/viewH sont à jour avant de lancer la balle
+    resizeCanvas();
+
     if (ball.launched) return;  // La balle ne doit être lancée qu'une seule fois
 
     ball.launched = true;  // Marque la balle comme lancée
@@ -856,8 +860,11 @@ function updateOrbHUD() {
 
 function updatePaddle() {
     paddle.x += paddle.speed;
-
-    paddle.x = Math.max(0, Math.min(viewW - paddle.width, paddle.x));
+    // empêcher sortie écran
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.width > viewW) {
+        paddle.x = viewW - paddle.width;
+    }
 }
 
 function spawnOrb(x, y) {
@@ -1251,85 +1258,96 @@ function drawUI() {
 
 function drawBricks() {
     for (const b of bricks) {
-        if (b.destroyed) continue;
+        if (b && !b.destroyed) {
+            // ...existing code...
+        for (const b of bricks) {
+            if (b.destroyed) continue;
 
-        const img = b.sprite || ((b.hp < b.maxHp) ? assets.brickCracked : assets.brick);
+            const img = b.sprite || ((b.hp < b.maxHp) ? assets.brickCracked : assets.brick);
 
-        let drawX = b.x;
-        let drawY = b.y;
-        let drawW = b.w;
-        let drawH = b.h;
+            let drawX = b.x;
+            let drawY = b.y;
+            let drawW = b.w;
+            let drawH = b.h;
 
-        if (b.hitTimer > 0 && !b.destroying) {
-            const hitProgress = b.hitTimer / BRICK_HIT_FLASH;
-            const punch = hitProgress * 1.5;
-            drawX += (Math.random() - 0.5) * punch;
-            drawY += (Math.random() - 0.5) * punch;
-        }
-
-        if (b.destroying) {
-            // Gold effect with zoom
-            const progress = 1 - (b.destroyTimer / BRICK_BREAK_DURATION); // 0 to 1
-            const scale = 1 + progress * 0.3; // slight zoom
-            const centerX = b.x + b.w / 2;
-            const centerY = b.y + b.h / 2;
-            const scaledW = b.w * scale;
-            const scaledH = b.h * scale;
-
-            ctx.save();
-            ctx.globalCompositeOperation = 'lighter';
-            ctx.globalAlpha = 1 - progress * 0.35; // fade out
-
-            ctx.drawImage(
-                img,
-                centerX - scaledW / 2,
-                centerY - scaledH / 2,
-                scaledW,
-                scaledH
-            );
-
-            if (b.breakFx) {
-                const glowAlpha = Math.max(0, 1 - progress * 1.1);
-                ctx.strokeStyle = `rgba(150, 220, 255, ${0.95 * glowAlpha})`;
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, b.w * 0.55 * progress, 0, Math.PI * 2);
-                ctx.stroke();
-
-                ctx.fillStyle = `rgba(180, 230, 255, ${0.95 * glowAlpha})`;
-                for (const shard of b.breakFx) {
-                    const dx = Math.cos(shard.angle) * shard.distance * progress;
-                    const dy = Math.sin(shard.angle) * shard.distance * progress;
-                    const size = shard.size * (1 - progress * 0.5);
-                    ctx.beginPath();
-                    ctx.arc(centerX + dx, centerY + dy, size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            ctx.restore();
-        } else {
-            ctx.drawImage(img, drawX, drawY, drawW, drawH);
-
-            if (b.crackLevel > 1) {
-                ctx.save();
-                ctx.globalCompositeOperation = 'screen';
-                ctx.globalAlpha = 0.22 + 0.08 * b.crackLevel;
-                ctx.drawImage(img, drawX - 1, drawY - 1, drawW + 2, drawH + 2);
-                ctx.restore();
-            }
-
-            if (b.hitTimer > 0) {
+            if (b.hitTimer > 0 && !b.destroying) {
                 const hitProgress = b.hitTimer / BRICK_HIT_FLASH;
+                const punch = hitProgress * 1.5;
+                drawX += (Math.random() - 0.5) * punch;
+                drawY += (Math.random() - 0.5) * punch;
+            }
+
+            // Log et fallback si image non chargée
+            if (!img || !img.complete || img.naturalWidth === 0) {
+                console.warn('[DEBUG drawBricks] Image brique non chargée, fallback couleur', img);
+                ctx.fillStyle = '#4af';
+                ctx.fillRect(drawX, drawY, drawW, drawH);
+                continue;
+            }
+
+            if (b.destroying) {
+                // Gold effect with zoom
+                const progress = 1 - (b.destroyTimer / BRICK_BREAK_DURATION); // 0 to 1
+                const scale = 1 + progress * 0.3; // slight zoom
+                const centerX = b.x + b.w / 2;
+                const centerY = b.y + b.h / 2;
+                const scaledW = b.w * scale;
+                const scaledH = b.h * scale;
+
                 ctx.save();
                 ctx.globalCompositeOperation = 'lighter';
-                ctx.globalAlpha = 0.25 + 0.3 * hitProgress;
-                ctx.drawImage(img, drawX - 1, drawY - 1, drawW + 2, drawH + 2);
+                ctx.globalAlpha = 1 - progress * 0.35; // fade out
+
+                ctx.drawImage(
+                    img,
+                    centerX - scaledW / 2,
+                    centerY - scaledH / 2,
+                    scaledW,
+                    scaledH
+                );
+
+                if (b.breakFx) {
+                    const glowAlpha = Math.max(0, 1 - progress * 1.1);
+                    ctx.strokeStyle = `rgba(150, 220, 255, ${0.95 * glowAlpha})`;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, b.w * 0.55 * progress, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    ctx.fillStyle = `rgba(180, 230, 255, ${0.95 * glowAlpha})`;
+                    for (const shard of b.breakFx) {
+                        const dx = Math.cos(shard.angle) * shard.distance * progress;
+                        const dy = Math.sin(shard.angle) * shard.distance * progress;
+                        const size = shard.size * (1 - progress * 0.5);
+                        ctx.beginPath();
+                        ctx.arc(centerX + dx, centerY + dy, size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
                 ctx.restore();
+            } else {
+                ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+                if (b.crackLevel > 1) {
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'screen';
+                    ctx.globalAlpha = 0.22 + 0.08 * b.crackLevel;
+                    ctx.drawImage(img, drawX - 1, drawY - 1, drawW + 2, drawH + 2);
+                    ctx.restore();
+                }
+
+                if (b.hitTimer > 0) {
+                    const hitProgress = b.hitTimer / BRICK_HIT_FLASH;
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'lighter';
+                    ctx.globalAlpha = 0.25 + 0.3 * hitProgress;
+                    ctx.drawImage(img, drawX - 1, drawY - 1, drawW + 2, drawH + 2);
+                    ctx.restore();
+                }
             }
         }
-    }
-}
+}}}
 
 function drawBackground() {
     // 👹 Utiliser le background du boss si actif
@@ -1573,6 +1591,8 @@ function gameLoop() {
         lastFrameTime = now;
         window.CJEngine.tick(deltaMs, "breaker");
     }
+    // Boucle de rendu continue
+    requestAnimationFrame(gameLoop);
 }
 
 /* =============================
@@ -1623,6 +1643,10 @@ function initializeGame() {
     loadActiveCompanionBonus(); // 🎮 Charger les bonus du compagnon
     applyBallSpeedBonus(); // Log du bonus de vitesse
     resizeCanvas();
+    // Vérification des valeurs numériques
+    console.log('[DEBUG initializeGame] paddle:', JSON.stringify(paddle));
+    console.log('[DEBUG initializeGame] ball:', JSON.stringify(ball));
+    console.log('[DEBUG initializeGame] bricks[0]:', bricks[0] ? JSON.stringify(bricks[0]) : 'Aucune brique');
     gameLoop();
 }
 
@@ -1668,15 +1692,27 @@ canvas.addEventListener("touchmove", e => {
 
     const touch = e.touches[0];
     paddle.x = touch.clientX - paddle.width / 2;
+
+}, { passive: false });
+// Correction finale : accolade fermante pour terminer le script
+
+
+  document.addEventListener("keydown", e => {
+    if (e.code === "ArrowLeft" || e.key.toLowerCase() === "q") {
+        paddle.speed = -paddle.maxSpeed;
+    }
+
+    if (e.code === "ArrowRight" || e.key.toLowerCase() === "d") {
+        paddle.speed = paddle.maxSpeed;
+    }
+
+    if (e.code === "Space") {
+        launchBall();
+    }
 });
 
-document.addEventListener("keydown", e => {
-    if (e.code === "ArrowLeft" || e.key.toLowerCase() === "q") paddle.speed = -7;
-    if (e.code === "ArrowRight" || e.key.toLowerCase() === "d") paddle.speed = 7;
-    if (e.code === "Space") launchBall();
-});
 
-document.addEventListener("keyup", () => {
+document.addEventListener("keyup", () => { 
     paddle.speed = 0;
 });
 
@@ -1705,3 +1741,4 @@ window.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("languagechange", () => {
     updateLevelText();
 });
+
