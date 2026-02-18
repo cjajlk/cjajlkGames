@@ -516,14 +516,32 @@ assets.sounds.magicBreak = new Audio("../assets/audio/brick_break_magic.wav");
 assets.sounds.paddleHit = new Audio("../assets/audio/paddle_hit_soft.wav");
 assets.sounds.wallHit = new Audio("../assets/audio/wall_hit_soft.wav");
 
-for (let i = 1; i <= 5; i++) {
-    const img = new Image();
-    img.src = `../assets/backgrounds/gameplay/theme1_city_reborn/bg${i}.png`;
-    assets.backgrounds.push(img);
+// Préchargement backgrounds (Promise)
+function preloadBackgrounds() {
+    const promises = [];
+    for (let i = 1; i <= 5; i++) {
+        const img = new Image();
+        img.src = `../assets/backgrounds/gameplay/theme1_city_reborn/bg${i}.png`;
+        assets.backgrounds.push(img);
+        promises.push(new Promise((resolve) => {
+            img.onload = () => resolve(img);
+            img.onerror = () => {
+                console.error("Erreur chargement background:", img.src);
+                resolve(null); // On ne bloque pas tout le jeu si une image échoue
+            };
+        }));
+    }
+    // Boss background
+    assets.bossBackground.src = "../assets/backgrounds/gameplay/theme1_city_reborn/boss.png";
+    promises.push(new Promise((resolve) => {
+        assets.bossBackground.onload = () => resolve(assets.bossBackground);
+        assets.bossBackground.onerror = () => {
+            console.error("Erreur chargement boss background:", assets.bossBackground.src);
+            resolve(null);
+        };
+    }));
+    return Promise.all(promises);
 }
-
-// Boss background
-assets.bossBackground.src = "../assets/backgrounds/gameplay/theme1_city_reborn/boss.png";
 
 const soundPools = new Map();
 
@@ -1315,26 +1333,21 @@ function drawBricks() {
 
 function drawBackground() {
     // 👹 Utiliser le background du boss si actif
+    let bgImg = null;
     if (boss.active) {
-        ctx.drawImage(
-            assets.bossBackground,
-            0,
-            0,
-            viewW,
-            viewH
-        );
+        bgImg = assets.bossBackground;
     } else {
         const index = (state.stage - 1) % assets.backgrounds.length;
-
-        ctx.drawImage(
-            assets.backgrounds[index],
-            0,
-            0,
-            viewW,
-            viewH
-        );
+        bgImg = assets.backgrounds[index];
     }
-
+    // Vérification chargement image
+    if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
+        ctx.drawImage(bgImg, 0, 0, viewW, viewH);
+    } else {
+        // Fallback couleur nocturne
+        ctx.fillStyle = "#0a0a18";
+        ctx.fillRect(0, 0, viewW, viewH);
+    }
 }
 
 function drawBall() {
@@ -1683,7 +1696,11 @@ const orbEls = {
 };
 
 // Attendre le chargement des données avant de démarrer
-window.addEventListener("DOMContentLoaded", loadAndStartGame);
+window.addEventListener("DOMContentLoaded", () => {
+    preloadBackgrounds().then(() => {
+        loadAndStartGame();
+    });
+});
 
 document.addEventListener("languagechange", () => {
     updateLevelText();
