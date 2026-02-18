@@ -1,3 +1,11 @@
+// Ajout : fonction centralisée pour l'XP
+function addXP(amount) {
+    const prevXP = state.xp;
+    state.xp += amount;
+    localStorage.setItem("breakerXP", state.xp);
+    if (typeof saveProfile === "function") saveProfile();
+    console.log("[GAIN XP]", amount, "total", state.xp);
+}
 /* =====================================================
    🌙 BREAKER – GAMEPLAY CLEAN VERSION
    by CJ + Alia
@@ -43,8 +51,8 @@ let brickW, brickH, gap;
 const state = {
     running: true,
     score: 0,
-    highScore: 0,
-    xp: 0,
+    highScore: Number(localStorage.getItem("breakerHighScore")) || 0,
+    xp: Number(localStorage.getItem("breakerXP")) || 0,
     stage: 1,        // ← Niveau de la partie (1-6)
     playerLevel: 1,  // ← Niveau du joueur (basé sur XP global)
     playStartTime: Date.now() // ⏱️ Timestamp de début de partie
@@ -1430,13 +1438,10 @@ function gameOver() {
     // Always gain XP from the score (10 points = 1 XP)
     const xpGained = Math.floor(state.score / 10);
     const previousPlayerLevel = state.playerLevel;
-    state.xp += xpGained;
-    localStorage.setItem("breakerXP", state.xp);
-
+    addXP(xpGained);
     // Update player level based on new XP
     state.playerLevel = calculatePlayerLevel(state.xp);
     updateLevelText();
-
     // Check for player level up
     if (state.playerLevel > previousPlayerLevel) {
         showLevelUpPopup(state.playerLevel);
@@ -1595,9 +1600,6 @@ function gameLoop() {
 /* =============================
    🔟 INPUT / INIT
 ============================= */
-state.highScore = Number(localStorage.getItem("breakerHighScore")) || 0;
-state.xp = Number(localStorage.getItem("breakerXP")) || 0;
-
 // Initialize player level based on XP
 state.playerLevel = calculatePlayerLevel(state.xp);
 // Charger le niveau sélectionné depuis localStorage (par défaut 1)
@@ -1644,6 +1646,7 @@ function initializeGame() {
     console.log('[DEBUG initializeGame] paddle:', JSON.stringify(paddle));
     console.log('[DEBUG initializeGame] ball:', JSON.stringify(ball));
     console.log('[DEBUG initializeGame] bricks[0]:', bricks[0] ? JSON.stringify(bricks[0]) : 'Aucune brique');
+    console.log('HighScore after init:', state.highScore);
     gameLoop();
 }
 

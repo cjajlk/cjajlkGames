@@ -336,6 +336,7 @@ function renderProfile(profile) {
     const xp = Number(localStorage.getItem("breakerXP")) || 0;
     const level = Math.floor(xp / 1000) + 1;
     const progressPercent = (xp % 1000) / 10;
+    console.log("[PROFILE XP]", xp, "level", level);
 
     set("playerLevel", level);
     set("progressText", `${xp % 1000} / 1000`);
