@@ -532,9 +532,9 @@ function preloadBackgrounds() {
     let themeFolder = "theme1_city_reborn";
     let backgroundsCount = 5;
     let bossBg = "boss.png";
-    if (typeof currentLevelData === "object" && currentLevelData.theme) {
+    if (currentLevelData && typeof currentLevelData === "object" && currentLevelData.theme) {
         // Nettoyer le nom du thème pour correspondre au dossier
-        themeFolder = currentLevelData.theme.replace(/theme\s*/i, "").replace(/\s+/g, "_").toLowerCase();
+        themeFolder = currentLevelData.theme.trim();
         // Définir le nombre d'images selon le thème (par défaut 5, ajustable)
         if (themeFolder === "sanctuaire_astral") {
             backgroundsCount = 5; // Ajustez si besoin selon vos assets
