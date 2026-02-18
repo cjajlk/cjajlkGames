@@ -182,6 +182,7 @@ function resizeCanvas() {
 
     createBricks();
     resetBall();
+    justResized = true; // Active la protection pour la prochaine frame
 }
 
 /* =============================
@@ -865,6 +866,7 @@ function spawnOrb(x, y) {
 ============================= */
 
 function updateBrickCollision() {
+    if (justResized) return; // Bloque toute collision/spawn d'orbe cette frame
     for (const b of bricks) {
         if (b.destroyed) continue;
 
@@ -1552,12 +1554,16 @@ function gameLoop() {
     // Le CJ ne tourne que si la partie est active ET la balle lancée
     if (window.CJEngine && typeof window.CJEngine.tick === "function" && state.running && ball.launched) {
         const now = performance.now();
+
+    // Désactive la protection anti-spawn après la frame de resize
+    if (justResized) justResized = false;
+
+    if (window.CJEngine && typeof window.CJEngine.tick === "function" && state.running && ball.launched) {
+        const now = performance.now();
         const deltaMs = lastFrameTime ? (now - lastFrameTime) : 0;
         lastFrameTime = now;
         window.CJEngine.tick(deltaMs, "breaker");
     }
-
-    requestAnimationFrame(gameLoop);
 }
 
 /* =============================
