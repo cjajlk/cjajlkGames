@@ -686,6 +686,7 @@ function createBrickBreakFx() {
 }
 
 function createBricks() {
+    boss.bossType = currentLevelData ? currentLevelData.bossType : 'city_guardian';
     bricks.length = 0;
 
     // Déterminer si c'est un boss (basé sur le STAGE ou les données du niveau)
@@ -702,14 +703,10 @@ function createBricks() {
     let hp = 2;
 
     if (boss.active) {
-        // Configuration du boss (depuis les données du niveau)
-        currentRows = currentLevelData.rows || 8;
-        currentCols = currentLevelData.cols || 10;
         density = currentLevelData.brickDensity || 0.8;
         hp = currentLevelData.brickHp || 5;
         boss.maxPhases = currentLevelData.bossPhases || 3;
         boss.moveSpeed = currentLevelData.moveSpeed || 1.5;
-        
         // Configuration spécifique du Gardien Astral
         if (boss.bossType === 'astral_guardian') {
             console.log('✨ BOSS: Gardien Astral activé!');
@@ -733,7 +730,7 @@ function createBricks() {
             5: 0.5
         };
         density = densityMap[state.stage] || 0.8;
-        
+    
         const hpMap = {
             1: 1,
             2: 2,
@@ -775,7 +772,7 @@ function createBricks() {
             });
         }
     }
-} 
+    }
 
 /* =============================
    5️⃣ BALL / PADDLE RESET
