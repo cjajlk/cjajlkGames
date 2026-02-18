@@ -1161,8 +1161,7 @@ function addGems(amount) {
     updateProfilePanel();
 }
 
-// 🔥 EXPOSER
-window.addGems = addGems;
+
 
 
 
