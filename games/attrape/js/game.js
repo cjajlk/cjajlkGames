@@ -2588,8 +2588,16 @@ for (let i = targets.length - 1; i >= 0; i--) {
     // Mascotte
     drawMascotte(ctx);
 
+
     // ⏱️ CJEngine tick - Moteur centralisé de gestion des CJ
-    if (window.CJEngine && typeof window.CJEngine.tick === "function") {
+    // Ne tick que si partie active (mode normal ou timer), pas en pause, onglet visible
+    if (
+        window.CJEngine && typeof window.CJEngine.tick === "function" &&
+        (
+            (isGameRunning && !isGamePaused && document.visibilityState === "visible") ||
+            (timerRunning && !isGamePaused && document.visibilityState === "visible")
+        )
+    ) {
         window.CJEngine.tick(deltaMs, "attrape");
     }
 

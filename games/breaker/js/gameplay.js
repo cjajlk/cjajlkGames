@@ -819,8 +819,9 @@ function updateBall() {
 
     if (ball.y > viewH) {
         playSound(assets.sounds.ballFall);
-        gameOver();
         resetBall();
+        // La partie continue, le tick CJEngine n'est pas interrompu
+        // Optionnel : afficher un message ou une animation de perte de balle
     }
 }
 
@@ -1548,7 +1549,8 @@ function gameLoop() {
     draw(); // 👈 UNE seule entrée graphique
 
     // ⏱️ CJEngine tick - Moteur centralisé de gestion des CJ
-    if (window.CJEngine && typeof window.CJEngine.tick === "function") {
+    // Le CJ ne tourne que si la partie est active ET la balle lancée
+    if (window.CJEngine && typeof window.CJEngine.tick === "function" && state.running && ball.launched) {
         const now = performance.now();
         const deltaMs = lastFrameTime ? (now - lastFrameTime) : 0;
         lastFrameTime = now;
