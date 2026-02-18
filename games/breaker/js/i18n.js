@@ -45,7 +45,10 @@ function showAppVersionBadge() {
 
 document.addEventListener("DOMContentLoaded", () => {
   ensureAppVersion();
-  showAppVersionBadge();
+  // Afficher le badge version uniquement sur le menu principal
+  if (window.location.pathname.endsWith("mainmenu.html")) {
+    showAppVersionBadge();
+  }
 });
 
 const I18N_STRINGS = {

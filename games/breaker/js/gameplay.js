@@ -771,9 +771,6 @@ function resetBall() {
 }
 
 function launchBall() {
-    // S'assure que le canvas et viewW/viewH sont à jour avant de lancer la balle
-    resizeCanvas();
-
     if (ball.launched) return;  // La balle ne doit être lancée qu'une seule fois
 
     ball.launched = true;  // Marque la balle comme lancée
