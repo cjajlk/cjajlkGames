@@ -821,7 +821,7 @@ function updateBall() {
         ball.x < paddle.x + paddle.width &&
         ball.dy > 0
     ) {
-        ball.dy *= -1;
+        ball.dy *= -1; 
 
         playSound(assets.sounds.paddleHit);
 
