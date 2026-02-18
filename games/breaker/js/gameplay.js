@@ -852,14 +852,23 @@ function updateBall() {
     }
 
     /* walls */
+    const epsilon = 2;
     if (ball.x < 0 || ball.x > viewW) {
-        ball.dx *= -1;
-        playSound(assets.sounds.wallHit);
+        if (!ball._justBouncedX) {
+            ball.dx *= -1;
+            playSound(assets.sounds.wallHit);
+        }
+        // Correction position avec marge
+        if (ball.x < 0) ball.x = 0 + epsilon;
+        if (ball.x > viewW) ball.x = viewW - epsilon;
     }
 
     if (ball.y < 0) {
-        ball.dy *= -1;
-        playSound(assets.sounds.wallHit);
+        if (!ball._justBouncedY) {
+            ball.dy *= -1;
+            playSound(assets.sounds.wallHit);
+        }
+        if (ball.y < 0) ball.y = epsilon;
     }
 
     if (ball.y > viewH) {
@@ -868,6 +877,9 @@ function updateBall() {
         // La partie continue, le tick CJEngine n'est pas interrompu
         // Optionnel : afficher un message ou une animation de perte de balle
     }
+    // Réinitialiser les flags de rebond
+    ball._justBouncedX = false;
+    ball._justBouncedY = false;
 }
 
 function updateOrbHUD() {
@@ -933,24 +945,28 @@ function updateBrickCollision() {
             const minOverlapX = Math.min(overlapLeft, overlapRight);
             const minOverlapY = Math.min(overlapTop, overlapBottom);
 
+            const epsilon = 2; // marge de sécurité en pixels
             if (minOverlapX < minOverlapY) {
                 // Horizontal bounce
                 ball.dx *= -1;
-                // Position correction based on brick center
+                // Position correction based on brick center avec marge
                 if (ball.x < b.x + b.w / 2) {
-                    ball.x = b.x - ball.size / 2;
+                    ball.x = b.x - ball.size / 2 - epsilon;
                 } else {
-                    ball.x = b.x + b.w + ball.size / 2;
+                    ball.x = b.x + b.w + ball.size / 2 + epsilon;
                 }
+                // Empêcher double flip dx (mur + brique)
+                ball._justBouncedX = true;
             } else {
                 // Vertical bounce
                 ball.dy *= -1;
-                // Position correction based on brick center
+                // Position correction based on brick center avec marge
                 if (ball.y < b.y + b.h / 2) {
-                    ball.y = b.y - ball.size / 2;
+                    ball.y = b.y - ball.size / 2 - epsilon;
                 } else {
-                    ball.y = b.y + b.h + ball.size / 2;
+                    ball.y = b.y + b.h + ball.size / 2 + epsilon;
                 }
+                ball._justBouncedY = true;
             }
 
             // dégâts
