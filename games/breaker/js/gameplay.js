@@ -1095,15 +1095,24 @@ function updateBricks() {
             for (const b of bricks) {
                 if (b.destroyed || b.destroying) continue;
                 b.x += moveAmount;
-                // Clamp strict pour City Guardian
-                if (boss.bossType === 'city_guardian') {
-                    b.x = Math.max(0, Math.min(b.x, viewW - b.w));
-                }
-                // Inverser direction si on atteint les bords
+                // Suppression du clamp individuel : le mouvement est géré par le groupe
+                // Détection mur pour inversion direction
+                // On vérifie si une brique touche le mur
                 const margin = 20;
                 if (b.x < margin || b.x + b.w > viewW - margin) {
-                    boss.moveDirection *= -1;
+                    boss._shouldInvertDirection = true;
                 }
+            }
+        }
+        // Si une inversion de direction est nécessaire, on l'applique à tout le groupe
+        if (boss._shouldInvertDirection) {
+            boss.moveDirection *= -1;
+            boss._shouldInvertDirection = false;
+            // Déplacement immédiat du groupe pour éviter le blocage au mur
+            const moveAmount = boss.moveSpeed * boss.moveDirection;
+            for (const b of bricks) {
+                if (b.destroyed || b.destroying) continue;
+                b.x += moveAmount * 1.2; // Léger déplacement supplémentaire
             }
         }
 
