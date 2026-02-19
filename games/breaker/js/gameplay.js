@@ -1,6 +1,8 @@
 // =============================
 // 💎 DIAMONDS SYSTEM (modulaire)
 // =============================
+  // Import ES6 modules (boss system)
+import { createBoss } from '../bosses/bossManager.js';
 
 // Nouvelle gestion unifiée des diamants via profile.js
 function addDiamonds(amount) {
@@ -9,6 +11,7 @@ function addDiamonds(amount) {
         updateDiamondsUI();
     }
 }
+// ...existing code...
 
 function updateDiamondsUI() {
     if (window.getPlayerProfile) {
@@ -148,21 +151,27 @@ function updateStageText() {
     }
 }
 
+
 const bricks = [];
 let bricksDestroyed = 0;
 let levelComplete = false;
+    let justResized = false;
+
 
 /* =============================
    💀 BOSS SYSTEM
 ============================= */
-const boss = {
+
+let boss = {
     active: false,
     phase: 1,
     maxPhases: 3,
     moveDirection: 1,
     moveSpeed: 1.5,
-    moveTimer: 0
+    moveTimer: 0,
+    bossType: undefined
 };
+let modularBoss = null; // Nouvelle instance modulaire (City Guardian uniquement)
 
 /* =============================
    🌟 ORBS SYSTEM (placeholder)
@@ -232,7 +241,7 @@ function resizeCanvas() {
     resetBall();
     justResized = true; // Active la protection pour la prochaine frame
 }
-
+ 
 /* =============================
    🎨 ASSETS
 ============================= */
@@ -724,6 +733,7 @@ function createBrickBreakFx() {
     return shards;
 }
 
+
 function createBricks() {
     boss.bossType = currentLevelData ? currentLevelData.bossType : 'city_guardian';
     bricks.length = 0;
@@ -733,6 +743,20 @@ function createBricks() {
     boss.phase = 1;
     boss.moveTimer = 0;
     boss.bossType = currentLevelData ? currentLevelData.bossType : 'city_guardian';
+
+    // Instanciation du boss modulaire uniquement pour City Guardian
+    if (boss.active && boss.bossType === 'city_guardian') {
+        modularBoss = createBoss('city_guardian', {
+            setBossSpeed: (speed) => { boss.moveSpeed = speed; },
+            flashScreen: (type) => { /* TODO: effet visuel warning/danger */ },
+            addDiamonds: addDiamonds,
+            addXP: (xp) => { state.xp += xp; localStorage.setItem("breakerXP", state.xp); },
+            showBossMessage: (key) => { Popup.confirm(i18nT("gameplay.bossDefeated", { xp: 500 }), () => { window.location.href = "../pages/campaign.html"; }); }
+        });
+    } else {
+        modularBoss = null;
+    }
+
     // Recharger les backgrounds si le thème change
     preloadBackgrounds();
 
@@ -753,6 +777,8 @@ function createBricks() {
             boss.invertMode = false; // Phase 2: gravité inversée
             boss.coreMode = false;   // Phase 3: noyau cosmique
         }
+        // Initialiser le boss modulaire si City Guardian
+        if (modularBoss) modularBoss.init(currentRows * currentCols);
     } else if (currentLevelData) {
         // Configuration normale (depuis levels.json)
         currentRows = currentLevelData.rows || currentRows;
@@ -1058,20 +1084,21 @@ function updateBrickCollision() {
     }
 }
 
+
 function updateBricks() {
     // 👹 BOSS: Mouvement des briques
     if (boss.active) {
         boss.moveTimer++;
-        
         // Mouvement horizontal en vague
         if (boss.moveTimer % 2 === 0) {
             const moveAmount = boss.moveSpeed * boss.moveDirection;
-            
             for (const b of bricks) {
                 if (b.destroyed || b.destroying) continue;
-                
                 b.x += moveAmount;
-                
+                // Clamp strict pour City Guardian
+                if (boss.bossType === 'city_guardian') {
+                    b.x = Math.max(0, Math.min(b.x, viewW - b.w));
+                }
                 // Inverser direction si on atteint les bords
                 const margin = 20;
                 if (b.x < margin || b.x + b.w > viewW - margin) {
@@ -1081,12 +1108,33 @@ function updateBricks() {
         }
 
         // 🎯 Gestion des phases du boss
-        const totalBricks = bricks.length;
-        const remainingBricks = bricks.filter(b => !b.destroyed && !b.destroying).length;
-        const percentRemaining = remainingBricks / totalBricks;
+        // (hooks déplacés après collision/destruction)
+        // ...existing code...
+    }
+    // ...existing code...
+    // Animation de destruction
+    for (let i = bricks.length - 1; i >= 0; i--) {
+        const b = bricks[i];
+        if (b.destroying) {
+            b.destroyTimer--;
+            if (b.destroyTimer <= 0) {
+                b.destroyed = true;
+                b.destroying = false;
+            }
+        }
+    }
 
+    // Check for level completion after all animations are done
+    const destroyedCount = bricks.filter(b => b.destroyed).length;
+    // Recalcul bricksRemaining pour modularBoss
+    const totalBricks = bricks.length;
+    const remainingBricks = bricks.filter(b => !b.destroyed && !b.destroying).length;
+    const percentRemaining = remainingBricks / totalBricks;
+
+    // Appel hooks boss APRÈS collision/destruction/recalcul
+    if (boss.active) {
         if (boss.bossType === 'astral_guardian') {
-            // 🌀 GARDIEN ASTRAL - Phases spéciales
+            // 🌀 GARDIEN ASTRAL - Phases spéciales (legacy)
             if (percentRemaining <= 0.66 && boss.phase === 1) {
                 boss.phase = 2;
                 boss.moveSpeed = 1.0; // Momentum plus doux pour phase 2
@@ -1095,7 +1143,6 @@ function updateBricks() {
                 Popup.notify(i18nT("gameplay.astralPhase2"));
                 console.log("✨ Phase 2: Inversion des Flux activée");
             }
-
             if (percentRemaining <= 0.33 && boss.phase === 2) {
                 boss.phase = 3;
                 boss.coreMode = true; // Noyau cosmique
@@ -1103,21 +1150,27 @@ function updateBricks() {
                 Popup.notify(i18nT("gameplay.astralPhase3"));
                 console.log("💫 Phase 3: Cœur Cosmique activé");
             }
+        } else if (modularBoss) {
+            // City Guardian : déléguer au boss modulaire
+            modularBoss.update(remainingBricks);
+            boss.phase = modularBoss.phase;
         } else {
-            // 👹 GARDIEN DE LA CITÉ - Phases standards
+            // fallback legacy (autres boss éventuels)
             if (percentRemaining <= 0.66 && boss.phase === 1) {
                 boss.phase = 2;
-                boss.moveSpeed = 2.5; // Plus rapide
+                boss.moveSpeed = 2.5;
                 Popup.notify(i18nT("gameplay.bossPhase2"));
             }
-
             if (percentRemaining <= 0.33 && boss.phase === 2) {
                 boss.phase = 3;
-                boss.moveSpeed = 3.5; // Encore plus rapide
+                boss.moveSpeed = 3.5;
                 Popup.notify(i18nT("gameplay.bossPhase3"));
             }
         }
     }
+    // ...existing code...
+    // Fin correcte de la fonction updateBricks()
+    // (accolade supprimée ici)
 
     for (const b of bricks) {
         if (b.hitTimer > 0) {
@@ -1138,7 +1191,7 @@ function updateBricks() {
     }
 
     // Check for level completion after all animations are done
-    const destroyedCount = bricks.filter(b => b.destroyed).length;
+    // (seconde déclaration supprimée)
     if (destroyedCount >= bricks.length && !levelComplete) {
         levelComplete = true;
         bricksDestroyed = 0;
@@ -1149,35 +1202,34 @@ function updateBricks() {
             let profile = JSON.parse(localStorage.getItem('breaker_profile')) || {};
             if (!profile.bossesCompleted) profile.bossesCompleted = [];
             if (!profile.levelsCompleted) profile.levelsCompleted = [];
-            
             if (!profile.bossesCompleted.includes(state.stage)) {
                 profile.bossesCompleted.push(state.stage);
             }
             profile.levelsCompleted.push(state.stage);
             localStorage.setItem('breaker_profile', JSON.stringify(profile));
 
-            // Déterminer le message de victoire selon le type de boss
-            const bossXP = applyXPBonus(500); // Bonus Aube
-            state.xp += bossXP;
-            localStorage.setItem("breakerXP", state.xp);
-
-            // 💎 Gain de diamants boss
-            addDiamonds(5);
-
-            // 💬 Encouragement boss
-            showCompanionEncouragement('boss');
-
-            // ⏱️ Sauvegarder le temps avant de quitter
-            savePlayTime();
-
-            let defeatMessage = i18nT("gameplay.bossDefeated", { xp: bossXP });
-            if (boss.bossType === 'astral_guardian') {
-                defeatMessage = i18nT("gameplay.astralDefeat", { xp: bossXP });
+            // City Guardian : déléguer la victoire au boss modulaire
+            if (modularBoss) {
+                modularBoss.onVictory();
+            } else {
+                // Legacy Astral Guardian ou fallback
+                const bossXP = applyXPBonus(500); // Bonus Aube
+                state.xp += bossXP;
+                localStorage.setItem("breakerXP", state.xp);
+                // 💎 Gain de diamants boss
+                addDiamonds(5);
+                // 💬 Encouragement boss
+                showCompanionEncouragement('boss');
+                // ⏱️ Sauvegarder le temps avant de quitter
+                savePlayTime();
+                let defeatMessage = i18nT("gameplay.bossDefeated", { xp: bossXP });
+                if (boss.bossType === 'astral_guardian') {
+                    defeatMessage = i18nT("gameplay.astralDefeat", { xp: bossXP });
+                }
+                Popup.confirm(defeatMessage, () => {
+                    window.location.href = "../pages/campaign.html";
+                });
             }
-
-            Popup.confirm(defeatMessage, () => {
-                window.location.href = "../pages/campaign.html";
-            });
         } else {
             // Niveau normal - Passage au STAGE suivant
             // Enregistrer que le niveau est complété

@@ -376,6 +376,11 @@ function renderProfile(profile) {
     
     set("statTime", formatTime(profile.temps));
     set("statDiamonds", profile.diamants);
+    // Synchronise aussi tous les éléments .diamonds-count (pour compatibilité UI)
+    const diamondEls = document.querySelectorAll('.diamonds-count');
+    diamondEls.forEach(el => {
+      el.textContent = profile.diamants;
+    });
     set("statCollection", collectionPercent + "%");
     
     // CJ Universels - Source unique: CJajlkAccount.getTotal()
@@ -508,6 +513,11 @@ function addDiamants(amount) {
     profile.diamants += amount;
     savePlayerProfile(profile);
     renderProfile(profile);
+    // Déclenche un événement custom pour synchroniser l’UI partout
+    if (typeof window !== 'undefined') {
+      const evt = new CustomEvent('diamondsChanged', { detail: { value: profile.diamants } });
+      window.dispatchEvent(evt);
+    }
 }
 
 function addPlayTime(seconds) {
@@ -566,6 +576,12 @@ window.addEventListener("DOMContentLoaded", () => {
     renderProfile(player);
     setupPseudoEdit();
     setupNavigation();
+
+
+    // Rafraîchit l’UI du profil dès qu’un gain/dépense a lieu, même si l’action vient d’un autre module (gameplay)
+    window.addEventListener('diamondsChanged', () => {
+        renderProfile(getPlayerProfile());
+    });
 
     document.addEventListener("languagechange", () => {
       renderProfile(getPlayerProfile());
