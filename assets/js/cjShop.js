@@ -73,8 +73,12 @@ function renderShopCatalog() {
   const itemsHTML = SHOP_ITEMS.map(item => {
     const isPurchased = window.isItemPurchased ? window.isItemPurchased(item.id) : false;
     const account = window.loadCJAccount ? window.loadCJAccount() : { cjBalance: 0 };
-    const canAfford = account.cjBalance >= item.price;
-    
+    // Gestion des prix : si item.type === 'companion' ou item.game === 'breaker', utiliser les diamants
+    const useDiamonds = item.type === 'companion' || item.game === 'breaker';
+    const diamonds = Number(localStorage.getItem('breakerDiamonds')) || 0;
+    const canAfford = useDiamonds ? (diamonds >= item.price) : (account.cjBalance >= item.price);
+    const priceLabel = useDiamonds ? `${item.price} 💎` : `${item.price} CJ`;
+    const lockLabel = useDiamonds ? '🔒 Diamants insuffisants' : '🔒 CJ insuffisants';
     return `
       <div class="shop-item ${isPurchased ? 'purchased' : ''}" data-item-id="${item.id}">
         <div class="item-icon">${item.icon}</div>
@@ -82,13 +86,13 @@ function renderShopCatalog() {
           <h3 class="item-name">${item.name}</h3>
           <p class="item-description">${item.description}</p>
           <div class="item-footer">
-            <span class="item-price">${item.price} CJ</span>
+            <span class="item-price">${priceLabel}</span>
             ${isPurchased 
               ? '<button class="btn-purchased" disabled>✅ Débloqué</button>'
               : `<button class="btn-buy ${!canAfford ? 'disabled' : ''}" 
-                   onclick="purchaseItem('${item.id}', ${item.price})" 
+                   onclick="purchaseItem('${item.id}', ${item.price}, ${useDiamonds})" 
                    ${!canAfford ? 'disabled' : ''}>
-                   ${!canAfford ? '🔒 CJ insuffisants' : 'Acheter'}
+                   ${!canAfford ? lockLabel : 'Acheter'}
                  </button>`
             }
           </div>
@@ -103,32 +107,48 @@ function renderShopCatalog() {
 /**
  * Achète un item de la boutique - Phase 1 actif
  */
-function purchaseItem(itemId, price) {
-  // Vérifier que la fonction existe
-  if (typeof window.buyShopItem !== 'function') {
-    console.error("buyShopItem n'est pas disponible");
-    showMessage("Erreur système", "error");
-    return;
-  }
-
-  // Effectuer l'achat
-  const success = window.buyShopItem(itemId, price);
-
-  if (success) {
-    // Mettre à jour l'affichage
-    updateShopBalance();
+function purchaseItem(itemId, price, useDiamonds) {
+  // Gestion achat par diamants ou CJ
+  if (useDiamonds) {
+    if (typeof window.spendDiamonds !== 'function') {
+      showMessage("Erreur système (diamants)", "error");
+      return;
+    }
+    const ok = window.spendDiamonds(price);
+    if (!ok) {
+      showMessage("Diamants insuffisants", "error");
+      return;
+    }
+    // Succès : marquer comme acheté (si logique d'achat custom à ajouter ici)
+    showMessage("Achat réussi avec diamants !", "success");
     renderShopCatalog();
-    
-    // Feedback visuel avec animation glow
+    updateDiamondsUI();
+    // Animation visuelle
     const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
     if (itemCard) {
       itemCard.classList.add('purchase-glow');
       setTimeout(() => itemCard.classList.remove('purchase-glow'), 800);
     }
-    
+    return;
+  }
+  // Achat classique CJ
+  if (typeof window.buyShopItem !== 'function') {
+    console.error("buyShopItem n'est pas disponible");
+    showMessage("Erreur système", "error");
+    return;
+  }
+  // Effectuer l'achat CJ
+  const success = window.buyShopItem(itemId, price);
+  if (success) {
+    updateShopBalance();
+    renderShopCatalog();
+    const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
+    if (itemCard) {
+      itemCard.classList.add('purchase-glow');
+      setTimeout(() => itemCard.classList.remove('purchase-glow'), 800);
+    }
     showMessage("Badge débloqué !", "success");
   } else {
-    // Afficher un message d'erreur
     if (typeof window.loadCJAccount === 'function') {
       const account = window.loadCJAccount();
       if (account.cjBalance < price) {

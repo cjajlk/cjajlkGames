@@ -1649,51 +1649,23 @@ body.debug-mode .debug-only {
   text-align: center;
 }
 @media (max-width: 768px) {
-  .game-card-content img {
-    height: 180px;
-  }
-  .game-card-info {
-    padding: 18px 10px;
-  }
-  .game-card-large {
-    font-size: 0.98em;
-    min-width: 0;
-    max-width: 98vw;
-    border-radius: 14px;
-  }
-  .games-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .btn-hero, .hero-cta-glow {
-    font-size: 1.15rem;
-    padding: 16px 0;
-    width: 90vw;
-    max-width: 400px;
-  }
-}
-/* Apparition fade-in des sections au scroll */
-.fadein-section {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadein-section 0.7s cubic-bezier(.4,0,.2,1) forwards;
-}
 
-@keyframes fadein-section {
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .jeu-evenement h2 {
+    font-size: 1.4rem;
   }
-}
 
-section.fadein-section {
-  will-change: opacity, transform;
-}
+  .pack-title {
+    font-size: 1.3rem;
+  }
 
-/* Micro animation fade-in sur mobile pour les cartes jeux */
-@media (max-width: 600px) {
-  .game-card-large {
-    animation: fadein-section 0.7s cubic-bezier(.4,0,.2,1) forwards;
+  .jeu-evenement p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .evenement-image {
+    max-width: 100%;
+    border-radius: 12px;
   }
 }
 .jeu-visuel {
@@ -2865,7 +2837,7 @@ section.fadein-section {
 }
 
 .shop-link:hover {
-  background: linear-gradient(90deg, rgba(120, 80, 200, 0.4), rgba(100, 70, 180, 0.4));
+  background: linear-gradient(90deg, rgba(120, 80, 180, 0.4), rgba(100, 70, 180, 0.4));
   border-color: rgba(180, 140, 255, 0.6);
   box-shadow: 0 0 15px rgba(140, 100, 220, 0.3);
 }
@@ -3520,5 +3492,82 @@ section.fadein-section {
   .intro-text {
     font-size: 0.95rem;
   }
+}
+
+/* ==== SECTION BÊTA-TEST ANDROID ==== */
+.beta-testeur-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 48px 0 32px 0;
+  z-index: 2;
+}
+.beta-testeur-card {
+  background: linear-gradient(135deg, rgba(60,30,120,0.85) 60%, rgba(30,20,60,0.92) 100%);
+  border: 2px solid;
+  border-image: linear-gradient(90deg, #a084ff 0%, #5cc8ff 100%);
+  border-image-slice: 1;
+  border-radius: 22px;
+  box-shadow: 0 0 32px 0 rgba(120,90,255,0.18), 0 0 0 2px #2a1a4d inset;
+  padding: 36px 32px 28px 32px;
+  max-width: 420px;
+  width: 100%;
+  color: #e6e3ff;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.beta-testeur-title {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: #bca7ff;
+  margin-bottom: 18px;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 12px #2a1a4d;
+}
+.beta-testeur-desc {
+  font-size: 1.08em;
+  margin-bottom: 18px;
+  color: #e6e3ff;
+  line-height: 1.7;
+}
+.beta-testeur-jeu {
+  color: #5cc8ff;
+  font-weight: 600;
+  font-size: 1.1em;
+}
+.beta-testeur-contact {
+  margin-bottom: 18px;
+  color: #bca7ff;
+  font-size: 1em;
+}
+.btn-beta-testeur {
+  display: inline-block;
+  margin: 0 auto 18px auto;
+  padding: 12px 32px;
+  background: linear-gradient(90deg, #a084ff 0%, #5cc8ff 100%);
+  color: #18102a;
+  font-weight: 700;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 0 16px 0 #5cc8ff44;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.btn-beta-testeur:hover, .btn-beta-testeur:focus {
+  background: linear-gradient(90deg, #5cc8ff 0%, #a084ff 100%);
+  color: #fff;
+  box-shadow: 0 0 24px 0 #a084ff88;
+}
+.beta-testeur-mention {
+  display: block;
+  margin-top: 12px;
+  font-size: 0.98em;
+  color: #7e6fd6;
+  opacity: 0.85;
+  font-style: italic;
 }
 

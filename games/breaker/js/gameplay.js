@@ -1,3 +1,34 @@
+// =============================
+// 💎 DIAMONDS SYSTEM (modulaire)
+// =============================
+
+let diamonds = Number(localStorage.getItem("breakerDiamonds")) || 0;
+
+function addDiamonds(amount) {
+    diamonds += amount;
+    localStorage.setItem("breakerDiamonds", diamonds);
+    console.log("[DIAMONDS] +", amount, "Total:", diamonds);
+    updateDiamondsUI();
+}
+
+function updateDiamondsUI() {
+    const diamonds = Number(localStorage.getItem("breakerDiamonds")) || 0;
+    const uiElements = document.querySelectorAll(".diamonds-count");
+    uiElements.forEach(el => {
+        el.textContent = diamonds;
+    });
+}
+
+function spendDiamonds(cost) {
+    let diamonds = Number(localStorage.getItem("breakerDiamonds")) || 0;
+    if (diamonds < cost) {
+        return false;
+    }
+    diamonds -= cost;
+    localStorage.setItem("breakerDiamonds", diamonds);
+    updateDiamondsUI();
+    return true;
+}
 // Ajout : fonction centralisée pour l'XP
 function addXP(amount) {
     const prevXP = state.xp;
@@ -12,8 +43,13 @@ function addXP(amount) {
 ===================================================== */
 
 /* =============================
-   1️⃣ CONFIG
+    1️⃣ CONFIG
 ============================= */
+
+// Debug : affichage du timer CJ restant (coin bas droit)
+const CONFIG = {
+     DEBUG_CJ_TIMER: true // Passe à false pour désactiver l'affichage debug
+};
 
 const DPR = window.devicePixelRatio || 1;
 
@@ -1121,18 +1157,21 @@ function updateBricks() {
             const bossXP = applyXPBonus(500); // Bonus Aube
             state.xp += bossXP;
             localStorage.setItem("breakerXP", state.xp);
-            
+
+            // 💎 Gain de diamants boss
+            addDiamonds(5);
+
             // 💬 Encouragement boss
             showCompanionEncouragement('boss');
-            
+
             // ⏱️ Sauvegarder le temps avant de quitter
             savePlayTime();
-            
+
             let defeatMessage = i18nT("gameplay.bossDefeated", { xp: bossXP });
             if (boss.bossType === 'astral_guardian') {
                 defeatMessage = i18nT("gameplay.astralDefeat", { xp: bossXP });
             }
-            
+
             Popup.confirm(defeatMessage, () => {
                 window.location.href = "../pages/campaign.html";
             });
@@ -1145,7 +1184,12 @@ function updateBricks() {
                 profile.levelsCompleted.push(state.stage);
             }
             localStorage.setItem('breaker_profile', JSON.stringify(profile));
-            
+
+            // 💎 Gain de diamant tous les 3 niveaux
+            if (state.stage % 3 === 0) {
+                addDiamonds(1);
+            }
+
             state.stage++;
             const stageXP = applyXPBonus(100); // Bonus Aube
             state.xp += stageXP;
@@ -1289,6 +1333,22 @@ function drawUI() {
         ctx.strokeText(text, x, 40);
         ctx.fillText(text, x, 40);
         ctx.restore();
+    }
+
+    // === DEBUG CJ TIMER (coin bas droit) ===
+    if (typeof CONFIG !== 'undefined' && CONFIG.DEBUG_CJ_TIMER && window.CJEngine && window.CJEngine.getStats) {
+        try {
+            const stats = window.CJEngine.getStats ? window.CJEngine.getStats('breaker') : null;
+            if (stats) {
+                ctx.save();
+                ctx.font = '13px monospace';
+                ctx.fillStyle = '#5cc8ff';
+                ctx.globalAlpha = 0.7;
+                const sec = Math.ceil((stats.remainingMs || 0) / 1000);
+                ctx.fillText(`CJ ⏱️ : ${sec}s`, viewW - 110, viewH - 18);
+                ctx.restore();
+            }
+        } catch (e) {}
     }
 }
 
@@ -1465,10 +1525,7 @@ function drawPaddle() {
 function gameOver() {
     state.running = false;
 
-    // 🎮 Reset CJEngine timer for next game
-    if (window.CJEngine && typeof window.CJEngine.reset === "function") {
-        window.CJEngine.reset("breaker");
-    }
+    // (Suppression du reset CJEngine : le timer CJ doit rester global et persistant)
 
     // ⏱️ Sauvegarder le temps de jeu
     savePlayTime();
@@ -1674,11 +1731,8 @@ async function loadAndStartGame() {
 }
 
 function initializeGame() {
-    // 🎮 Reset CJEngine timer at game start
+    // ...existing code...
     lastFrameTime = 0;
-    if (window.CJEngine && typeof window.CJEngine.reset === "function") {
-        window.CJEngine.reset("breaker");
-    }
 
     updateOrbHUD();
     updateLevelText(); // Initialize level text
@@ -1692,6 +1746,9 @@ function initializeGame() {
     console.log('[DEBUG initializeGame] bricks[0]:', bricks[0] ? JSON.stringify(bricks[0]) : 'Aucune brique');
     console.log('HighScore after init:', state.highScore);
     gameLoop();
+
+    // 💎 Synchroniser l'affichage des diamants au démarrage
+    updateDiamondsUI();
 }
 
 window.addEventListener("resize", resizeCanvas);
