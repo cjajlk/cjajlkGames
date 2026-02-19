@@ -28,7 +28,6 @@
       <h1>CJajlkGames</h1>
       <div class="cj-info">
         <span id="cj-display-header" class="cj-display cj-display-tooltip" title="Les CJ sont gagnés en jouant">💎 CJ : 0</span>
-        <span class="diamonds-count diamonds-hud" title="Diamants Breaker" style="margin-left:16px; font-weight:600; color:#5cc8ff; font-size:1.1em;">💎 <span class="diamonds-count">0</span></span>
       </div>
     </div>
   </header>
@@ -83,6 +82,15 @@
           </div>
         </div>
       </a>
+    </div>
+  </section>
+
+
+  <!-- ==== TEASER BETA ANDROID ==== -->
+  <section class="beta-teaser-card fadein-section">
+    <div class="beta-teaser-content" style="max-width:340px;margin:0 auto;text-align:center;">
+      <h2 style="font-size:1.25em;font-weight:700;color:#bca7ff;margin-bottom:10px;letter-spacing:0.01em;">Bêta Android ouverte</h2>
+      <p style="color:#e6e3ff;font-size:1em;line-height:1.6;margin:0;">Des versions Android de mes jeux sont actuellement en test.<br>Si tu souhaites participer, consulte la section dédiée plus bas pour obtenir les informations et me contacter.</p>
     </div>
   </section>
 
@@ -158,7 +166,8 @@
     </section>
 
 
-    <div class="beta-signature">
+    <!-- doublon supprimé : balise beta-signature -->
+    <div class="beta-signature" id="beta-section">
       <p>✨ Si tu veux suivre le projet, laisse ton pseudo :</p>
       <label for="betaName" class="sr-only">Ton pseudo</label>
       <input id="betaName" type="text" placeholder="Ton pseudo" autocomplete="nickname" />
@@ -326,7 +335,7 @@
 
 
   <!-- ==== SECTION BÊTA-TEST ANDROID ==== -->
-  <section class="beta-testeur-section fadein-section">
+  <section id="beta-section" class="beta-testeur-section fadein-section">
     <div class="beta-testeur-card">
       <h2 class="beta-testeur-title">Recherche Bêta-Testeurs Android</h2>
       <p class="beta-testeur-desc">
@@ -346,6 +355,8 @@
       <span class="beta-testeur-mention">Version en développement active – les retours sont intégrés régulièrement.</span>
     </div>
   </section>
+
+
 
 
   <!-- ==== PIED DE PAGE ==== -->
@@ -371,5 +382,21 @@
   </script>
   <script src="assets/js/visual-hub-animations.js" defer></script>
 </body>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var btn = document.querySelector('.beta-button');
+  if(btn){
+    btn.addEventListener('click', function () {
+      const target = document.querySelector('#beta-section');
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  }
+});
+</script>
 </html>
 
