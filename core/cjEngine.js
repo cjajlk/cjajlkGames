@@ -328,16 +328,44 @@ animation:cjTestFade 1.4s ease-out forwards;\
     function init() {
         loadTimersFromStorage();
         
-        // 🔒 Protection anti multi-onglet
-        const sessionLock = localStorage.getItem("cjSessionLock");
-        if (sessionLock) {
+
+        // 🔒 Protection anti multi-onglet améliorée avec timestamp et expiration
+        const LOCK_TIMEOUT = 10000; // 10 secondes
+
+        function isLockValid(lock) {
+            if (!lock) return false;
+            const now = Date.now();
+            return (now - lock.timestamp) < LOCK_TIMEOUT;
+        }
+
+        function acquireLock() {
+            const existing = JSON.parse(localStorage.getItem("cjSessionLock"));
+            if (existing && isLockValid(existing)) {
+                return false; // un onglet actif existe
+            }
+            localStorage.setItem("cjSessionLock", JSON.stringify({
+                id: Date.now(),
+                timestamp: Date.now()
+            }));
+            return true;
+        }
+
+        if (!acquireLock()) {
             state.engineActive = false;
             debug("⚠️ Engine désactivé - session active dans un autre onglet");
         } else {
-            localStorage.setItem("cjSessionLock", Date.now().toString());
             state.engineActive = true;
             debug("🔒 Session lock créé");
-            
+
+            // Heartbeat pour maintenir le lock
+            setInterval(() => {
+                const lock = JSON.parse(localStorage.getItem("cjSessionLock"));
+                if (lock) {
+                    lock.timestamp = Date.now();
+                    localStorage.setItem("cjSessionLock", JSON.stringify(lock));
+                }
+            }, 2000);
+
             window.addEventListener("beforeunload", () => {
                 localStorage.removeItem("cjSessionLock");
                 saveTimersToStorage();
