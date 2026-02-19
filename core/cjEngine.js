@@ -12,10 +12,34 @@
  * ✅ Intégré avec cjAccount.js (source de vérité)
  */
 
+// 1️⃣ Versioning strict (reset automatique après mise à jour)
+const CJ_ENGINE_VERSION = "2026.02.19";
+function checkEngineVersion() {
+    const storedVersion = localStorage.getItem("CJEngine_version");
+    if (storedVersion !== CJ_ENGINE_VERSION) {
+        console.log("🔄 Version CJEngine changée → reset sécurisé");
+        localStorage.removeItem("CJEngine");
+        localStorage.setItem("CJEngine_version", CJ_ENGINE_VERSION);
+    }
+}
+checkEngineVersion();
+
+// 2️⃣ Protection anti double initialisation
+if (window.__CJ_ENGINE_INITIALIZED__) {
+    console.warn("CJEngine déjà initialisé → arrêt");
+} else {
+    window.__CJ_ENGINE_INITIALIZED__ = true;
+
 const CJEngine = (function () {
     "use strict";
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // 3️⃣ Auto-correction timer bloqué (dans la boucle moteur, à intégrer dans le tick principal)
+    // À placer dans la boucle principale/tick du moteur (exemple générique)
+    // if (!state.engineActive && Date.now() - state.lastTick > 5000) {
+    //   warn("⚠ Timer incohérent détecté → réactivation");
+    //   state.engineActive = true;
+    // }
     // 🔧 CONFIGURATION
     // ═══════════════════════════════════════════════════════════════════════════
 
@@ -420,3 +444,4 @@ if (typeof CJEngine.init === "function") {
 }
 
 console.log("✅ CJEngine.js chargé et actif");
+}
