@@ -73,12 +73,9 @@ function renderShopCatalog() {
   const itemsHTML = SHOP_ITEMS.map(item => {
     const isPurchased = window.isItemPurchased ? window.isItemPurchased(item.id) : false;
     const account = window.loadCJAccount ? window.loadCJAccount() : { cjBalance: 0 };
-    // Gestion des prix : si item.type === 'companion' ou item.game === 'breaker', utiliser les diamants
-    const useDiamonds = item.type === 'companion' || item.game === 'breaker';
-    const diamonds = Number(localStorage.getItem('breakerDiamonds')) || 0;
-    const canAfford = useDiamonds ? (diamonds >= item.price) : (account.cjBalance >= item.price);
-    const priceLabel = useDiamonds ? `${item.price} 💎` : `${item.price} CJ`;
-    const lockLabel = useDiamonds ? '🔒 Diamants insuffisants' : '🔒 CJ insuffisants';
+    const canAfford = account.cjBalance >= item.price;
+    const priceLabel = `${item.price} CJ`;
+    const lockLabel = '🔒 CJ insuffisants';
     return `
       <div class="shop-item ${isPurchased ? 'purchased' : ''}" data-item-id="${item.id}">
         <div class="item-icon">${item.icon}</div>
@@ -90,7 +87,7 @@ function renderShopCatalog() {
             ${isPurchased 
               ? '<button class="btn-purchased" disabled>✅ Débloqué</button>'
               : `<button class="btn-buy ${!canAfford ? 'disabled' : ''}" 
-                   onclick="purchaseItem('${item.id}', ${item.price}, ${useDiamonds})" 
+                   onclick="purchaseItem('${item.id}', ${item.price}, false)" 
                    ${!canAfford ? 'disabled' : ''}>
                    ${!canAfford ? lockLabel : 'Acheter'}
                  </button>`
@@ -108,29 +105,6 @@ function renderShopCatalog() {
  * Achète un item de la boutique - Phase 1 actif
  */
 function purchaseItem(itemId, price, useDiamonds) {
-  // Gestion achat par diamants ou CJ
-  if (useDiamonds) {
-    if (typeof window.spendDiamonds !== 'function') {
-      showMessage("Erreur système (diamants)", "error");
-      return;
-    }
-    const ok = window.spendDiamonds(price);
-    if (!ok) {
-      showMessage("Diamants insuffisants", "error");
-      return;
-    }
-    // Succès : marquer comme acheté (si logique d'achat custom à ajouter ici)
-    showMessage("Achat réussi avec diamants !", "success");
-    renderShopCatalog();
-    updateDiamondsUI();
-    // Animation visuelle
-    const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
-    if (itemCard) {
-      itemCard.classList.add('purchase-glow');
-      setTimeout(() => itemCard.classList.remove('purchase-glow'), 800);
-    }
-    return;
-  }
   // Achat classique CJ
   if (typeof window.buyShopItem !== 'function') {
     console.error("buyShopItem n'est pas disponible");

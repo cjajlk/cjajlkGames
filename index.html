@@ -369,17 +369,6 @@
 
   <script src="core/cjAccount.js" defer></script>
   <script src="assets/js/script.js" defer></script>
-  <script>
-    // Affichage des diamants Breaker dans le header global
-    function updateDiamondsUI() {
-      const diamonds = Number(localStorage.getItem("breakerDiamonds")) || 0;
-      document.querySelectorAll('.diamonds-count').forEach(el => {
-        el.textContent = diamonds;
-      });
-    }
-    window.addEventListener('DOMContentLoaded', updateDiamondsUI);
-    window.setInterval(updateDiamondsUI, 2000);
-  </script>
   <script src="assets/js/visual-hub-animations.js" defer></script>
 </body>
 <script>
