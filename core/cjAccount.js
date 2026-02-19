@@ -1,3 +1,6 @@
+
+// ⚠ Seule source autorisée de modification du solde CJ universel.
+// Toute modification du CJ doit passer exclusivement par CJajlkAccount.add().
 /**
  * 🔐 cjAccount.js - SYSTÈME OFFICIEL DE COMPTE CENTRALISÉ
  * ⚠️ SOURCE DE VÉRITÉ UNIQUE POUR TOUS LES CJ
@@ -93,23 +96,35 @@ const cjAccount = {
      * Ajoute des CJ au compte (appelé par cjEngine)
      */
     addCJ(gameName, amount) {
-        if (!gameName || amount <= 0) {
-            console.warn(`[cjAccount] addCJ: paramètres invalides (${gameName}, ${amount})`);
+        // Sécurité : refuser toute valeur non numérique, négative, NaN, undefined
+        if (!gameName || typeof amount !== "number" || !isFinite(amount) || isNaN(amount) || amount <= 0) {
+            // Protection silencieuse : ne rien faire
             return false;
         }
 
+        // Anti double crédit rapide (anti-spam) : mémorise le dernier crédit par jeu
+        if (!this._lastCJCredit) this._lastCJCredit = {};
+        const now = Date.now();
+        const last = this._lastCJCredit[gameName] || 0;
+        // Refuse si moins de 300ms entre deux crédits pour le même jeu
+        if (now - last < 300) {
+            return false;
+        }
+        this._lastCJCredit[gameName] = now;
+
         const playerData = this.ensureDataStructure();
-        
+
         // Ajouter au jeu spécifique
         playerData.stats.byGame[gameName] = (playerData.stats.byGame[gameName] || 0) + amount;
-        
+
         // Ajouter au total global
         playerData.stats.totalCJ = (playerData.stats.totalCJ || 0) + amount;
 
         // Sauvegarder
         this.savePlayer(playerData);
-        
-        console.log(`[cjAccount] 💰 ${gameName} +${amount} CJ | Total global: ${playerData.stats.totalCJ} CJ`);
+
+        // Log (silencieux si besoin)
+        // console.log(`[cjAccount] 💰 ${gameName} +${amount} CJ | Total global: ${playerData.stats.totalCJ} CJ`);
         return true;
     },
 

@@ -2,32 +2,35 @@
 // 💎 DIAMONDS SYSTEM (modulaire)
 // =============================
 
-let diamonds = Number(localStorage.getItem("breakerDiamonds")) || 0;
-
+// Nouvelle gestion unifiée des diamants via profile.js
 function addDiamonds(amount) {
-    diamonds += amount;
-    localStorage.setItem("breakerDiamonds", diamonds);
-    console.log("[DIAMONDS] +", amount, "Total:", diamonds);
-    updateDiamondsUI();
+    if (window.Profile && typeof window.Profile.addDiamants === 'function') {
+        window.Profile.addDiamants(amount);
+        updateDiamondsUI();
+    }
 }
 
 function updateDiamondsUI() {
-    const diamonds = Number(localStorage.getItem("breakerDiamonds")) || 0;
-    const uiElements = document.querySelectorAll(".diamonds-count");
-    uiElements.forEach(el => {
-        el.textContent = diamonds;
-    });
+    if (window.getPlayerProfile) {
+        const profile = window.getPlayerProfile();
+        const diamonds = profile.diamants || 0;
+        const uiElements = document.querySelectorAll('.diamonds-count');
+        uiElements.forEach(el => {
+            el.textContent = diamonds;
+        });
+    }
 }
 
 function spendDiamonds(cost) {
-    let diamonds = Number(localStorage.getItem("breakerDiamonds")) || 0;
-    if (diamonds < cost) {
-        return false;
+    if (window.getPlayerProfile && window.savePlayerProfile) {
+        const profile = window.getPlayerProfile();
+        if (profile.diamants < cost) return false;
+        profile.diamants -= cost;
+        window.savePlayerProfile(profile);
+        updateDiamondsUI();
+        return true;
     }
-    diamonds -= cost;
-    localStorage.setItem("breakerDiamonds", diamonds);
-    updateDiamondsUI();
-    return true;
+    return false;
 }
 // Ajout : fonction centralisée pour l'XP
 function addXP(amount) {
