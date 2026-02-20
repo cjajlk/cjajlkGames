@@ -157,9 +157,12 @@ function renderItems(items, containerId) {
     }
     if (!disabled) {
       if (selectedBadge === item.id) {
-        cardClass = 'equipped-badge';
-        buttonHtml = '<button class="btn-equiped" disabled>Équipé</button>';
-      }
+  cardClass = 'equipped-badge';
+  if (item.category === "social") {
+    cardClass += ' rank-active';
+  }
+  buttonHtml = '<button class="btn-equiped" disabled>Équipé</button>';
+}
       else if (isPurchased) {
         buttonHtml = `<button class="btn-equip buy-btn" data-item="${item.id}" data-equip="1">Équiper</button>`;
       } else {
@@ -244,29 +247,21 @@ function renderShopCatalog() {
 
 
 function equipBadge(badgeId) {
+
   const item = SHOP_ITEMS.find(i => i.id === badgeId);
   if (!item) return;
 
-  // Si badge social → appliquer priorité
+  // Un seul badge social actif
   if (item.category === "social") {
-    // Récupère tous les badges sociaux débloqués
-    const unlockedSocial = SHOP_ITEMS.filter(i =>
-      i.category === "social" &&
-      window.CJajlkAccount && typeof CJajlkAccount.isBadgeUnlocked === "function" && CJajlkAccount.isBadgeUnlocked(i.id)
-    );
-    // Trouve le plus haut rang
-    const highest = unlockedSocial.sort(
-      (a, b) => (b.rankPriority || 0) - (a.rankPriority || 0)
-    )[0];
-    if (highest && window.CJajlkAccount && typeof CJajlkAccount.setSelectedBadge === "function") {
-      CJajlkAccount.setSelectedBadge(highest.id);
+    if (window.CJajlkAccount && typeof CJajlkAccount.setSelectedBadge === "function") {
+      CJajlkAccount.setSelectedBadge(badgeId);
     }
   } else {
-    // Badge normal
     if (window.CJajlkAccount && typeof CJajlkAccount.setSelectedBadge === "function") {
       CJajlkAccount.setSelectedBadge(badgeId);
     }
   }
+
   renderShopCatalog();
   if (typeof updateHeroBadge === "function") updateHeroBadge();
 }

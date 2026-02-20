@@ -3995,4 +3995,8 @@ body.debug-mode .debug-only {
 .badge-category .catalog-subtitle {
   margin-bottom: 25px;
   opacity: 0.8;
+} 
+
+.rank-active {
+  box-shadow: 0 0 20px rgba(255, 215, 100, 0.6);
 }
