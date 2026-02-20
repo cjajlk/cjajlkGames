@@ -2,15 +2,25 @@
   background: none;
   border: none;
   color: #a084ff;
-  font-size: 1.2em;
-  margin-left: 8px;
+  font-size: 1.6em;
+  margin-left: 10px;
   cursor: pointer;
   vertical-align: middle;
-  transition: color 0.18s, box-shadow 0.18s;
+  transition: color 0.18s, box-shadow 0.18s, background 0.18s;
+  padding: 6px 10px;
+  border-radius: 50%;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(180,150,255,0.08);
 }
-.edit-pseudo-btn.premium-glow:hover {
+.edit-pseudo-btn.premium-glow:active,
+.edit-pseudo-btn.premium-glow:focus {
   color: #fff;
+  background: #a084ff;
   box-shadow: 0 0 12px 0 #a084ff66;
+  outline: none;
 }
 .pseudo-edit-input {
   font-size: 1em;
