@@ -1,3 +1,10 @@
+// Affiche le pseudo sauvegardé dans la boutique au chargement
+document.addEventListener("DOMContentLoaded", () => {
+  const playerNameEl = document.getElementById("playerName");
+  if (!playerNameEl || !window.CJajlkAccount || typeof window.CJajlkAccount.getPseudo !== "function") return;
+  const pseudo = window.CJajlkAccount.getPseudo();
+  if (pseudo) playerNameEl.textContent = pseudo;
+});
 // === Met à jour dynamiquement le badge premium du Hero depuis la boutique ===
 function updateHeroBadge() {
   const badgeImg = document.getElementById("playerBadgeImg");
@@ -30,6 +37,70 @@ function updateHeroBadge() {
     if (badgeContainer) badgeContainer.innerHTML = "";
   }
 }
+
+// === Gestion édition pseudo dans le hub ===
+document.addEventListener("DOMContentLoaded", () => {
+  const playerNameEl = document.getElementById("playerName");
+  const editBtn = document.getElementById("editPseudoBtn");
+  if (!playerNameEl || !editBtn) return;
+
+  // Style premium sur bouton
+  editBtn.classList.add("premium-glow");
+
+  editBtn.addEventListener("click", () => {
+    // Empêche double édition
+    if (document.getElementById("pseudoEditInput")) return;
+    const currentPseudo = playerNameEl.textContent;
+    // Crée input inline
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = "pseudoEditInput";
+    input.value = currentPseudo;
+    input.className = "pseudo-edit-input";
+    input.setAttribute("maxlength", "20");
+    input.setAttribute("autocomplete", "off");
+
+    // Boutons valider/annuler
+    const validateBtn = document.createElement("button");
+    validateBtn.textContent = "✔";
+    validateBtn.className = "pseudo-edit-validate premium-glow";
+    validateBtn.title = "Valider";
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.textContent = "✖";
+    cancelBtn.className = "pseudo-edit-cancel";
+    cancelBtn.title = "Annuler";
+
+    // Remplace le contenu
+    playerNameEl.innerHTML = "";
+    playerNameEl.appendChild(input);
+    playerNameEl.appendChild(validateBtn);
+    playerNameEl.appendChild(cancelBtn);
+    input.focus();
+
+    // Validation
+    validateBtn.addEventListener("click", () => {
+      const newPseudo = input.value.trim();
+      if (!newPseudo) return;
+      window.CJajlkAccount.setPseudo(newPseudo);
+      // Met à jour affichage
+      playerNameEl.textContent = newPseudo;
+      // Optionnel : relancer updateHeroBadge si badge dépend du pseudo
+      updateHeroBadge();
+    });
+
+    // Annulation
+    cancelBtn.addEventListener("click", () => {
+      playerNameEl.textContent = currentPseudo;
+    });
+
+    // Entrée clavier
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") validateBtn.click();
+      if (e.key === "Escape") cancelBtn.click();
+    });
+  });
+});
 // ===== BADGES PREMIUM (source unique) =====
 const BADGES = {
   badge_explorer: {
@@ -166,16 +237,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const badgeImg = document.getElementById("playerBadgeImg");
-    const data = CJajlkAccount.ensureDataStructure();
-    const selected = CJajlkAccount.getSelectedBadge();
+  const badgeImg = document.getElementById("playerBadgeImg");
+  if (!badgeImg) return;
+  const data = CJajlkAccount.ensureDataStructure();
+  const selected = CJajlkAccount.getSelectedBadge();
 
-    if (selected && BADGES[selected]) {
-        badgeImg.src = BADGES[selected].image;
-        badgeImg.style.display = "block";
-    } else {
-        badgeImg.style.display = "none";
-    }
+  if (selected && BADGES[selected]) {
+    badgeImg.src = BADGES[selected].image;
+    badgeImg.style.display = "block";
+  } else {
+    badgeImg.style.display = "none";
+  }
 
 });
 function loadBetaNames(){

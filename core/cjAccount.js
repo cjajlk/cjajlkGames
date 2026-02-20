@@ -1,5 +1,11 @@
-
 const cjAccount = {
+    /**
+     * Retourne le pseudo du joueur
+     */
+    getPseudo() {
+        const playerData = this.getPlayer();
+        return playerData?.pseudo || "";
+    },
     // ═══════════════════════════════════════════════════════════════════════════
     // 📊 INITIALISATION
     // ═══════════════════════════════════════════════════════════════════════════
@@ -149,6 +155,9 @@ const cjAccount = {
 
     playerData.pseudo = newPseudo.trim();
     this.savePlayer(playerData);
+    // DEBUG LOGS
+    console.log("Pseudo sauvegardé :", playerData.pseudo);
+    console.log("LocalStorage après save :", localStorage.getItem("cjPlayerData"));
     return true;
 },
       

@@ -397,18 +397,31 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Injection dynamique du pseudo et badge premium (image)
+  // Injection dynamique du pseudo et du badge premium dans le hub (moderne, sans playerBadgeImg)
   const pseudoEl = document.getElementById("playerPseudo");
-  const badgeImg = document.getElementById("playerBadgeImg");
-  if (pseudoEl && badgeImg && window.CJajlkAccount && window.BADGES) {
-    const data = CJajlkAccount.ensureDataStructure();
-    pseudoEl.textContent = data.pseudo || "Explorateur";
+  const heroBadge = document.getElementById("heroBadge");
+  if (pseudoEl && window.CJajlkAccount && typeof window.CJajlkAccount.getPseudo === "function") {
+    const pseudo = window.CJajlkAccount.getPseudo();
+    if (pseudo) pseudoEl.textContent = pseudo;
+  }
+  if (heroBadge && window.CJajlkAccount && window.BADGES) {
     const selected = CJajlkAccount.getSelectedBadge();
     if (selected && BADGES[selected]) {
-      badgeImg.src = BADGES[selected].image;
-      badgeImg.style.display = "block";
+      // Rendu moderne : icône + label
+      const badgeMap = {
+        badge_explorer: { icon: "🌙", label: "Explorateur Nocturne" },
+        badge_fidele: { icon: "⭐", label: "Joueur Fidèle" },
+        badge_centre: { icon: "🔮", label: "Compagnon du Centre" }
+      };
+      const badge = badgeMap[selected];
+      heroBadge.innerHTML = badge ? `
+        <div class="hero-badge-card glow-${selected}">
+          <span class="badge-icon">${badge.icon}</span>
+          <span class="badge-label">${badge.label}</span>
+        </div>
+      ` : "";
     } else {
-      badgeImg.style.display = "none";
+      heroBadge.innerHTML = "";
     }
   }
 });
