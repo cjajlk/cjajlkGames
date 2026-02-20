@@ -1,3 +1,45 @@
+/* === PSEUDO WRAPPER & EDIT BTN === */
+.pseudo-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+#playerName {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #d6c6ff;
+}
+
+.edit-btn {
+  background: linear-gradient(135deg, #6c4bff, #9a6bff);
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.3s ease;
+}
+
+.edit-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(150, 100, 255, 0.6);
+}
+
+@media (max-width: 600px) {
+  #playerName {
+    font-size: 1rem;
+  }
+
+  .edit-btn {
+    padding: 5px 8px;
+    font-size: 0.8rem;
+  }
+}
 .edit-pseudo-btn {
   background: none;
   border: none;
