@@ -4000,3 +4000,10 @@ body.debug-mode .debug-only {
 .rank-active {
   box-shadow: 0 0 20px rgba(255, 215, 100, 0.6);
 }
+
+.hub-badge {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: #ffd76a;
+    text-shadow: 0 0 10px rgba(255, 215, 100, 0.7);
+}

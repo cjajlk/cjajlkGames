@@ -5,12 +5,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const pseudo = window.CJajlkAccount.getPseudo();
   if (pseudo) playerNameEl.textContent = pseudo;
 });
+
 // === Met à jour dynamiquement le badge premium du Hero depuis la boutique ===
 function updateHeroBadge() {
   const badgeImg = document.getElementById("playerBadgeImg");
   const badgeContainer = document.getElementById("heroBadge");
   if (!window.CJajlkAccount || !window.BADGES) return;
-  const selected = CJajlkAccount.getSelectedBadge && CJajlkAccount.getSelectedBadge();
+  const selected = window.CJajlkAccount.getSelectedBadge();
   if (selected && BADGES[selected]) {
     // Affiche l'image dans l'avatar (optionnel)
     if (badgeImg) {
@@ -101,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
 // ===== BADGES PREMIUM (source unique) =====
 const BADGES = {
   badge_explorer: {
@@ -119,6 +121,24 @@ const BADGES = {
     image: "assets/badges/centre.png"
   }
 };
+
+function showActiveBadge() {
+  const selected = window.CJajlkAccount.getSelectedBadge();
+  if (!selected) return;
+  const badge = BADGES[selected];
+  const profileCard = document.querySelector(".profile-card");
+  if (!profileCard) return;
+  // Supprime ancien badge si présent
+  const old = profileCard.querySelector(".hub-badge");
+  if (old) old.remove();
+  const badgeEl = document.createElement("div");
+  badgeEl.className = "hub-badge";
+  badgeEl.textContent = "🌟 " + (badge ? badge.name : selected);
+  profileCard.appendChild(badgeEl);
+}
+
+document.addEventListener("DOMContentLoaded", showActiveBadge);
+
 /***********************
  * CJajlk Games  Script principal
  * Version : 1.0
@@ -234,13 +254,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-
 document.addEventListener("DOMContentLoaded", () => {
 
   const badgeImg = document.getElementById("playerBadgeImg");
   if (!badgeImg) return;
   const data = CJajlkAccount.ensureDataStructure();
-  const selected = CJajlkAccount.getSelectedBadge();
+  const selected = window.CJajlkAccount.getSelectedBadge();
 
   if (selected && BADGES[selected]) {
     badgeImg.src = BADGES[selected].image;
