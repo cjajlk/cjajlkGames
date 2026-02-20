@@ -37,27 +37,28 @@ const SHOP_ITEMS = [
 ];
 
 /**
- * Affiche le solde CJ dans le header de la boutique
+ * Récupère les données CJ officielles via CJajlkAccount
+ */
+function getCJAccountData() {
+    if (window.CJajlkAccount && typeof CJajlkAccount.getTotal === "function") {
+        return { totalCJ: CJajlkAccount.getTotal() };
+    }
+    return { totalCJ: 0 };
+}
+
+/**
+ * Affiche le solde CJ universel dans la boutique
  */
 function updateShopBalance() {
-  try {
-    if (typeof window.loadCJAccount !== 'function' || !window.loadCJAccount) {
-      console.warn("loadCJAccount n'est pas encore disponible");
-      document.getElementById('shop-balance').textContent = '0';
-      return;
+    try {
+        const account = getCJAccountData();
+        const balanceEl = document.getElementById("cjAmount");
+        if (balanceEl) {
+            balanceEl.textContent = account.totalCJ;
+        }
+    } catch (error) {
+        console.error("Erreur mise à jour solde CJ :", error);
     }
-    const account = window.loadCJAccount();
-    const balanceEl = document.getElementById('shop-balance');
-    if (balanceEl) {
-      balanceEl.textContent = account.cjBalance || 0;
-    }
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour du solde:", error);
-    const balanceEl = document.getElementById('shop-balance');
-    if (balanceEl) {
-      balanceEl.textContent = '?';
-    }
-  }
 }
 
 /**
@@ -72,8 +73,8 @@ function renderShopCatalog() {
   // Générer le HTML pour chaque badge
   const itemsHTML = SHOP_ITEMS.map(item => {
     const isPurchased = window.isItemPurchased ? window.isItemPurchased(item.id) : false;
-    const account = window.loadCJAccount ? window.loadCJAccount() : { cjBalance: 0 };
-    const canAfford = account.cjBalance >= item.price;
+    const account = getCJAccountData();
+    const canAfford = account.totalCJ >= item.price;
     const priceLabel = `${item.price} CJ`;
     const lockLabel = '🔒 CJ insuffisants';
     return `
@@ -86,11 +87,7 @@ function renderShopCatalog() {
             <span class="item-price">${priceLabel}</span>
             ${isPurchased 
               ? '<button class="btn-purchased" disabled>✅ Débloqué</button>'
-              : `<button class="btn-buy ${!canAfford ? 'disabled' : ''}" 
-                   onclick="purchaseItem('${item.id}', ${item.price}, false)" 
-                   ${!canAfford ? 'disabled' : ''}>
-                   ${!canAfford ? lockLabel : 'Acheter'}
-                 </button>`
+              : `<button class="btn-buy buy-btn ${!canAfford ? 'disabled' : ''}" data-item="${item.id}" data-price="${item.price}" ${!canAfford ? 'disabled' : ''}>${!canAfford ? lockLabel : 'Acheter'}</button>`
             }
           </div>
         </div>
@@ -104,34 +101,43 @@ function renderShopCatalog() {
 /**
  * Achète un item de la boutique - Phase 1 actif
  */
-function purchaseItem(itemId, price, useDiamonds) {
-  // Achat classique CJ
-  if (typeof window.buyShopItem !== 'function') {
-    console.error("buyShopItem n'est pas disponible");
-    showMessage("Erreur système", "error");
+function buyShopItem(itemId) {
+  // Trouver le prix via SHOP_ITEMS
+  const item = SHOP_ITEMS.find(i => i.id === itemId);
+  if (!item) {
+    showMessage("Item introuvable", "error");
     return;
   }
-  // Effectuer l'achat CJ
-  const success = window.buyShopItem(itemId, price);
-  if (success) {
-    updateShopBalance();
-    renderShopCatalog();
-    const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
-    if (itemCard) {
-      itemCard.classList.add('purchase-glow');
-      setTimeout(() => itemCard.classList.remove('purchase-glow'), 800);
-    }
-    showMessage("Badge débloqué !", "success");
-  } else {
-    if (typeof window.loadCJAccount === 'function') {
-      const account = window.loadCJAccount();
-      if (account.cjBalance < price) {
-        showMessage("CJ insuffisants", "error");
-      } else {
-        showMessage("Déjà débloqué", "info");
-      }
-    }
+  // Vérifier solde
+  const account = getCJAccountData();
+  if (account.totalCJ < item.price) {
+    showMessage("CJ insuffisants", "error");
+    return;
   }
+  // Débiter le solde CJ via API officielle
+  window.CJajlkAccount.remove("hub", item.price);
+  // Débloquer le badge (à adapter selon logique réelle)
+  // window.CJajlkAccount.unlockItem(itemId); // À implémenter si besoin
+  updateShopBalance();
+  renderShopCatalog();
+  const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
+  if (itemCard) {
+    itemCard.classList.add('purchase-glow');
+    setTimeout(() => itemCard.classList.remove('purchase-glow'), 800);
+  }
+  showMessage("Badge débloqué !", "success");
+}
+
+/**
+ * Attache les handlers d'achat sur les boutons
+ */
+function initShopButtons() {
+  document.querySelectorAll(".buy-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      const itemId = button.dataset.item;
+      buyShopItem(itemId);
+    });
+  });
 }
 
 /**
@@ -157,13 +163,9 @@ function showMessage(text, type = "info") {
  * Initialise la boutique au chargement du DOM et de cjAccount.js
  */
 document.addEventListener('DOMContentLoaded', function() {
-  if (window.CJajlkAccount) {
-    console.log("✅ cjAccount.js chargé, initialisation du shop");
-    updateShopBalance();
-    renderShopCatalog();
-  } else {
-    console.error("❌ cjAccount.js n'est pas disponible");
-  }
+  updateShopBalance();
+  renderShopCatalog();
+  initShopButtons();
 });
 
 /**

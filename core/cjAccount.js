@@ -1,4 +1,6 @@
 
+
+
 // ⚠ Seule source autorisée de modification du solde CJ universel.
 // Toute modification du CJ doit passer exclusivement par CJajlkAccount.add().
 /**
@@ -129,6 +131,26 @@ const cjAccount = {
     },
 
     /**
+     * Décrémente le solde CJ global et par jeu
+     */
+    removeCJ(gameName, amount) {
+        if (!gameName || typeof amount !== "number" || amount <= 0) {
+            return false;
+        }
+        const playerData = this.ensureDataStructure();
+        if (playerData.stats.totalCJ < amount) {
+            return false;
+        }
+        playerData.stats.totalCJ -= amount;
+        if (!playerData.stats.byGame[gameName]) {
+            playerData.stats.byGame[gameName] = 0;
+        }
+        playerData.stats.byGame[gameName] -= amount;
+        this.savePlayer(playerData);
+        return true;
+    },
+
+    /**
      * Retourne le total CJ global
      */
     getTotalCJ() {
@@ -246,6 +268,7 @@ const cjAccount = {
 window.CJajlkAccount = {
     // Compatibilité avec ancien API
     add: (gameName, amount) => cjAccount.addCJ(gameName, amount),
+    remove: (gameName, amount) => cjAccount.removeCJ(gameName, amount),
     getTotal: () => cjAccount.getTotalCJ(),
     getByGame: (gameName) => cjAccount.getCJByGame(gameName),
     getStats: () => cjAccount.getAllCJStats(),
