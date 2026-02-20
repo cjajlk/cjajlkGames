@@ -1,3 +1,170 @@
+.btn-equip {
+  background: linear-gradient(90deg, #7a5cff 0%, #5cc8ff 100%);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 16px;
+  padding: 7px 22px;
+  box-shadow: 0 0 10px 0 #7a5cff33;
+  cursor: pointer;
+  opacity: 1;
+  letter-spacing: 0.01em;
+  font-size: 1em;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.btn-equip:hover, .btn-equip:focus {
+  background: linear-gradient(90deg, #5cc8ff 0%, #7a5cff 100%);
+  color: #fff;
+  box-shadow: 0 0 18px 0 #a084ff66;
+  transform: translateY(-2px) scale(1.04);
+}
+/* ==== SHOP BADGE PREMIUM ==== */
+.shop-item.equipped-badge {
+  border: 1px solid rgba(180,150,255,0.7);
+  box-shadow:
+    0 0 20px rgba(150,120,255,0.5),
+    0 0 40px rgba(120,90,255,0.25);
+  transform: translateY(-4px) scale(1.04);
+  z-index: 2;
+  position: relative;
+  transition: box-shadow 0.25s, transform 0.25s, border 0.25s;
+}
+
+.badge-active-label {
+  position: absolute;
+  top: -10px;
+  right: 15px;
+  background: linear-gradient(90deg,#7c5cff,#b99aff);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px 0 #a084ff33;
+  pointer-events: none;
+}
+.btn-equiped {
+  background: linear-gradient(90deg, #a084ff 0%, #5cc8ff 100%);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 16px;
+  padding: 7px 22px;
+  box-shadow: 0 0 10px 0 #a084ff55;
+  cursor: default;
+  opacity: 1;
+  filter: brightness(1.08);
+  letter-spacing: 0.01em;
+  font-size: 1em;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.btn-equiped[disabled] {
+  opacity: 0.85;
+  cursor: default;
+}
+/* ==== HERO BADGE COSMÉTIQUE ==== */
+.hero-badge {
+  margin-top: 12px;
+}
+
+.hero-badge-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(200,180,255,0.2);
+  backdrop-filter: blur(6px);
+  animation: badgeFloat 3s ease-in-out infinite;
+}
+
+.badge-icon {
+  font-size: 1.1rem;
+}
+
+@keyframes badgeFloat {
+  0%,100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Glow spécifique par rang */
+.glow-badge_explorer {
+  box-shadow: 0 0 12px rgba(120,100,255,0.6);
+}
+.glow-badge_loyal {
+  box-shadow: 0 0 14px rgba(255,220,120,0.7);
+}
+.glow-badge_center {
+  box-shadow: 0 0 16px rgba(180,120,255,0.8);
+}
+/* ==== HERO PROFILE PREMIUM IMAGE ==== */
+.hero-profile {
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 28px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(80,40,140,0.35), rgba(20,10,50,0.6));
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 25px rgba(120,80,255,0.3);
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #5e2eff, #1b0b3a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 18px rgba(140,90,255,0.7);
+}
+
+.profile-avatar img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(180,120,255,0.9));
+}
+/* ==== HERO PROFILE PREMIUM ==== */
+.hero-profile {
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 25px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(80,40,140,0.4), rgba(20,10,50,0.6));
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 25px rgba(120,80,255,0.3);
+}
+
+.profile-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #5e2eff, #1b0b3a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 0 15px rgba(120,80,255,0.6);
+}
+
+.profile-label {
+  font-size: 12px;
+  opacity: 0.6;
+  letter-spacing: 1px;
+}
+
+.profile-name {
+  font-size: 22px;
+  font-weight: 600;
+}
 #beta-section {
   scroll-margin-top: 80px;
 }
@@ -3695,4 +3862,20 @@ body.debug-mode .debug-only {
     padding: 14px 6vw 12px 6vw;
     font-size: 0.98em;
   }
+}
+
+.social-subtitle {
+    opacity: 0.8;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 30px;
+}
+
+.badge-divider {
+    width: 60px;
+    height: 3px;
+    margin: 10px auto 25px auto;
+    background: linear-gradient(90deg, #9c7bff, #cdb6ff);
+    border-radius: 3px;
+    box-shadow: 0 0 12px rgba(150,120,255,0.6);
 }

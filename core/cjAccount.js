@@ -1,22 +1,4 @@
 
-
-
-// ⚠ Seule source autorisée de modification du solde CJ universel.
-// Toute modification du CJ doit passer exclusivement par CJajlkAccount.add().
-/**
- * 🔐 cjAccount.js - SYSTÈME OFFICIEL DE COMPTE CENTRALISÉ
- * ⚠️ SOURCE DE VÉRITÉ UNIQUE POUR TOUS LES CJ
- * 
- * Architecture : cjajlkGames/core/ 
- * localStorage key : cjPlayerData (standard)
- * 
- * Accessible depuis :
- * - /games/attrape/ → ../../core/cjAccount.js
- * - /games/breaker/ → ../../core/cjAccount.js
- * - /shop/ → ../core/cjAccount.js
- * - / (racine) → ./core/cjAccount.js
- */
-
 const cjAccount = {
     // ═══════════════════════════════════════════════════════════════════════════
     // 📊 INITIALISATION
@@ -34,35 +16,43 @@ const cjAccount = {
     /**
      * Assure que la structure de données joueurn'est existait complète
      */
-    ensureDataStructure() {
-        let playerData = this.getPlayer();
-        
-        if (!playerData) {
-            playerData = {
-                id: this.generateId(),
-                pseudo: "Explorateur Nocturne",
-                createdAt: Date.now(),
-                stats: {
-                    totalCJ: 0,
-                    byGame: {
-                        attrape: 0,
-                        breaker: 0
-                    }
-                },
-                items: {
-                    unlockedBadges: {},
-                    unlockedCosmetics: {}
-                },
-                preferences: {
-                    language: "fr",
-                    volume: true
+   ensureDataStructure() {
+    let playerData = this.getPlayer();
+    
+    if (!playerData) {
+        playerData = {
+            id: this.generateId(),
+            pseudo: "Explorateur Nocturne",
+            createdAt: Date.now(),
+            stats: {
+                totalCJ: 0,
+                byGame: {
+                    attrape: 0,
+                    breaker: 0
                 }
-            };
-            this.savePlayer(playerData);
-        }
-        
-        return playerData;
-    },
+            },
+            items: {
+                unlockedBadges: {},
+                unlockedCosmetics: {}
+            },
+            preferences: {
+                language: "fr",
+                volume: true
+            },
+            selectedBadge: null   // 👈 AJOUTER ICI DIRECTEMENT
+        };
+
+        this.savePlayer(playerData);
+    }
+
+    // 👇 Important : pour les anciens comptes
+    if (playerData.selectedBadge === undefined) {
+        playerData.selectedBadge = null;
+        this.savePlayer(playerData);
+    }
+
+    return playerData;
+},
 
     /**
      * Sauvegarde les données du joueur
@@ -150,6 +140,34 @@ const cjAccount = {
         return true;
     },
 
+    setPseudo(newPseudo) {
+    const playerData = this.ensureDataStructure();
+
+    if (!newPseudo || typeof newPseudo !== "string" || newPseudo.trim().length < 2) {
+        return false;
+    }
+
+    playerData.pseudo = newPseudo.trim();
+    this.savePlayer(playerData);
+    return true;
+},
+      
+     setSelectedBadge(badgeId) {
+    const playerData = this.ensureDataStructure();
+
+    if (!playerData.items.unlockedBadges?.[badgeId]) {
+        return false;
+    }
+
+    playerData.selectedBadge = badgeId;
+    this.savePlayer(playerData);
+    return true;
+},  
+
+    getSelectedBadge() {
+    const playerData = this.getPlayer();
+    return playerData?.selectedBadge || null;
+},
     /**
      * Retourne le total CJ global
      */
@@ -269,6 +287,8 @@ window.CJajlkAccount = {
     // Compatibilité avec ancien API
     add: (gameName, amount) => cjAccount.addCJ(gameName, amount),
     remove: (gameName, amount) => cjAccount.removeCJ(gameName, amount),
+    unlockBadge: (badgeId) => cjAccount.unlockBadge(badgeId),
+    isBadgeUnlocked: (badgeId) => cjAccount.isBadgeUnlocked(badgeId),
     getTotal: () => cjAccount.getTotalCJ(),
     getByGame: (gameName) => cjAccount.getCJByGame(gameName),
     getStats: () => cjAccount.getAllCJStats(),

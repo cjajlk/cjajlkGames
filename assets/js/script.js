@@ -1,3 +1,53 @@
+// === Met à jour dynamiquement le badge premium du Hero depuis la boutique ===
+function updateHeroBadge() {
+  const badgeImg = document.getElementById("playerBadgeImg");
+  const badgeContainer = document.getElementById("heroBadge");
+  if (!window.CJajlkAccount || !window.BADGES) return;
+  const selected = CJajlkAccount.getSelectedBadge && CJajlkAccount.getSelectedBadge();
+  if (selected && BADGES[selected]) {
+    // Affiche l'image dans l'avatar (optionnel)
+    if (badgeImg) {
+      badgeImg.src = BADGES[selected].image;
+      badgeImg.style.display = "block";
+    }
+    // Affiche l’icône et le label sous le pseudo
+    if (badgeContainer) {
+      const badgeMap = {
+        badge_explorer: { icon: "🌙", label: "Explorateur Nocturne" },
+        badge_fidele: { icon: "⭐", label: "Joueur Fidèle" },
+        badge_centre: { icon: "🔮", label: "Compagnon du Centre" }
+      };
+      const badge = badgeMap[selected];
+      badgeContainer.innerHTML = badge ? `
+        <div class="hero-badge-card glow-${selected}">
+          <span class="badge-icon">${badge.icon}</span>
+          <span class="badge-label">${badge.label}</span>
+        </div>
+      ` : "";
+    }
+  } else {
+    if (badgeImg) badgeImg.style.display = "none";
+    if (badgeContainer) badgeContainer.innerHTML = "";
+  }
+}
+// ===== BADGES PREMIUM (source unique) =====
+const BADGES = {
+  badge_explorer: {
+    name: "Explorateur Nocturne",
+    price: 10,
+    image: "assets/badges/explorer.png"
+  },
+  badge_fidele: {
+    name: "Joueur Fidèle",
+    price: 25,
+    image: "assets/badges/fidele.png"
+  },
+  badge_centre: {
+    name: "Compagnon du Centre",
+    price: 50,
+    image: "assets/badges/centre.png"
+  }
+};
 /***********************
  * CJajlk Games  Script principal
  * Version : 1.0
@@ -113,6 +163,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const badgeImg = document.getElementById("playerBadgeImg");
+    const data = CJajlkAccount.ensureDataStructure();
+    const selected = CJajlkAccount.getSelectedBadge();
+
+    if (selected && BADGES[selected]) {
+        badgeImg.src = BADGES[selected].image;
+        badgeImg.style.display = "block";
+    } else {
+        badgeImg.style.display = "none";
+    }
+
+});
 function loadBetaNames(){
   const listEl = document.getElementById("betaList");
   if (!listEl) return;

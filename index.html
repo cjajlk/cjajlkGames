@@ -47,6 +47,16 @@
       <div class="hero-description">
         <p>Le hub nocturne de tes jeux connectés.</p>
       </div>
+      <div class="hero-profile">
+        <div class="profile-avatar">
+          <img id="playerBadgeImg" src="" alt="Badge" style="display:none;" />
+        </div>
+        <div class="profile-info">
+          <div class="profile-label">Profil Joueur</div>
+          <div class="profile-name" id="playerPseudo">CJ</div>
+          <div class="hero-badge" id="heroBadge"></div>
+        </div>
+      </div>
       <a href="#jeux" class="btn-hero hero-cta-glow">Explorer l'univers</a>
     </div>
   </section> 
@@ -373,6 +383,7 @@
 </body>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+  // Scroll beta button
   var btn = document.querySelector('.beta-button');
   if(btn){
     btn.addEventListener('click', function () {
@@ -384,6 +395,21 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       }
     });
+  }
+
+  // Injection dynamique du pseudo et badge premium (image)
+  const pseudoEl = document.getElementById("playerPseudo");
+  const badgeImg = document.getElementById("playerBadgeImg");
+  if (pseudoEl && badgeImg && window.CJajlkAccount && window.BADGES) {
+    const data = CJajlkAccount.ensureDataStructure();
+    pseudoEl.textContent = data.pseudo || "Explorateur";
+    const selected = CJajlkAccount.getSelectedBadge();
+    if (selected && BADGES[selected]) {
+      badgeImg.src = BADGES[selected].image;
+      badgeImg.style.display = "block";
+    } else {
+      badgeImg.style.display = "none";
+    }
   }
 });
 </script>
