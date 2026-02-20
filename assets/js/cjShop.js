@@ -1,3 +1,20 @@
+// Activation des événements saisonniers
+const ACTIVE_EVENTS = {
+  easter: false,
+  christmas: false
+};
+
+function disableCard(itemId) {
+  const card = document.querySelector(`[data-item-id="${itemId}"]`);
+  if (card) {
+    card.classList.add("disabled");
+    const btn = card.querySelector("button");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Indisponible";
+    }
+  }
+}
 /**
  * Met à jour dynamiquement le badge cosmétique du Hero dans la boutique
  */
@@ -35,31 +52,49 @@ function updateHeroBadge() {
  */
 const SHOP_ITEMS = [
   {
-    id: "badge_explorer",
+    id: "explorateur",
     name: "Explorateur Nocturne",
     description: "Badge cosmétique pour explorateurs de l'univers CJajlk.",
     price: 10,
     type: "badge",
+    category: "cosmetic",
+    visibleInHub: false,
     game: "global",
     icon: "🌙"
   },
   {
-    id: "badge_fidele",
+    id: "fidele",
     name: "Joueur Fidèle",
     description: "Badge récompensant votre fidélité à l'écosystème.",
     price: 25,
     type: "badge",
+    category: "cosmetic",
+    visibleInHub: false,
     game: "global",
     icon: "⭐"
   },
+    {
+      id: "compagnon-centre",
+      name: "Compagnon du Centre",
+      description: "Badge exclusif des joueurs du centre CJajlk.",
+      price: 50,
+      type: "badge",
+      category: "social",
+      visibleInHub: true,
+      game: "global",
+      icon: "🔮",
+      rankPriority: 1
+    },
   {
-    id: "badge_centre",
-    name: "Compagnon du Centre",
-    description: "Badge exclusif des joueurs du centre CJajlk.",
-    price: 50,
+    id: "event-paques",
+    name: "Chasseur de Pâques",
+    description: "Badge événementiel spécial Pâques.",
+    price: 30,
     type: "badge",
+    category: "event",
+    visibleInHub: false,
     game: "global",
-    icon: "🔮"
+    icon: "🥚"
   }
 ];
 
@@ -91,14 +126,17 @@ function updateShopBalance() {
 /**
  * Affiche le catalogue d'items - Phase 1 : Badges actifs
  */
-function renderShopCatalog() {
-  updateShopBalance();
-  const catalogContainer = document.getElementById('shop-catalog-items');
-  if (!catalogContainer) return;
 
-  // Générer le HTML pour chaque badge
+
+function isEventActive() {
+  return false; // temporaire, à adapter selon la saison
+}
+
+function renderItems(items, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
   const selectedBadge = window.CJajlkAccount && typeof CJajlkAccount.getSelectedBadge === "function" ? CJajlkAccount.getSelectedBadge() : null;
-  const itemsHTML = SHOP_ITEMS.map(item => {
+  const itemsHTML = items.map(item => {
     const isPurchased = window.CJajlkAccount && typeof CJajlkAccount.isBadgeUnlocked === "function"
       ? CJajlkAccount.isBadgeUnlocked(item.id)
       : false;
@@ -108,20 +146,31 @@ function renderShopCatalog() {
     const lockLabel = '🔒 CJ insuffisants';
     let buttonHtml = '';
     let cardClass = '';
-    if (selectedBadge === item.id) {
-      cardClass = 'equipped-badge';
-      buttonHtml = '<button class="btn-equiped" disabled>Équipé</button>';
+    let disabled = false;
+    // Désactive les badges event selon ACTIVE_EVENTS
+    if (item.category === "event") {
+      // Exemple : badge de Pâques
+      if (!ACTIVE_EVENTS.easter) {
+        buttonHtml = `<button class="btn-buy buy-btn disabled" disabled>Indisponible</button>`;
+        disabled = true;
+      }
     }
-    else if (isPurchased) {
-      buttonHtml = `<button class="btn-equip buy-btn" data-item="${item.id}" data-equip="1">Équiper</button>`;
-    } else {
-      buttonHtml = `<button class="btn-buy buy-btn ${!canAfford ? 'disabled' : ''}" data-item="${item.id}" data-price="${item.price}" ${!canAfford ? 'disabled' : ''}>${!canAfford ? lockLabel : 'Acheter'}</button>`;
+    if (!disabled) {
+      if (selectedBadge === item.id) {
+        cardClass = 'equipped-badge';
+        buttonHtml = '<button class="btn-equiped" disabled>Équipé</button>';
+      }
+      else if (isPurchased) {
+        buttonHtml = `<button class="btn-equip buy-btn" data-item="${item.id}" data-equip="1">Équiper</button>`;
+      } else {
+        buttonHtml = `<button class="btn-buy buy-btn ${!canAfford ? 'disabled' : ''}" data-item="${item.id}" data-price="${item.price}" ${!canAfford ? 'disabled' : ''}>${!canAfford ? lockLabel : 'Acheter'}</button>`;
+      }
     }
     const badgeActiveLabel = (selectedBadge === item.id)
       ? '<span class="badge-active-label">Badge Actif</span>'
       : '';
     return `
-      <div class="shop-item ${isPurchased ? 'purchased' : ''} ${cardClass}" data-item-id="${item.id}">
+      <div class="shop-item ${isPurchased ? 'purchased' : ''} ${cardClass} ${disabled ? 'disabled' : ''}" data-item-id="${item.id}">
         ${badgeActiveLabel}
         <div class="item-icon">${item.icon}</div>
         <div class="item-info">
@@ -135,15 +184,91 @@ function renderShopCatalog() {
       </div>
     `;
   }).join('');
-  catalogContainer.innerHTML = itemsHTML;
+  container.innerHTML = itemsHTML;
+  // 🔥 Réattacher les events après render
+  container.querySelectorAll("[data-equip='1']").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const badgeId = btn.getAttribute("data-item");
+      equipBadge(badgeId);
+    });
+  });
+
+  // 🔥 Listener achat robuste
+  container.querySelectorAll("[data-price]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      btn.disabled = true;
+      const itemId = btn.getAttribute("data-item");
+      const price = parseInt(btn.getAttribute("data-price"));
+      // Vérifie si déjà débloqué
+      if (window.CJajlkAccount && typeof CJajlkAccount.isBadgeUnlocked === "function" && CJajlkAccount.isBadgeUnlocked(itemId)) {
+        renderShopCatalog();
+        return;
+      }
+      // Vérifie les fonds
+      const account = getCJAccountData();
+      if (account.totalCJ < price) {
+        showMessage("CJ insuffisants");
+        btn.disabled = false;
+        return;
+      }
+      // Débit sécurisé
+      if (window.CJajlkAccount && typeof CJajlkAccount.remove === "function" && CJajlkAccount.remove("hub", price)) {
+        if (window.CJajlkAccount && typeof CJajlkAccount.unlockBadge === "function") {
+          CJajlkAccount.unlockBadge(itemId);
+        }
+        // Si badge social → auto sélection
+        const item = SHOP_ITEMS.find(i => i.id === itemId);
+        if (item && item.category === "social" && window.CJajlkAccount && typeof CJajlkAccount.setSelectedBadge === "function") {
+          CJajlkAccount.setSelectedBadge(itemId);
+        }
+        showMessage("Badge débloqué !");
+        renderShopCatalog();
+      } else {
+        btn.disabled = false;
+      }
+    });
+  });
 }
 
+function renderShopCatalog() {
+  updateShopBalance();
+  // Filtrage par catégorie
+  const cosmetic = SHOP_ITEMS.filter(i => i.type === "badge" && i.category === "cosmetic");
+  const social = SHOP_ITEMS.filter(i => i.type === "badge" && i.category === "social");
+  const event = SHOP_ITEMS.filter(i => i.type === "badge" && i.category === "event");
+
+  renderItems(cosmetic, "cosmetic-badges");
+  renderItems(social, "social-badges");
+  renderItems(event, "event-badges");
+}
+
+
 function equipBadge(badgeId) {
-    if (window.CJajlkAccount && typeof CJajlkAccount.setSelectedBadge === "function") {
-        CJajlkAccount.setSelectedBadge(badgeId);
-        renderShopCatalog();
-        if (typeof updateHeroBadge === "function") updateHeroBadge();
+  const item = SHOP_ITEMS.find(i => i.id === badgeId);
+  if (!item) return;
+
+  // Si badge social → appliquer priorité
+  if (item.category === "social") {
+    // Récupère tous les badges sociaux débloqués
+    const unlockedSocial = SHOP_ITEMS.filter(i =>
+      i.category === "social" &&
+      window.CJajlkAccount && typeof CJajlkAccount.isBadgeUnlocked === "function" && CJajlkAccount.isBadgeUnlocked(i.id)
+    );
+    // Trouve le plus haut rang
+    const highest = unlockedSocial.sort(
+      (a, b) => (b.rankPriority || 0) - (a.rankPriority || 0)
+    )[0];
+    if (highest && window.CJajlkAccount && typeof CJajlkAccount.setSelectedBadge === "function") {
+      CJajlkAccount.setSelectedBadge(highest.id);
     }
+  } else {
+    // Badge normal
+    if (window.CJajlkAccount && typeof CJajlkAccount.setSelectedBadge === "function") {
+      CJajlkAccount.setSelectedBadge(badgeId);
+    }
+  }
+  renderShopCatalog();
+  if (typeof updateHeroBadge === "function") updateHeroBadge();
 }
 
 /**
@@ -170,13 +295,14 @@ function buyShopItem(itemId) {
     return;
   }
   // 💳 Débiter puis débloquer le badge
-if (window.CJajlkAccount.remove("hub", item.price)) {
-
+  if (window.CJajlkAccount.remove("hub", item.price)) {
     // 🔓 Débloque le badge
     window.CJajlkAccount.unlockBadge(itemId);
 
-    // 👑 Auto-équipement du badge
-    window.CJajlkAccount.setSelectedBadge(itemId);
+    // 👑 Auto-équipement si social
+    if (item.category === "social") {
+      window.CJajlkAccount.setSelectedBadge(itemId);
+    }
 
     showMessage("Badge débloqué ! ✨");
 
@@ -187,11 +313,12 @@ if (window.CJajlkAccount.remove("hub", item.price)) {
     // ✨ Effet visuel sur la carte
     const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
     if (itemCard) {
-        itemCard.classList.add("purchase-glow");
-        setTimeout(() => {
-            itemCard.classList.remove("purchase-glow");
-        }, 800);
+      itemCard.classList.add("purchase-glow");
+      setTimeout(() => {
+        itemCard.classList.remove("purchase-glow");
+      }, 800);
     }
+  }
 }
 
 /**
@@ -258,9 +385,5 @@ window.CJajlkShop = {
   catalog: SHOP_ITEMS,
   activate: activateShopItems
 };
-}
 
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("Shop DOM chargé");
-    renderShopCatalog();
-});
+
