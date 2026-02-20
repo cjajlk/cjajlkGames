@@ -105,17 +105,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ===== BADGES PREMIUM (source unique) =====
 const BADGES = {
-  badge_explorer: {
+  explorer: {
     name: "Explorateur Nocturne",
     price: 10,
     image: "assets/badges/explorer.png"
   },
-  badge_fidele: {
+  fidele: {
     name: "Joueur Fidèle",
     price: 25,
     image: "assets/badges/fidele.png"
   },
-  badge_centre: {
+  centre: {
     name: "Compagnon du Centre",
     price: 50,
     image: "assets/badges/centre.png"

@@ -4007,3 +4007,13 @@ body.debug-mode .debug-only {
     color: #ffd76a;
     text-shadow: 0 0 10px rgba(255, 215, 100, 0.7);
 }
+
+.profile-badge {
+  animation: badgePulse 2.5s infinite ease-in-out;
+}
+
+@keyframes badgePulse {
+  0% { box-shadow: 0 0 8px rgba(180,140,255,0.4); }
+  50% { box-shadow: 0 0 18px rgba(180,140,255,0.8); }
+  100% { box-shadow: 0 0 8px rgba(180,140,255,0.4); }
+}
