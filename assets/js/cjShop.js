@@ -52,7 +52,7 @@ function updateHeroBadge() {
  */
 const SHOP_ITEMS = [
   {
-    id: "badge_explorer",
+    id: "explorer",
     name: "Explorateur Nocturne",
     description: "Badge cosmétique pour explorateurs de l'univers CJajlk.",
     price: 10,
@@ -74,7 +74,7 @@ const SHOP_ITEMS = [
     icon: "⭐"
   },
     {
-      id: "badge_centre",
+      id: "centre",
       name: "Compagnon du Centre",
       description: "Badge exclusif des joueurs du centre CJajlk.",
       price: 50,
@@ -86,7 +86,7 @@ const SHOP_ITEMS = [
       rankPriority: 1
     },
   {
-    id: "event-paques",
+    id: "paques",
     name: "Chasseur de Pâques",
     description: "Badge événementiel spécial Pâques.",
     price: 30,
