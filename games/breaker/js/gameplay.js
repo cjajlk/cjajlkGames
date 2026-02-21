@@ -100,6 +100,9 @@ const state = {
     playStartTime: Date.now() // ⏱️ Timestamp de début de partie
 };
 
+let combo = 0;
+let bestCombo = parseInt(localStorage.getItem("breaker_bestCombo")) || 0;
+bestCombo = parseInt(localStorage.getItem("breaker_bestCombo")) || 0;
 /**
  * 🎮 Breaker - Expose game state for CJ System (défini tôt pour cjSystem.js)
  * Called by cjSystem to check if game is actively running
@@ -906,6 +909,7 @@ function updateBall() {
         ball.dy > 0
     ) {
         ball.dy *= -1; 
+        combo = 0;
 
         playSound(assets.sounds.paddleHit);
 
@@ -1070,7 +1074,14 @@ function updateBrickCollision() {
                 bricksDestroyed++;
                 state.score += 10;
 
-                // � Encouragement combo (toutes les 10 briques)
+                combo++;
+
+                if (combo > bestCombo) {
+                    bestCombo = combo;
+                    localStorage.setItem("breaker_bestCombo", bestCombo);
+                }
+
+                // Encouragement combo (toutes les 10 briques)
                 if (bricksDestroyed % 10 === 0) {
                     showCompanionEncouragement('combo');
                 }
@@ -1382,7 +1393,7 @@ function drawUI() {
     ctx.font = "16px Arial";
 
     ctx.fillText("Score : " + state.score, 20, 30);
-    ctx.fillText("Best : " + state.highScore, 20, 50);
+    ctx.fillText("Best Combo : " + bestCombo, 20, 50);
 
     // 👹 Afficher la phase du boss
     if (boss.active) {
@@ -1608,7 +1619,7 @@ function gameOver() {
 
     if (state.score > state.highScore) {
         state.highScore = state.score;
-        localStorage.setItem("breakerHighScore", state.highScore);
+        localStorage.setItem("breaker_bestCombo", bestCombo);
     }
 
     state.score = 0; // reset pour la prochaine partie
