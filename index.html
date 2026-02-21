@@ -381,51 +381,6 @@
   <script src="assets/js/script.js" defer></script>
   <script src="assets/js/visual-hub-animations.js" defer></script>
 </body>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  // Scroll beta button
-  var btn = document.querySelector('.beta-button');
-  if(btn){
-    btn.addEventListener('click', function () {
-      const target = document.querySelector('#beta-section');
-      if (target) {
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    });
-  }
-
-  // Injection dynamique du pseudo et du badge premium dans le hub (moderne, sans playerBadgeImg)
-  const pseudoEl = document.getElementById("playerPseudo");
-  const heroBadge = document.getElementById("heroBadge");
-  if (pseudoEl && window.CJajlkAccount && typeof window.CJajlkAccount.getPseudo === "function") {
-    const pseudo = window.CJajlkAccount.getPseudo();
-    if (pseudo) pseudoEl.textContent = pseudo;
-  }
-  if (heroBadge && window.CJajlkAccount && window.BADGES) {
-    const selected = CJajlkAccount.getSelectedBadge();
-    if (selected && BADGES[selected]) {
-      // Rendu moderne : icône + label
-      const badgeMap = {
-        badge_explorer: { icon: "🌙", label: "Explorateur Nocturne" },
-        badge_fidele: { icon: "⭐", label: "Joueur Fidèle" },
-        badge_centre: { icon: "🔮", label: "Compagnon du Centre" }
-      };
-      const badge = badgeMap[selected];
-      heroBadge.innerHTML = badge ? `
-        <div class="hero-badge-card glow-${selected}">
-          <span class="badge-icon">${badge.icon}</span>
-          <span class="badge-label">${badge.label}</span>
-        </div>
-      ` : "";
-    } else {
-      heroBadge.innerHTML = "";
-    }
-  }
-});
-</script>
 <!-- Désactivation automatique du service worker (sécurité dev mobile) -->
 <script>
 if ('serviceWorker' in navigator) {

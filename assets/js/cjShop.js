@@ -19,8 +19,8 @@ function disableCard(itemId) {
  * Met à jour dynamiquement le badge cosmétique du Hero dans la boutique
  */
 function updateHeroBadge() {
-  const badgeId = window.CJajlkAccount && typeof CJajlkAccount.getSelectedBadge === "function"
-    ? CJajlkAccount.getSelectedBadge()
+  const badgeId = window.CJajlkAccount && typeof window.CJajlkAccount.getSelectedBadge === "function"
+    ? window.CJajlkAccount.getSelectedBadge()
     : null;
   const badgeContainer = document.getElementById("heroBadge");
   if (!badgeContainer) return;
@@ -52,7 +52,7 @@ function updateHeroBadge() {
  */
 const SHOP_ITEMS = [
   {
-    id: "explorateur",
+    id: "badge_explorer",
     name: "Explorateur Nocturne",
     description: "Badge cosmétique pour explorateurs de l'univers CJajlk.",
     price: 10,
@@ -63,7 +63,7 @@ const SHOP_ITEMS = [
     icon: "🌙"
   },
   {
-    id: "fidele",
+    id: "badge_fidele",
     name: "Joueur Fidèle",
     description: "Badge récompensant votre fidélité à l'écosystème.",
     price: 25,
@@ -74,7 +74,7 @@ const SHOP_ITEMS = [
     icon: "⭐"
   },
     {
-      id: "compagnon-centre",
+      id: "badge_centre",
       name: "Compagnon du Centre",
       description: "Badge exclusif des joueurs du centre CJajlk.",
       price: 50,
@@ -102,8 +102,8 @@ const SHOP_ITEMS = [
  * Récupère les données CJ officielles via CJajlkAccount
  */
 function getCJAccountData() {
-    if (window.CJajlkAccount && typeof CJajlkAccount.getTotal === "function") {
-        return { totalCJ: CJajlkAccount.getTotal() };
+    if (window.CJajlkAccount && typeof window.CJajlkAccount.getTotal === "function") {
+      return { totalCJ: window.CJajlkAccount.getTotal() };
     }
     return { totalCJ: 0 };
 }
@@ -135,10 +135,10 @@ function isEventActive() {
 function renderItems(items, containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  const selectedBadge = window.CJajlkAccount && typeof CJajlkAccount.getSelectedBadge === "function" ? CJajlkAccount.getSelectedBadge() : null;
+  const selectedBadge = window.CJajlkAccount && typeof window.CJajlkAccount.getSelectedBadge === "function" ? window.CJajlkAccount.getSelectedBadge() : null;
   const itemsHTML = items.map(item => {
-    const isPurchased = window.CJajlkAccount && typeof CJajlkAccount.isBadgeUnlocked === "function"
-      ? CJajlkAccount.isBadgeUnlocked(item.id)
+    const isPurchased = window.CJajlkAccount && typeof window.CJajlkAccount.isBadgeUnlocked === "function"
+      ? window.CJajlkAccount.isBadgeUnlocked(item.id)
       : false;
     const account = getCJAccountData();
     const canAfford = account.totalCJ >= item.price;
@@ -203,7 +203,7 @@ function renderItems(items, containerId) {
       const itemId = btn.getAttribute("data-item");
       const price = parseInt(btn.getAttribute("data-price"));
       // Vérifie si déjà débloqué
-      if (window.CJajlkAccount && typeof CJajlkAccount.isBadgeUnlocked === "function" && CJajlkAccount.isBadgeUnlocked(itemId)) {
+      if (window.CJajlkAccount && typeof window.CJajlkAccount.isBadgeUnlocked === "function" && window.CJajlkAccount.isBadgeUnlocked(itemId)) {
         renderShopCatalog();
         return;
       }
@@ -215,14 +215,14 @@ function renderItems(items, containerId) {
         return;
       }
       // Débit sécurisé
-      if (window.CJajlkAccount && typeof CJajlkAccount.remove === "function" && CJajlkAccount.remove("hub", price)) {
-        if (window.CJajlkAccount && typeof CJajlkAccount.unlockBadge === "function") {
-          CJajlkAccount.unlockBadge(itemId);
+      if (window.CJajlkAccount && typeof window.CJajlkAccount.remove === "function" && window.CJajlkAccount.remove("hub", price)) {
+        if (window.CJajlkAccount && typeof window.CJajlkAccount.unlockBadge === "function") {
+          window.CJajlkAccount.unlockBadge(itemId);
         }
         // Si badge social → auto sélection
         const item = SHOP_ITEMS.find(i => i.id === itemId);
-        if (item && item.category === "social" && window.CJajlkAccount && typeof CJajlkAccount.setSelectedBadge === "function") {
-          CJajlkAccount.setSelectedBadge(itemId);
+        if (item && item.category === "social" && window.CJajlkAccount && typeof window.CJajlkAccount.setSelectedBadge === "function") {
+          window.CJajlkAccount.setSelectedBadge(itemId);
         }
         showMessage("Badge débloqué !");
         renderShopCatalog();
@@ -253,12 +253,12 @@ function equipBadge(badgeId) {
 
   // Un seul badge social actif
   if (item.category === "social") {
-    if (window.CJajlkAccount && typeof CJajlkAccount.setSelectedBadge === "function") {
-      CJajlkAccount.setSelectedBadge(badgeId);
+    if (window.CJajlkAccount && typeof window.CJajlkAccount.setSelectedBadge === "function") {
+      window.CJajlkAccount.setSelectedBadge(badgeId);
     }
   } else {
-    if (window.CJajlkAccount && typeof CJajlkAccount.setSelectedBadge === "function") {
-      CJajlkAccount.setSelectedBadge(badgeId);
+    if (window.CJajlkAccount && typeof window.CJajlkAccount.setSelectedBadge === "function") {
+      window.CJajlkAccount.setSelectedBadge(badgeId);
     }
   }
 
@@ -271,8 +271,8 @@ function equipBadge(badgeId) {
  */
 function buyShopItem(itemId) {
   // Empêcher le double achat
-  if (window.CJajlkAccount && typeof CJajlkAccount.isBadgeUnlocked === "function") {
-    if (CJajlkAccount.isBadgeUnlocked(itemId)) {
+  if (window.CJajlkAccount && typeof window.CJajlkAccount.isBadgeUnlocked === "function") {
+    if (window.CJajlkAccount.isBadgeUnlocked(itemId)) {
       showMessage("Badge déjà débloqué");
       return;
     }
