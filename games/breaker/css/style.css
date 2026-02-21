@@ -210,7 +210,6 @@
   text-align: center;
 }
 
-// ...existing code...
 @media screen and (orientation: landscape) and (max-width: 1024px) {
   body::before{
     content:"🔄 Remets ton téléphone en mode portrait";
