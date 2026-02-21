@@ -63,7 +63,7 @@ const SHOP_ITEMS = [
     icon: "🌙"
   },
   {
-    id: "badge_fidele",
+    id: "fidele",
     name: "Joueur Fidèle",
     description: "Badge récompensant votre fidélité à l'écosystème.",
     price: 25,

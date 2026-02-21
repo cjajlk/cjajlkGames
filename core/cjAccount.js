@@ -317,4 +317,8 @@ if (document.readyState === "loading") {
     cjAccount.init();
 }
 
+
 console.log("✅ cjAccount.js chargé (SOURCE DE VÉRITÉ UNIQUE)");
+
+// Alias global cohérent partout
+window.CjajlkAccount = cjAccount;
