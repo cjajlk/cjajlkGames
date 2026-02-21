@@ -1,3 +1,116 @@
+// ======== Nouvelle Structure Boutique CJ : Images Breaker & Attrape-les-tous ========
+const IMAGE_ITEMS = [
+  // Breaker
+  {
+    id: "breaker_mascotte_1",
+    name: "Mascotte AQUA",
+    category: "breaker",
+    type: "image",
+    price: 20,
+    src: "../games/breaker/assets/companions/aqua/aqua_idle.png"
+  },
+  {
+    id: "breaker_mascotte_2",
+    name: "Mascotte IGNIS",
+    category: "breaker",
+    type: "image",
+    price: 20,
+    src: "../games/breaker/assets/companions/ignis/ignis_idle.png"
+  },
+  {
+    id: "breaker_mascotte_3",
+    name: "Mascotte astral",
+    category: "breaker",
+    type: "image",
+    price: 20,
+    src: "../games/breaker/assets/companions/astral/astral_idle.png"
+  },
+  // Attrape-les-tous
+  {
+    id: "attrape_mascotte_1",
+    name: "Mascotte ALIA",
+    category: "attrape",
+    type: "image",
+    price: 15,
+    src: "../games/attrape/assets/images/mascotte/alia.png"
+  },
+  {
+    id: "attrape_orbe_1",
+    name: "Orbe Attrape 1",
+    category: "attrape",
+    type: "image",
+    price: 18,
+    src: "../games/attrape/assets/orbes/orb_black.png"
+  },
+  {
+    id: "attrape_mascotte_2",
+    name: "Mascotte LYRA",
+    category: "attrape",
+    type: "image",
+    price: 15,
+    src: "../games/attrape/assets/images/mascotte/lyra.png"
+  }
+];
+
+function getUnlockedImages() {
+  const playerData = window.CJajlkAccount && typeof window.CJajlkAccount.getPlayer === "function"
+    ? window.CJajlkAccount.getPlayer()
+    : {};
+  return playerData.unlockedImages || {};
+}
+
+function unlockImage(imageId) {
+  const playerData = window.CJajlkAccount && typeof window.CJajlkAccount.getPlayer === "function"
+    ? window.CJajlkAccount.getPlayer()
+    : {};
+  if (!playerData.unlockedImages) playerData.unlockedImages = {};
+  playerData.unlockedImages[imageId] = true;
+  if (window.CJajlkAccount && typeof window.CJajlkAccount.savePlayer === "function") {
+    window.CJajlkAccount.savePlayer(playerData);
+  }
+}
+
+function renderImageSection(items, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const unlocked = getUnlockedImages();
+  container.innerHTML = items.map(item => {
+    const isUnlocked = unlocked[item.id];
+    return `
+      <div class="shop-image-item ${isUnlocked ? 'unlocked' : 'locked'}" data-image-id="${item.id}">
+        <img src="${item.src}" alt="${item.name}" style="${isUnlocked ? '' : 'filter: blur(4px); opacity:0.6;'} width:180px; height:auto; border-radius:12px;" />
+        <div class="image-info">
+          <h4>${item.name}</h4>
+          <span class="image-price">${item.price} CJ</span>
+          ${isUnlocked ? '<span class="image-unlocked">Débloquée</span>' : `<button class="btn-buy-image" data-image="${item.id}" ${getCJAccountData().totalCJ < item.price ? 'disabled' : ''}>Acheter</button>`}
+        </div>
+      </div>
+    `;
+  }).join('');
+  // Attach buy events
+  container.querySelectorAll(".btn-buy-image").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const imageId = btn.getAttribute("data-image");
+      const item = items.find(i => i.id === imageId);
+      if (!item) return;
+      if (getCJAccountData().totalCJ < item.price) return;
+      if (window.CJajlkAccount && typeof window.CJajlkAccount.remove === "function" && window.CJajlkAccount.remove("shop", item.price)) {
+        unlockImage(imageId);
+        renderImageSections();
+        showMessage("Image débloquée !");
+      }
+    });
+  });
+}
+
+function renderImageSections() {
+  renderImageSection(IMAGE_ITEMS.filter(i => i.category === "breaker"), "breaker-images-section");
+  renderImageSection(IMAGE_ITEMS.filter(i => i.category === "attrape"), "attrape-images-section");
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderImageSections();
+});
 // Activation des événements saisonniers
 const ACTIVE_EVENTS = {
   easter: false,

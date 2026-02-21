@@ -1,3 +1,51 @@
+/* ===== Boutique CJ : Images Breaker & Attrape-les-tous ===== */
+.shop-images-section {
+  margin: 40px 0;
+}
+.shop-image-item {
+  background: #1b0b3a;
+  border-radius: 14px;
+  box-shadow: 0 0 16px rgba(100, 50, 200, 0.15);
+  padding: 18px;
+  margin: 12px;
+  display: inline-block;
+  vertical-align: top;
+  text-align: center;
+  width: 200px;
+}
+.shop-image-item.locked img {
+  filter: blur(4px) opacity(0.6);
+}
+.shop-image-item.unlocked img {
+  filter: none;
+}
+.shop-image-item .image-info {
+  margin-top: 12px;
+}
+.shop-image-item h4 {
+  color: #d8c9ff;
+  font-size: 1.1em;
+  margin-bottom: 6px;
+}
+.shop-image-item .image-price {
+  color: #a855f7;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+.shop-image-item .image-unlocked {
+  color: #8b5cf6;
+  font-weight: 700;
+}
+.btn-buy-image {
+  background: linear-gradient(90deg, #8b5cf6, #a855f7);
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  margin-top: 8px;
+}
 
 /* ===== Modale édition pseudo ===== */
 .modal {
