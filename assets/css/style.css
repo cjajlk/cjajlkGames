@@ -1,3 +1,73 @@
+.shop-image-item.unlocked {
+  box-shadow: 0 0 24px #a855f7cc, 0 0 8px #8b5cf6;
+  position: relative;
+  transition: transform 0.18s cubic-bezier(.4,.2,.2,1), box-shadow 0.18s;
+}
+.shop-image-item.unlocked:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 32px #a855f7ee, 0 0 12px #8b5cf6;
+}
+.shop-image-item .image-badge {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: linear-gradient(90deg, #8b5cf6, #a855f7);
+  color: #fff;
+  font-size: 1.25em;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px #a855f7aa;
+  border: 2px solid #fff2;
+  z-index: 2;
+}
+/* ===== Popup CJ thématique pour achat image ===== */
+.shop-image-cj-popup {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(20, 10, 40, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1200;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.shop-image-cj-popup.show {
+  opacity: 1;
+}
+.shop-image-cj-popup .popup-content {
+  background: #25104a;
+  border-radius: 16px;
+  box-shadow: 0 0 24px #a855f7aa;
+  padding: 32px 36px;
+  text-align: center;
+  color: #d8c9ff;
+  min-width: 280px;
+}
+.shop-image-cj-popup .popup-icon {
+  font-size: 2.2em;
+  margin-bottom: 12px;
+  display: block;
+}
+.shop-image-cj-popup .popup-text {
+  font-size: 1.15em;
+  margin-bottom: 18px;
+  display: block;
+}
+.shop-image-cj-popup .popup-close {
+  background: linear-gradient(90deg, #8b5cf6, #a855f7);
+  border: none;
+  color: #fff;
+  padding: 8px 22px;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  margin-top: 8px;
+}
 /* ===== Boutique CJ : Images Breaker & Attrape-les-tous ===== */
 .shop-images-section {
   margin: 40px 0;

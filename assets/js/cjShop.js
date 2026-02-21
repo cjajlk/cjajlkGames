@@ -78,11 +78,12 @@ function renderImageSection(items, containerId) {
     const isUnlocked = unlocked[item.id];
     return `
       <div class="shop-image-item ${isUnlocked ? 'unlocked' : 'locked'}" data-image-id="${item.id}">
+        ${isUnlocked ? '<span class="image-badge">✔</span>' : ''}
         <img src="${item.src}" alt="${item.name}" style="${isUnlocked ? '' : 'filter: blur(4px); opacity:0.6;'} width:180px; height:auto; border-radius:12px;" />
         <div class="image-info">
           <h4>${item.name}</h4>
           <span class="image-price">${item.price} CJ</span>
-          ${isUnlocked ? '<span class="image-unlocked">Débloquée</span>' : `<button class="btn-buy-image" data-image="${item.id}" ${getCJAccountData().totalCJ < item.price ? 'disabled' : ''}>Acheter</button>`}
+          ${isUnlocked ? '<span class="image-unlocked">Débloquée</span>' : `<button class="btn-buy-image" data-image="${item.id}">Acheter</button>`}
         </div>
       </div>
     `;
@@ -93,12 +94,35 @@ function renderImageSection(items, containerId) {
       const imageId = btn.getAttribute("data-image");
       const item = items.find(i => i.id === imageId);
       if (!item) return;
-      if (getCJAccountData().totalCJ < item.price) return;
+      if (getCJAccountData().totalCJ < item.price) {
+        showImageCJPopup("CJ insuffisants pour débloquer cette image.");
+        return;
+      }
       if (window.CJajlkAccount && typeof window.CJajlkAccount.remove === "function" && window.CJajlkAccount.remove("shop", item.price)) {
         unlockImage(imageId);
         renderImageSections();
         showMessage("Image débloquée !");
       }
+    // Popup CJ thématique pour achat image
+    function showImageCJPopup(text) {
+      const existing = document.querySelector('.shop-image-cj-popup');
+      if (existing) existing.remove();
+      const popup = document.createElement('div');
+      popup.className = 'shop-image-cj-popup';
+      popup.innerHTML = `
+        <div class="popup-content">
+          <span class="popup-icon">🌙</span>
+          <span class="popup-text">${text}</span>
+          <button class="popup-close">OK</button>
+        </div>
+      `;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.classList.add('show'), 10);
+      popup.querySelector('.popup-close').addEventListener('click', () => {
+        popup.classList.remove('show');
+        setTimeout(() => popup.remove(), 300);
+      });
+    }
     });
   });
 }
