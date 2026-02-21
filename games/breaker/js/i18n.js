@@ -596,3 +596,58 @@ window.I18n = {
 
 // Fonction globale i18nT disponible dans tous les scripts
 const i18nT = (key, params) => (window.I18n ? window.I18n.t(key, params) : key);
+
+// Gestion UI tutoriel Breaker premium
+const tutorialSteps = [
+  "welcome",
+  "controls",
+  "ball",
+  "bricks",
+  "powerups",
+  "companions",
+  "boss",
+  "ready"
+];
+let currentStep = 0;
+
+function updateTutorialUI() {
+  const title = document.getElementById("tutorialTitle");
+  const speech = document.getElementById("speechText");
+  if (!title || !speech) return;
+  const stepKey = tutorialSteps[currentStep];
+  title.textContent = i18nT(`tutorial.${stepKey}.title`);
+  speech.textContent = i18nT(`tutorial.${stepKey}.text`);
+
+  // Animation douce
+  document.querySelectorAll('.tutorial-step').forEach(el => el.classList.remove('is-active'));
+  document.querySelectorAll('.tutorial-step')[0].classList.add('is-active');
+
+  // Dots
+  const dots = document.querySelectorAll('.dot');
+  dots.forEach((dot, i) => dot.classList.toggle('active', i === currentStep));
+
+  // Boutons
+  document.getElementById("prevBtn").disabled = currentStep === 0;
+  document.getElementById("nextBtn").disabled = currentStep === tutorialSteps.length - 1;
+}
+
+function nextTutorialStep() {
+  if (currentStep < tutorialSteps.length - 1) {
+    currentStep++;
+    updateTutorialUI();
+  }
+}
+function prevTutorialStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    updateTutorialUI();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  if (prevBtn) prevBtn.addEventListener("click", prevTutorialStep);
+  if (nextBtn) nextBtn.addEventListener("click", nextTutorialStep);
+  updateTutorialUI();
+});
