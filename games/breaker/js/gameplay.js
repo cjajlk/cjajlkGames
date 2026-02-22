@@ -1,6 +1,86 @@
 // =============================
 // 💎 DIAMONDS SYSTEM (modulaire)
 // =============================
+// =============================
+// 🐾 Mapping centralisé mascotte → orbe
+// =============================
+const MASCOT_ORB_MAP = {
+    aube: "void",
+    aqua: "water",
+    ignis: "fire",
+    astral: "light",
+    flora: "nature"
+};
+// =============================
+// 🥉 STRUCTURE DES RANGS
+// =============================
+const RANKS = {
+    bronze: {
+        ballSpeed: 4,
+        maxSpeed: 7,
+        brickHP: 1,
+        lives: 3
+    },
+    argent: {
+        ballSpeed: 4.5,
+        maxSpeed: 8,
+        brickHP: 1,
+        lives: 3
+    },
+    or: {
+        ballSpeed: 5,
+        maxSpeed: 9,
+        brickHP: 2,
+        lives: 2
+    },
+    diamant: {
+        ballSpeed: 5.5,
+        maxSpeed: 10,
+        brickHP: 2,
+        lives: 2
+    },
+    platine: {
+        ballSpeed: 6,
+        maxSpeed: 11,
+        brickHP: 3,
+        lives: 2
+    },
+    nocturne: {
+        ballSpeed: 6.5,
+        maxSpeed: 12,
+        brickHP: 3,
+        lives: 1
+    }
+};
+
+let currentRank = localStorage.getItem("breaker_rank") || "bronze";
+const rankOrder = ["bronze", "argent", "or", "diamant", "platine", "nocturne"];
+function getNextRank(rank) {
+    const idx = rankOrder.indexOf(rank);
+    return idx >= 0 && idx < rankOrder.length - 1 ? rankOrder[idx + 1] : null;
+}
+
+function applyRankSettings() {
+    const settings = RANKS[currentRank];
+    // Appliquer vitesse balle
+    ball.speed = settings.ballSpeed;
+    ball.maxSpeed = settings.maxSpeed;
+    // Appliquer vies
+    state.lives = settings.lives;
+    // Appliquer HP brique
+    for (const b of bricks) {
+        b.hp = settings.brickHP;
+        b.maxHp = settings.brickHP;
+    }
+}
+
+function showRankUnlocked(rank) {
+    if (window.Popup && typeof window.Popup.confirm === "function") {
+        window.Popup.confirm(`Rang ${rank.charAt(0).toUpperCase() + rank.slice(1)} débloqué !`);
+    } else {
+        alert(`Rang ${rank.charAt(0).toUpperCase() + rank.slice(1)} débloqué !`);
+    }
+}
   // Import ES6 modules (boss system)
 import { createBoss } from '../bosses/bossManager.js';
 
@@ -968,12 +1048,15 @@ function updatePaddle() {
 }
 
 function spawnOrb(x, y) {
-    const orbDropChance = applyOrbDropBonus(); // Bonus Astral
-    
-    if (Math.random() > orbDropChance) return; // 18% chance → longevity 👍
+    // Nouvelle règle : une seule mascotte équipée, une seule orbe possible
+    // Taux d'apparition réduit à 0.02 (2%)
+    const orbDropChance = 0.02;
+    if (Math.random() > orbDropChance) return;
 
-    const types = ["water", "fire", "light", "nature", "void"];
-    const type = types[Math.floor(Math.random() * types.length)];
+    // Déterminer la mascotte équipée (companion.id)
+    // Si aucune mascotte équipée ou mascotte non reconnue, aucun spawn
+    if (!companion.id || !MASCOT_ORB_MAP[companion.id]) return;
+    const type = MASCOT_ORB_MAP[companion.id];
 
     orbs.push({
         x,
@@ -1395,6 +1478,19 @@ function drawUI() {
     ctx.fillText("Score : " + state.score, 20, 30);
     ctx.fillText("Best Combo : " + bestCombo, 20, 50);
 
+    // 🏅 Afficher le rang actuel (thème CJ)
+    ctx.save();
+    ctx.font = "bold 18px 'Segoe UI', Arial, sans-serif";
+    // Dégradé violet/bleu pour le texte
+    const gradient = ctx.createLinearGradient(20, 75, 220, 75);
+    gradient.addColorStop(0, "#a78bfa"); // violet lumineux
+    gradient.addColorStop(1, "#60a5fa"); // bleu doux
+    ctx.fillStyle = gradient;
+    ctx.shadowColor = "#a78bfa";
+    ctx.shadowBlur = 8;
+    ctx.fillText(`Rang actuel : ${currentRank.charAt(0).toUpperCase() + currentRank.slice(1)}`, 20, 75);
+    ctx.restore();
+
     // 👹 Afficher la phase du boss
     if (boss.active) {
         ctx.save();
@@ -1617,6 +1713,16 @@ function gameOver() {
         showLevelUpPopup(state.playerLevel);
     }
 
+    // Déblocage rang suivant si campagne terminée
+    if (levelComplete && currentRank !== "nocturne") {
+        const nextRank = getNextRank(currentRank);
+        if (nextRank) {
+            localStorage.setItem("breaker_rank", nextRank);
+            currentRank = nextRank;
+            showRankUnlocked(nextRank);
+        }
+    }
+
     if (state.score > state.highScore) {
         state.highScore = state.score;
         localStorage.setItem("breaker_bestCombo", bestCombo);
@@ -1815,6 +1921,7 @@ function initializeGame() {
     loadActiveCompanionBonus(); // 🎮 Charger les bonus du compagnon
     applyBallSpeedBonus(); // Log du bonus de vitesse
     resizeCanvas();
+    applyRankSettings(); // Appliquer les paramètres du rang
     // Vérification des valeurs numériques
     console.log('[DEBUG initializeGame] paddle:', JSON.stringify(paddle));
     console.log('[DEBUG initializeGame] ball:', JSON.stringify(ball));
