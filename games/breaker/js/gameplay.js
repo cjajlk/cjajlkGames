@@ -1498,7 +1498,18 @@ function drawUI() {
         ctx.fillStyle = boss.phase === 3 ? "#ff3333" : boss.phase === 2 ? "#ffaa33" : "#ffff33";
         ctx.strokeStyle = "#000";
         ctx.lineWidth = 3;
-        const text = `⚔️ BOSS - PHASE ${boss.phase}/${boss.maxPhases} ⚔️`;
+        // Texte dynamique selon la phase
+        let phaseLabel = boss.phase;
+        if (boss.bossType === 'astral_guardian') {
+            if (boss.phase === 1) phaseLabel = "1 (Normal)";
+            else if (boss.phase === 2) phaseLabel = "2 (Inversion)";
+            else if (boss.phase === 3) phaseLabel = "3 (Cosmique)";
+        } else if (boss.bossType === 'city_guardian') {
+            if (boss.phase === 1) phaseLabel = "1 (Patrouille)";
+            else if (boss.phase === 2) phaseLabel = "2 (Alerte)";
+            else if (boss.phase === 3) phaseLabel = "3 (Rage)";
+        }
+        const text = `⚔️ BOSS - PHASE ${phaseLabel} / ${boss.maxPhases} ⚔️`;
         const textWidth = ctx.measureText(text).width;
         const x = (viewW - textWidth) / 2;
         ctx.strokeText(text, x, 40);
