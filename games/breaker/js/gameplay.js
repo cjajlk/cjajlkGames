@@ -1491,7 +1491,7 @@ function drawUI() {
     ctx.fillText(`Rang actuel : ${currentRank.charAt(0).toUpperCase() + currentRank.slice(1)}`, 20, 75);
     ctx.restore();
 
-    // 👹 Afficher la phase du boss
+    // 👹 Afficher la phase du boss et la barre de vie du boss
     if (boss.active) {
         ctx.save();
         ctx.font = "bold 24px Arial";
@@ -1503,6 +1503,85 @@ function drawUI() {
         const x = (viewW - textWidth) / 2;
         ctx.strokeText(text, x, 40);
         ctx.fillText(text, x, 40);
+
+        // === BARRE DE VIE DU BOSS ===
+        // Calculer le pourcentage de briques restantes (HP boss)
+        let totalBossBricks = 0;
+        let remainingBossBricks = 0;
+        for (const b of bricks) {
+            if (!b.destroyed && !b.destroying) remainingBossBricks++;
+            if (b.maxHp > 1) totalBossBricks++;
+        }
+        // Fallback si aucune brique boss détectée
+        if (totalBossBricks === 0) totalBossBricks = bricks.length;
+        const percent = Math.max(0, Math.min(1, remainingBossBricks / totalBossBricks));
+
+        // Dimensions de la barre
+        const barWidth = Math.max(220, viewW * 0.28);
+        const barHeight = 22;
+        const barX = (viewW - barWidth) / 2;
+        const barY = 60;
+
+
+        // === THEME CJAJLK: BARRE DE VIE NÉON ===
+        // Fond arrondi sombre translucide
+        ctx.save();
+        ctx.globalAlpha = 0.32;
+        ctx.fillStyle = "#0a0a18";
+        roundRect(ctx, barX, barY, barWidth, barHeight, 14);
+        ctx.fill();
+        ctx.restore();
+
+        // Remplissage dynamique dégradé bleu-violet
+        ctx.save();
+        ctx.globalAlpha = 0.92;
+        const grad = ctx.createLinearGradient(barX, barY, barX + barWidth, barY);
+        grad.addColorStop(0, "#5cc8ff"); // bleu clair
+        grad.addColorStop(0.5, "#a78bfa"); // violet lumineux
+        grad.addColorStop(1, "#7f5cff"); // violet profond
+        ctx.fillStyle = grad;
+        roundRect(ctx, barX, barY, barWidth * percent, barHeight, 14);
+        ctx.shadowColor = "#5cc8ff";
+        ctx.shadowBlur = 16;
+        ctx.fill();
+        ctx.restore();
+
+        // Contour lumineux
+        ctx.save();
+        ctx.globalAlpha = 0.85;
+        ctx.strokeStyle = "#a78bfa";
+        ctx.lineWidth = 3.5;
+        roundRect(ctx, barX, barY, barWidth, barHeight, 14);
+        ctx.shadowColor = "#a78bfa";
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.restore();
+
+        // Texte HP stylisé
+        ctx.save();
+        ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+        ctx.fillStyle = "#fff";
+        ctx.shadowColor = "#5cc8ff";
+        ctx.shadowBlur = 10;
+        ctx.textAlign = "center";
+        ctx.fillText(`BOSS HP : ${remainingBossBricks} / ${totalBossBricks}`, barX + barWidth / 2, barY + barHeight - 6);
+        ctx.restore();
+
+        // Fonction utilitaire pour arrondir les coins
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
         ctx.restore();
     }
 
