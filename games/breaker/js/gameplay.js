@@ -1458,7 +1458,7 @@ function updateOrbs() {
 
         // hors écran
         if (o.y > viewH) {
-            orbs.splice(i, 1);
+            orbs.splice(i, 1); 
         }
     }
 }
