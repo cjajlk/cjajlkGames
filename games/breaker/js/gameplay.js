@@ -1,6 +1,5 @@
-// =============================
-// 💎 DIAMONDS SYSTEM (modulaire)
-// =============================
+// Timer dédié CJEngine
+let lastCJFrameTime = performance.now();
 // =============================
 // 🐾 Mapping centralisé mascotte → orbe
 // =============================
@@ -189,7 +188,7 @@ bestCombo = parseInt(localStorage.getItem("breaker_bestCombo")) || 0;
  */
 window.getGameState = function () {
     return {
-        running: state.running
+        running: state.running && ball.launched
     };
 };
 
@@ -964,7 +963,7 @@ function launchBall() {
    6️⃣ UPDATE
 ============================= */
 
-function updateBall() {
+function updateBall(deltaFactor) {
     if (!ball.launched) {
         ball.x = paddle.x + paddle.width / 2;
         ball.y = paddle.y - ball.size;
@@ -1181,6 +1180,9 @@ function updateBrickCollision() {
 
 
 function updateBricks() {
+       if (!boss) return;
+
+
     // 👹 BOSS: Mouvement des briques
     if (boss.active) {
         boss.moveTimer++;
@@ -1944,6 +1946,7 @@ function gameLoop() {
     // Calcul du deltaTime et du facteur de normalisation
     const targetFPS = 60;
     const now = performance.now();
+    // Timer physique balle
     const deltaTime = lastFrameTime ? (now - lastFrameTime) / 1000 : 1 / targetFPS;
     const deltaFactor = deltaTime * targetFPS;
     lastFrameTime = now;
@@ -1958,12 +1961,12 @@ function gameLoop() {
 
     // ⏱️ CJEngine tick - Moteur centralisé de gestion des CJ
     // Le CJ ne tourne que si la partie est active ET la balle lancée
-    if (window.CJEngine && typeof window.CJEngine.tick === "function" && state.running && ball.launched) {
-        const now = performance.now();
+    if (window.CJEngine && typeof window.CJEngine.tick === "function" && state.running) {
+        const nowCJ = performance.now();
         // Désactive la protection anti-spawn après la frame de resize
         if (justResized) justResized = false;
-        const deltaMs = lastFrameTime ? (now - lastFrameTime) : 0;
-        lastFrameTime = now;
+        const deltaMs = lastCJFrameTime ? (nowCJ - lastCJFrameTime) : 0;
+        lastCJFrameTime = nowCJ;
         window.CJEngine.tick(deltaMs, "breaker");
     }
     // Boucle de rendu continue

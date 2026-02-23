@@ -275,6 +275,18 @@ animation:cjTestFade 1.4s ease-out forwards;\
      * Appelé par le jeu à chaque frame avec deltaMs
      */
     function tick(deltaMs, gameName) {
+
+        // DEBUG LOG
+        if (window.CJ_DEBUG === true) {
+            console.log('[CJEngine.tick]', {
+                deltaMs,
+                engineActive: state.engineActive,
+                gameName,
+                isActiveSession: isActiveSession(),
+                maxFrameDelta: CONFIG.MAX_FRAME_DELTA
+            });
+        }
+
         if (!deltaMs || deltaMs <= 0) return;
         if (!gameName) {
             warn("tick: gameName manquant");
