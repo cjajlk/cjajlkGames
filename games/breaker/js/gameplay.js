@@ -971,8 +971,9 @@ function updateBall() {
         return;
     }
 
-    ball.x += ball.dx;
-    ball.y += ball.dy;
+    // Mouvement normalisé framerate
+    ball.x += ball.dx * deltaFactor;
+    ball.y += ball.dy * deltaFactor;
 
     ball.trail.push({ x: ball.x, y: ball.y });
 
@@ -1940,7 +1941,13 @@ function draw() {
 ============================= */
 
 function gameLoop() {
-    updateBall();
+    // Calcul du deltaTime et du facteur de normalisation
+    const targetFPS = 60;
+    const now = performance.now();
+    const deltaTime = lastFrameTime ? (now - lastFrameTime) / 1000 : 1 / targetFPS;
+    const deltaFactor = deltaTime * targetFPS;
+    lastFrameTime = now;
+    updateBall(deltaFactor);
     updatePaddle();
     updateBrickCollision();
     updateBricks();
