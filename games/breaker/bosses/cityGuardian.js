@@ -5,9 +5,11 @@ export default class CityGuardian extends BossBase {
         if (phase === 2) {
             this.game.setBossSpeed(2.5);
             this.game.flashScreen('warning');
+            if (this.game.showBossMessage) this.game.showBossMessage('cityPhase2');
         } else if (phase === 3) {
             this.game.setBossSpeed(3.5);
             this.game.flashScreen('danger');
+            if (this.game.showBossMessage) this.game.showBossMessage('cityPhase3');
         }
     }
 

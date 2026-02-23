@@ -3,11 +3,13 @@ import BossBase from './bossBase.js';
 export default class AstralGuardian extends BossBase {
     onPhaseChange(phase) {
         if (phase === 2) {
-            this.game.invertGravity();
-            this.game.showBossMessage('astralPhase2');
+            if (this.game.invertGravity) this.game.invertGravity();
+            if (this.game.showBossMessage) this.game.showBossMessage('astralPhase2');
+            // Bonus : inverser la balle si méthode dispo
+            if (this.game.invertBallDirection) this.game.invertBallDirection();
         } else if (phase === 3) {
-            this.game.activateCosmicCore();
-            this.game.showBossMessage('astralPhase3');
+            if (this.game.activateCosmicCore) this.game.activateCosmicCore();
+            if (this.game.showBossMessage) this.game.showBossMessage('astralPhase3');
         }
     }
 

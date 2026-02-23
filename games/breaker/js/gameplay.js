@@ -827,16 +827,19 @@ function createBricks() {
     boss.bossType = currentLevelData ? currentLevelData.bossType : 'city_guardian';
 
     // Instanciation du boss modulaire uniquement pour City Guardian
+    modularBoss = null;
+
+    // Recharger les backgrounds si le thème change
+    preloadBackgrounds();
+
+    // let currentRows = rows;
+    // let currentCols = cols;
+    let density = 0.8;
+    let hp = 2;
+
     if (boss.active && boss.bossType === 'city_guardian') {
-        modularBoss = createBoss('city_guardian', {
-            setBossSpeed: (speed) => { boss.moveSpeed = speed; },
-            flashScreen: (type) => { /* TODO: effet visuel warning/danger */ },
-            addDiamonds: addDiamonds,
-            addXP: (xp) => { state.xp += xp; localStorage.setItem("breakerXP", state.xp); },
-            showBossMessage: (key) => { Popup.confirm(i18nT("gameplay.bossDefeated", { xp: 500 }), () => { window.location.href = "../pages/campaign.html"; }); }
-        });
-    } else {
-        modularBoss = null;
+        // On crée d'abord les briques, puis on instancie le boss modulaire avec le bon total
+        // (On décale l'instanciation après la création des briques, voir plus bas)
     }
 
     // Recharger les backgrounds si le thème change
@@ -844,8 +847,7 @@ function createBricks() {
 
     let currentRows = rows;
     let currentCols = cols;
-    let density = 0.8;
-    let hp = 2;
+   
 
     if (boss.active) {
         density = currentLevelData.brickDensity || 0.8;
@@ -917,6 +919,52 @@ function createBricks() {
                 destroying: false,
                 destroyTimer: 0
             });
+        }
+    }
+
+    // Fonction centralisée pour afficher tous les messages de boss (phases et victoire)
+    const showBossMessage = (key) => {
+        let message = '';
+        switch (key) {
+            case 'astralPhase2':
+                message = i18nT("gameplay.astralPhase2"); break;
+            case 'astralPhase3':
+                message = i18nT("gameplay.astralPhase3"); break;
+            case 'astralVictory':
+                message = i18nT("gameplay.astralDefeat", { xp: 500 }); break;
+            case 'cityPhase2':
+                message = i18nT("gameplay.bossPhase2"); break;
+            case 'cityPhase3':
+                message = i18nT("gameplay.bossPhase3"); break;
+            case 'cityVictory':
+                message = i18nT("gameplay.bossDefeated", { xp: 500 }); break;
+            default:
+                message = i18nT("gameplay.bossDefeated", { xp: 500 });
+        }
+        // Phase = notification simple, victoire = popup
+        if (key.endsWith('Victory')) {
+            Popup.confirm(message, () => { window.location.href = "../pages/campaign.html"; });
+        } else {
+            Popup.notify(message);
+        }
+    };
+
+    // Instanciation du boss APRES la création des briques (pour avoir le bon total)
+    if (boss.active) {
+        const bossOptions = {
+            setBossSpeed: (speed) => { boss.moveSpeed = speed; },
+            flashScreen: (type) => { /* TODO: effet visuel warning/danger */ },
+            addDiamonds: addDiamonds,
+            addXP: (xp) => { state.xp += xp; localStorage.setItem("breakerXP", state.xp); },
+            showBossMessage: showBossMessage
+        };
+        if (boss.bossType === 'city_guardian') {
+            modularBoss = createBoss('city_guardian', bossOptions);
+            if (modularBoss) modularBoss.init(bricks.length);
+        } else if (boss.bossType === 'astral_guardian') {
+            // Pour l'astral, on passe aussi les options
+            modularBoss = createBoss('astral_guardian', bossOptions);
+            if (modularBoss) modularBoss.init(bricks.length);
         }
     }
     }
@@ -1239,26 +1287,12 @@ function updateBricks() {
 
     // Appel hooks boss APRÈS collision/destruction/recalcul
     if (boss.active) {
-        if (boss.bossType === 'astral_guardian') {
-            // 🌀 GARDIEN ASTRAL - Phases spéciales (legacy)
-            if (percentRemaining <= 0.66 && boss.phase === 1) {
-                boss.phase = 2;
-                boss.moveSpeed = 1.0; // Momentum plus doux pour phase 2
-                boss.invertMode = true; // Activer inversion gravité
-                ball.dy = -ball.dy; // Inverser la direction de la balle
-                Popup.notify(i18nT("gameplay.astralPhase2"));
-                console.log("✨ Phase 2: Inversion des Flux activée");
-            }
-            if (percentRemaining <= 0.33 && boss.phase === 2) {
-                boss.phase = 3;
-                boss.coreMode = true; // Noyau cosmique
-                boss.moveSpeed = 0; // Immobile
-                Popup.notify(i18nT("gameplay.astralPhase3"));
-                console.log("💫 Phase 3: Cœur Cosmique activé");
-            }
+        if (boss.bossType === 'astral_guardian' && modularBoss) {
+            // Sécurité : ne rien faire ici, phases gérées par la classe AstralGuardian
         } else if (modularBoss) {
             // City Guardian : déléguer au boss modulaire
             modularBoss.update(remainingBricks);
+            // Forcer la synchronisation de la phase à chaque frame
             boss.phase = modularBoss.phase;
         } else {
             // fallback legacy (autres boss éventuels)
