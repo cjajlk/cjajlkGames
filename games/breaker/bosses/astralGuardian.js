@@ -1,6 +1,10 @@
 import BossBase from './bossBase.js';
 
 export default class AstralGuardian extends BossBase {
+    update(remainingBricks) {
+        super.update(remainingBricks);
+        // Ajoute ici toute logique spécifique à AstralGuardian si besoin
+    }
     onPhaseChange(phase) {
         if (phase === 2) {
             if (this.game.invertGravity) this.game.invertGravity();

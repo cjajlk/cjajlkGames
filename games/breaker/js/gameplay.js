@@ -960,11 +960,17 @@ function createBricks() {
         };
         if (boss.bossType === 'city_guardian') {
             modularBoss = createBoss('city_guardian', bossOptions);
-            if (modularBoss) modularBoss.init(bricks.length);
+            if (modularBoss) {
+                console.log('[BOSS INIT] city_guardian bricks.length =', bricks.length);
+                modularBoss.init(bricks.length);
+            }
         } else if (boss.bossType === 'astral_guardian') {
             // Pour l'astral, on passe aussi les options
             modularBoss = createBoss('astral_guardian', bossOptions);
-            if (modularBoss) modularBoss.init(bricks.length);
+            if (modularBoss) {
+                console.log('[BOSS INIT] astral_guardian bricks.length =', bricks.length);
+                modularBoss.init(bricks.length);
+            }
         }
     }
     }
@@ -1232,6 +1238,11 @@ function updateBricks() {
 
 
     // 👹 BOSS: Mouvement des briques
+    // Calcul des briques restantes AVANT toute gestion de phase
+    const totalBricks = bricks.length;
+    const remainingBricks = bricks.filter(b => !b.destroyed && !b.destroying).length;
+    const percentRemaining = remainingBricks / totalBricks;
+
     if (boss.active) {
         boss.moveTimer++;
         // Mouvement horizontal en vague
@@ -1260,10 +1271,24 @@ function updateBricks() {
                 b.x += moveAmount * 1.2; // Léger déplacement supplémentaire
             }
         }
-
         // 🎯 Gestion des phases du boss
-        // (hooks déplacés après collision/destruction)
-        // ...existing code...
+        // Correction : toujours appeler modularBoss.update() si présent
+        if (modularBoss) {
+            modularBoss.update(remainingBricks);
+            boss.phase = modularBoss.phase; // Synchronisation UI + logique
+        } else {
+            // fallback legacy (autres boss éventuels)
+            if (percentRemaining <= 0.66 && boss.phase === 1) {
+                boss.phase = 2;
+                boss.moveSpeed = 2.5;
+                Popup.notify(i18nT("gameplay.bossPhase2"));
+            }
+            if (percentRemaining <= 0.33 && boss.phase === 2) {
+                boss.phase = 3;
+                boss.moveSpeed = 3.5;
+                Popup.notify(i18nT("gameplay.bossPhase3"));
+            }
+        }
     }
     // ...existing code...
     // Animation de destruction
@@ -1280,10 +1305,10 @@ function updateBricks() {
 
     // Check for level completion after all animations are done
     const destroyedCount = bricks.filter(b => b.destroyed).length;
-    // Recalcul bricksRemaining pour modularBoss
-    const totalBricks = bricks.length;
-    const remainingBricks = bricks.filter(b => !b.destroyed && !b.destroying).length;
-    const percentRemaining = remainingBricks / totalBricks;
+    // DEBUG : log progression boss et phase
+    if (boss.active && modularBoss) {
+        console.log(`[BOSS] remainingBricks: ${remainingBricks}/${totalBricks} (${(percentRemaining*100).toFixed(1)}%) | phase: ${modularBoss.phase}`);
+    }
 
     // Appel hooks boss APRÈS collision/destruction/recalcul
     if (boss.active) {
@@ -1346,6 +1371,18 @@ function updateBricks() {
                 profile.bossesCompleted.push(state.stage);
             }
             profile.levelsCompleted.push(state.stage);
+
+            // Déblocage du rang suivant si 2 boss vaincus dans le rang courant
+            profile.rankBossWins = profile.rankBossWins || {};
+            profile.rankBossWins[currentRank] = (profile.rankBossWins[currentRank] || 0) + 1;
+            if (profile.rankBossWins[currentRank] >= 2) {
+                const nextRank = getNextRank(currentRank);
+                if (nextRank) {
+                    localStorage.setItem("breaker_rank", nextRank);
+                    currentRank = nextRank;
+                    showRankUnlocked(nextRank);
+                }
+            }
             localStorage.setItem('breaker_profile', JSON.stringify(profile));
 
             // City Guardian : déléguer la victoire au boss modulaire

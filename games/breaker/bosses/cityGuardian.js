@@ -14,6 +14,7 @@ export default class CityGuardian extends BossBase {
     }
 
     update(remainingBricks) {
+        super.update(remainingBricks);
         // Récupérer les briques depuis le jeu principal
         const bricks = this.game.getBricks ? this.game.getBricks() : [];
         const canvas = this.game.getCanvas ? this.game.getCanvas() : null;
