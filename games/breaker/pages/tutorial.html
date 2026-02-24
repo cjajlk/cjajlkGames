@@ -16,6 +16,7 @@
   <title data-i18n="titles.tutorial">Tutoriel — Breaker</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/tutorial.css">
+  <link rel="stylesheet" href="../css/tutorial-cj.css">
   <style>
     html, body {
       width: 100vw;
@@ -30,35 +31,7 @@
 
 <body class="tutorial">
 
-  <div class="tutorial-container">
-    
-    <!-- Fond animé -->
-    <canvas id="tutorialCanvas"></canvas>
-    
-    <!-- Personnage Aube -->
-    <div class="aube-container">
-      <img id="aubeCharacter" src="../assets/companions/aube/aube_idle.png" alt="Aube" class="aube-sprite">
-      <div class="aube-speech hidden">
-        <p id="speechText"></p>
-        <div class="speech-arrow"></div>
-      </div>
-    </div>
-
-    <!-- Zones d'explication interactives -->
-    <div class="tutorial-zones">
-      <!-- Rempli par JavaScript -->
-    </div>
-
-    <!-- Contrôles du tutoriel -->
-    <div class="tutorial-controls">
-      <button id="prevBtn" class="nav-btn" disabled data-i18n="tutorial.prev">← Précédent</button>
-      <div class="progress-dots" id="progressDots"></div>
-      <button id="nextBtn" class="nav-btn" data-i18n="tutorial.next">Suivant →</button>
-    </div>
-
-    <!-- Bouton Skip -->
-    <button class="skip-btn" data-i18n="tutorial.skip">Passer ⏭️</button>
-
+  <!-- Tutoriel CJ overlay injecté par JS -->
   </div>
 
   <script src="../js/i18n.js" defer></script>
