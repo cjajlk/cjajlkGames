@@ -52,14 +52,31 @@ const RANKS = {
     }
 };
 
-let currentRank = localStorage.getItem("breaker_rank") || "bronze";
+// DÉPLACÉ ICI : ordre des rangs doit être défini avant toute fonction qui l'utilise
 const rankOrder = ["bronze", "argent", "or", "diamant", "platine", "nocturne"];
+
+function getCurrentRank() {
+    // Toujours relire dynamiquement le rang depuis le localStorage
+    const stored = localStorage.getItem("breaker_rank");
+    // Protection : ne jamais rétrograder si un rang supérieur a déjà été atteint
+    const profile = JSON.parse(localStorage.getItem('breaker_profile')) || {};
+    const maxUnlocked = profile.maxUnlockedRank || stored || "bronze";
+    // Si le rang courant est inférieur au max débloqué, on garde le max
+    const idxStored = rankOrder.indexOf(stored);
+    const idxMax = rankOrder.indexOf(maxUnlocked);
+    if (idxMax > idxStored) return maxUnlocked;
+    return stored || "bronze";
+}
+
+let currentRank = getCurrentRank();
 function getNextRank(rank) {
     const idx = rankOrder.indexOf(rank);
     return idx >= 0 && idx < rankOrder.length - 1 ? rankOrder[idx + 1] : null;
 }
 
 function applyRankSettings() {
+    // Toujours relire le rang courant dynamiquement
+    currentRank = getCurrentRank();
     const settings = RANKS[currentRank];
     // Appliquer vitesse balle
     ball.speed = settings.ballSpeed;
@@ -74,11 +91,21 @@ function applyRankSettings() {
 }
 
 function showRankUnlocked(rank) {
+    // Popup stylisée thème CJ
+    const rankName = rank.charAt(0).toUpperCase() + rank.slice(1);
+    const html = `
+        <div style="text-align:center;padding:24px 0;">
+            <div style="font-size:2.2em;font-weight:bold;color:#a78bfa;text-shadow:0 0 12px #7f5cff,0 0 2px #fff;letter-spacing:1px;">🎉 Rang débloqué !</div>
+            <div style="margin:18px 0 8px 0;font-size:1.6em;color:#5cc8ff;text-shadow:0 0 8px #a78bfa;">${rankName}</div>
+            <div style="font-size:1.1em;color:#fff;opacity:0.85;">Tu as débloqué le rang <b>${rankName}</b>.<br>Nouvelle difficulté disponible !</div>
+        </div>
+    `;
     if (window.Popup && typeof window.Popup.confirm === "function") {
-        window.Popup.confirm(`Rang ${rank.charAt(0).toUpperCase() + rank.slice(1)} débloqué !`);
+        window.Popup.confirm(html);
     } else {
-        alert(`Rang ${rank.charAt(0).toUpperCase() + rank.slice(1)} débloqué !`);
+        alert(`Rang ${rankName} débloqué !`);
     }
+    console.log(`[RANK] Rang débloqué : ${rank}`);
 }
   // Import ES6 modules (boss system)
 import { createBoss } from '../bosses/bossManager.js';
@@ -1380,7 +1407,12 @@ function updateBricks() {
                 if (nextRank) {
                     localStorage.setItem("breaker_rank", nextRank);
                     currentRank = nextRank;
-                    showRankUnlocked(nextRank);
+                    // Mémorise le rang max débloqué pour éviter toute régression
+                    profile.maxUnlockedRank = nextRank;
+                    // Réinitialise la progression des niveaux pour le nouveau rang
+                    profile.levelsCompleted = [1]; // Seul le tout premier niveau est débloqué au nouveau rang
+                    // Affiche le popup de rang APRÈS le popup de récompense boss
+                    profile._pendingRankPopup = nextRank;
                 }
             }
             localStorage.setItem('breaker_profile', JSON.stringify(profile));
@@ -1404,6 +1436,13 @@ function updateBricks() {
                     defeatMessage = i18nT("gameplay.astralDefeat", { xp: bossXP });
                 }
                 Popup.confirm(defeatMessage, () => {
+                    // Affiche le popup de rang si besoin
+                    const profile = JSON.parse(localStorage.getItem('breaker_profile')) || {};
+                    if (profile._pendingRankPopup) {
+                        showRankUnlocked(profile._pendingRankPopup);
+                        delete profile._pendingRankPopup;
+                        localStorage.setItem('breaker_profile', JSON.stringify(profile));
+                    }
                     window.location.href = "../pages/campaign.html";
                 });
             }
