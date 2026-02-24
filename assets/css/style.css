@@ -1,3 +1,53 @@
+/* ===== Focus Chronicles Card ===== */
+.focus-chronicles-card {
+  border: 2.5px solid #00fff7;
+  box-shadow: 0 0 24px #00fff799, 0 0 8px #0ff;
+  background: linear-gradient(135deg, #0a0620 80%, #0ff2 100%);
+  position: relative;
+  overflow: visible;
+  transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+}
+.focus-chronicles-card:hover {
+  box-shadow: 0 0 36px #00fff7cc, 0 0 16px #0ff;
+  border-color: #00fff7;
+  transform: scale(1.04);
+}
+.focus-chronicles-img-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.focus-chronicles-img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 18px;
+  box-shadow: 0 0 16px #00fff799;
+  border: 2px solid #00fff7;
+  background: #0a0620;
+}
+.focus-badge {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background: linear-gradient(90deg, #00fff7, #0ff, #00bfff);
+  color: #0a0620;
+  font-size: 0.85em;
+  font-weight: 800;
+  border-radius: 12px;
+  padding: 4px 12px;
+  box-shadow: 0 0 8px #00fff7cc;
+  border: 2px solid #fff2;
+  letter-spacing: 0.04em;
+  z-index: 2;
+  text-shadow: 0 1px 4px #fff8;
+}
+.focus-pickaxe {
+  filter: drop-shadow(0 0 4px #00fff7cc);
+  font-size: 1.1em;
+  margin-right: 2px;
+}
 .shop-image-item.unlocked {
   box-shadow: 0 0 24px #a855f7cc, 0 0 8px #8b5cf6;
   position: relative;
