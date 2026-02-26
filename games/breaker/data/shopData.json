@@ -58,7 +58,7 @@
           },
           "price": 200,
           "rarity": "rare",
-          "image": "../shop/categories/companions/light/astral_idle.png",
+          "image": "shop/categories/companions/light/astral_idle.png",
           "description": {
             "fr": "Luciole céleste. Illumine les ténèbres.",
             "en": "Celestial wisp. Lights up the darkness."
