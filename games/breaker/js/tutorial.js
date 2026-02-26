@@ -9,10 +9,10 @@ function showSimpleTutorial() {
   let overlay = document.createElement('div');
   overlay.className = 'cj-tutorial-overlay';
   const mascottes = [
-    { src: '/games/breaker/assets/mascottes/blue.png', nom: 'Blue' },
-    { src: '/games/breaker/assets/mascottes/fire.png', nom: 'Fire' },
-    { src: '/games/breaker/assets/mascottes/light.png', nom: 'Light' },
-    { src: '/games/breaker/assets/mascottes/nature.png', nom: 'Nature' },
+    { src: '../assets/mascottes/blue.png', nom: 'Blue' },
+    { src: '../assets/mascottes/fire.png', nom: 'Fire' },
+    { src: '../assets/mascottes/light.png', nom: 'Light' },
+    { src: '../assets/mascottes/nature.png', nom: 'Nature' },
   ];
   let mascotteIndex = 0;
   function mascotteCarouselHTML(idx) {
