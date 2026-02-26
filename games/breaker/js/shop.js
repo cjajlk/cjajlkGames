@@ -40,18 +40,19 @@ function createItemElement(item) {
     const profile = getPlayerProfile();
     const isOwned = profile.unlockedCompanions && profile.unlockedCompanions.includes(item.id);
     const canAfford = profile.diamants >= item.price;
-    
+
+    const lang = getLang();
     const itemDiv = document.createElement('div');
     itemDiv.className = `item ${item.rarity}`;
     if (isOwned) itemDiv.classList.add('owned');
-    
+
     // Badge de rareté
     const rarityBadge = document.createElement('div');
     rarityBadge.className = 'rarity-badge';
     const rarityLabel = i18nT(`shop.rarity.${item.rarity}`);
     rarityBadge.textContent = rarityLabel !== `shop.rarity.${item.rarity}` ? rarityLabel : item.rarity.toUpperCase();
     itemDiv.appendChild(rarityBadge);
-    
+
     // Badge OWNED
     if (isOwned) {
         const ownedBadge = document.createElement('div');
@@ -60,23 +61,33 @@ function createItemElement(item) {
         itemDiv.appendChild(ownedBadge);
     }
 
-    // Container image avec effet locked
+    // Container visuel (image ou 3D)
     const imgContainer = document.createElement('div');
     imgContainer.className = 'img-container';
-    
-    const img = document.createElement('img');
-    img.src = `../${item.image}`;
-    const lang = getLang();
     const itemName = typeof item.name === 'object' ? item.name[lang] || item.name.fr : item.name;
     const itemDesc = typeof item.description === 'object' ? item.description[lang] || item.description.fr : item.description;
 
-    img.alt = itemName;
-    if (!isOwned && item.price > 0) {
-        img.classList.add('locked');
+    if (item.gbl) {
+        // Affichage 3D avec <model-viewer>
+        const modelViewer = document.createElement('model-viewer');
+        modelViewer.setAttribute('src', `../${item.gbl}`);
+        modelViewer.setAttribute('alt', itemName);
+        modelViewer.setAttribute('auto-rotate', '');
+        modelViewer.setAttribute('camera-controls', '');
+        modelViewer.style.width = '100%';
+        modelViewer.style.height = '120px';
+        modelViewer.style.backgroundColor = 'transparent';
+        imgContainer.appendChild(modelViewer);
+    } else {
+        const img = document.createElement('img');
+        img.src = `../${item.image}`;
+        img.alt = itemName;
+        if (!isOwned && item.price > 0) {
+            img.classList.add('locked');
+        }
+        imgContainer.appendChild(img);
     }
-    
-    imgContainer.appendChild(img);
-    
+
     // Lock icon si non débloqué
     if (!isOwned && item.price > 0) {
         const lockIcon = document.createElement('div');
@@ -84,17 +95,9 @@ function createItemElement(item) {
         lockIcon.textContent = '🔒';
         imgContainer.appendChild(lockIcon);
     }
-    
     itemDiv.appendChild(imgContainer);
 
-    const nameDiv = document.createElement('div');
-    nameDiv.className = 'name';
-    nameDiv.textContent = itemName;
-
-    const descDiv = document.createElement('div');
-    descDiv.className = 'description';
-    descDiv.textContent = itemDesc;
-
+    // Correction : déclaration de costDiv
     const costDiv = document.createElement('div');
     costDiv.className = 'cost';
     costDiv.textContent = item.price === 0 ? i18nT('shop.free') : item.price;
@@ -120,6 +123,15 @@ function createItemElement(item) {
     
     // Click sur la carte pour preview
     itemDiv.onclick = () => showPreviewModal(item, isOwned);
+
+    // Correction : déclaration de nameDiv et descDiv
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'name';
+    nameDiv.textContent = itemName;
+
+    const descDiv = document.createElement('div');
+    descDiv.className = 'description';
+    descDiv.textContent = itemDesc;
 
     itemDiv.appendChild(nameDiv);
     itemDiv.appendChild(descDiv);
@@ -150,14 +162,17 @@ function showPreviewModal(item, isOwned) {
             </div>
             <div class="modal-body">
                 <div class="preview-image-container">
-                    <img src="../${item.image}" alt="${itemName}" class="preview-image">
+                    ${item.gbl ?
+                        `<model-viewer src="../${item.gbl}" alt="${itemName}" auto-rotate camera-controls style="width: 100%; height: 180px; background: transparent;"></model-viewer>` :
+                        `<img src="../${item.image}" alt="${itemName}" class="preview-image">`
+                    }
                     ${!isOwned && item.price > 0 ? '<div class="preview-lock">🔒</div>' : ''}
                 </div>
                 <p class="preview-description">${itemDesc}</p>
                 <div class="preview-price">
-                                        ${isOwned ? `<span class="owned-text">${i18nT('shop.ownedText')}</span>` : 
-                                            item.price === 0 ? `<span class="free-text">${i18nT('shop.free')}</span>` :
-                                            `<span class="price-text">${i18nT('shop.priceText', { price: item.price })}</span>`}
+                    ${isOwned ? `<span class="owned-text">${i18nT('shop.ownedText')}</span>` : 
+                        item.price === 0 ? `<span class="free-text">${i18nT('shop.free')}</span>` :
+                        `<span class="price-text">${i18nT('shop.priceText', { price: item.price })}</span>`}
                 </div>
             </div>
             <div class="modal-footer">
