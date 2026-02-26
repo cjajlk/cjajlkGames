@@ -99,6 +99,23 @@ const COMPANIONS_DATA = {
             { icon: "💚", text: "+5% Régénération HP" },
             { icon: "⚡", text: "Compétence: Emprise des racines" }
         ]
+    },
+    dragonMystique: {
+        id: "dragonMystique",
+        name: { fr: "Dragon Mystique", en: "Mystic Dragon" },
+        element: "void",
+        elementName: { fr: "Vide", en: "Void" },
+        description: {
+            fr: "Un dragon légendaire, gardien des secrets mystiques. Peut être équipé dans l'écurie.",
+            en: "A legendary dragon, guardian of mystical secrets. Can be equipped in the stable."
+        },
+        imagePath: "../assets/companions/dragonMystique/dragonMystique_idle.png",
+        modelPath: "../assets/companions/dragonMystique/dragonMystique.glb",
+        bonuses: [
+            { icon: "🐉", text: "+20% Puissance mystique" },
+            { icon: "✨", text: "+10% Vitesse d'écurie" },
+            { icon: "⚡", text: "Compétence: Souffle astral" }
+        ]
     }
 };
 
@@ -237,38 +254,55 @@ function openModal(data, stats) {
     const displayDescription = localize(data.description);
     const displayElementName = localize(data.elementName);
 
-    // Set image & element
-    document.getElementById("modalImage").src = data.imagePath;
-    document.getElementById("modalImage").alt = displayName;
+    // Set image or model-viewer
+    const modalImageContainer = document.getElementById("modalImageContainer");
+    if (modalImageContainer) {
+        modalImageContainer.innerHTML = data.modelPath ?
+            `<model-viewer src="${data.modelPath}" alt="${displayName}" camera-controls auto-rotate interaction-prompt="none" loading="eager" style="width:100%;height:220px;background:transparent;border:none;"></model-viewer>`
+            : `<img src="${data.imagePath}" alt="${displayName}" class="modal-image">`;
+    }
     
     const modalElement = document.getElementById("modalElement");
-    modalElement.textContent = displayElementName;
-    modalElement.className = `modal-element-badge element-badge ${elementClass}`;
+    if (modalElement) {
+        modalElement.textContent = displayElementName;
+        modalElement.className = `modal-element-badge element-badge ${elementClass}`;
+    }
 
     // Set info
-    document.getElementById("modalName").textContent = displayName;
-    document.getElementById("modalDescription").textContent = displayDescription;
+    const modalName = document.getElementById("modalName");
+    if (modalName) modalName.textContent = displayName;
+    const modalDescription = document.getElementById("modalDescription");
+    if (modalDescription) modalDescription.textContent = displayDescription;
 
     // Set bonuses (use real companion bonus system)
     const bonusesList = document.getElementById("modalBonuses");
-    
-    if (typeof getCompanionBonusInfo === 'function') {
-        const bonusInfo = getCompanionBonusInfo(data.id, stats.level);
-        if (bonusInfo) {
-            bonusesList.innerHTML = `
-                <div class="bonus-item main-bonus">
-                    <span class="bonus-icon">${bonusInfo.bonusIcon}</span>
-                    <span class="bonus-text"><strong>${bonusInfo.bonusName}:</strong> ${bonusInfo.formatted}</span>
-                </div>
-                <div class="bonus-description">
-                    ${bonusInfo.bonusDescription}
-                </div>
-                <div class="bonus-progression">
-                    <small>Niveau ${stats.level}/${bonusInfo.maxLevel}</small>
-                </div>
-            `;
+    if (bonusesList) {
+        if (typeof getCompanionBonusInfo === 'function') {
+            const bonusInfo = getCompanionBonusInfo(data.id, stats.level);
+            if (bonusInfo) {
+                bonusesList.innerHTML = `
+                    <div class="bonus-item main-bonus">
+                        <span class="bonus-icon">${bonusInfo.bonusIcon}</span>
+                        <span class="bonus-text"><strong>${bonusInfo.bonusName}:</strong> ${bonusInfo.formatted}</span>
+                    </div>
+                    <div class="bonus-description">
+                        ${bonusInfo.bonusDescription}
+                    </div>
+                    <div class="bonus-progression">
+                        <small>Niveau ${stats.level}/${bonusInfo.maxLevel}</small>
+                    </div>
+                `;
+            } else {
+                // Fallback
+                bonusesList.innerHTML = data.bonuses.map(bonus => `
+                    <div class="bonus-item">
+                        <span class="bonus-icon">${bonus.icon}</span>
+                        <span class="bonus-text">${bonus.text}</span>
+                    </div>
+                `).join('');
+            }
         } else {
-            // Fallback
+            // Fallback si companionBonuses.js n'est pas chargé
             bonusesList.innerHTML = data.bonuses.map(bonus => `
                 <div class="bonus-item">
                     <span class="bonus-icon">${bonus.icon}</span>
@@ -276,22 +310,16 @@ function openModal(data, stats) {
                 </div>
             `).join('');
         }
-    } else {
-        // Fallback si companionBonuses.js n'est pas chargé
-        bonusesList.innerHTML = data.bonuses.map(bonus => `
-            <div class="bonus-item">
-                <span class="bonus-icon">${bonus.icon}</span>
-                <span class="bonus-text">${bonus.text}</span>
-            </div>
-        `).join('');
     }
 
     // Set stats
-    document.getElementById("modalLevel").textContent = stats.level;
-    document.getElementById("modalXP").textContent = `${stats.xp} / 100`;
+    const modalLevel = document.getElementById("modalLevel");
+    if (modalLevel) modalLevel.textContent = stats.level;
+    const modalXP = document.getElementById("modalXP");
+    if (modalXP) modalXP.textContent = `${stats.xp} / 100`;
 
     // Show modal
-    modal.classList.remove("hidden");
+    if (modal) modal.classList.remove("hidden");
 }
 
 function closeModal() {

@@ -2,7 +2,17 @@
 <html lang="fr">
 
 <head>
-    <meta charset="UTF-8">
+        <meta charset="UTF-8">
+        <!-- Import model-viewer for 3D companions -->
+        <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+        <style>
+        model-viewer.shop-model {
+            width: 100%;
+            height: 220px;
+            display: block;
+            background: transparent;
+        }
+        </style>
     <title data-i18n="titles.ecurie">Écurie - Breaker</title>
 
     <!-- ⭐ OBLIGATOIRE POUR MOBILE -->
@@ -46,14 +56,17 @@
                 <span class="orb-icon">🟣</span>
                 <span class="orb-count" id="orbVoid">0</span>
             </div>
+            <div class="orbItem" data-type="mystique">
+                <span class="orb-icon">🐉</span>
+                <span class="orb-count" id="orbMystique">0</span>
+            </div>
         </div>
     </header>
 
     <!-- Main companion display -->
     <div class="companion-showcase">
-        <canvas id="ecurieCanvas"></canvas>
-        
-        <!-- Companion info panel (overlay on canvas) -->
+        <div id="main-companion-display"></div>
+        <!-- Companion info panel (overlay on canvas/model) -->
         <div class="companion-info-panel">
             <div class="info-header">
                 <h2 id="companionName">Aube</h2>

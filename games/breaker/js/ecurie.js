@@ -1,42 +1,161 @@
+
+// ===== Affichage central du compagnon sélectionné =====
+function updateInfoPanel() {
+    const infoPanel = document.getElementById('infoPanel');
+    const display = document.getElementById('main-companion-display');
+    const nameEl = document.getElementById('companionName');
+    const levelEl = document.getElementById('companionLevel');
+    const xpEl = document.getElementById('companionXpBar');
+    const bonusEl = document.getElementById('companionBonus');
+
+    // Nettoyer l'affichage central
+    if (display) display.innerHTML = '';
+
+    // Affichage du compagnon sélectionné (PNG ou 3D)
+    if (display && window.selectedCompanion) {
+        if (window.selectedCompanion.glb) {
+            const mv = document.createElement('model-viewer');
+            const src = window.selectedCompanion.glb.startsWith('/') ? window.selectedCompanion.glb : `../${window.selectedCompanion.glb}`;
+            mv.src = src;
+            mv.alt = window.selectedCompanion.name;
+            mv.setAttribute('camera-controls', '');
+            mv.setAttribute('auto-rotate', '');
+            mv.setAttribute('interaction-prompt', 'none');
+            mv.setAttribute('loading', 'eager');
+            mv.style.width = '100%';
+            mv.style.height = '100%';
+            mv.style.background = 'transparent';
+            mv.style.border = 'none';
+            display.appendChild(mv);
+        } else if (window.selectedCompanion.img && window.selectedCompanion.img.complete) {
+            const img = document.createElement('img');
+            img.src = window.selectedCompanion.img.src;
+            img.alt = window.selectedCompanion.name;
+            img.style.maxWidth = '100%';
+            img.style.maxHeight = '100%';
+            img.style.display = 'block';
+            img.style.margin = '0 auto';
+            display.appendChild(img);
+        } else {
+            // Placeholder si rien à afficher
+            const placeholder = document.createElement('div');
+            placeholder.className = 'companion-placeholder';
+            placeholder.textContent = '?';
+            display.appendChild(placeholder);
+        }
+    }
+
+    // Affichage des infos (nom, niveau, xp, bonus)
+    if (nameEl) nameEl.textContent = window.selectedCompanion ? window.selectedCompanion.name : '';
+
+    if (!window.selectedCompanion || !window.selectedCompanion.unlocked) {
+        if (levelEl) levelEl.textContent = i18nT("ecurie.locked");
+        if (xpEl) xpEl.style.width = '0%';
+        if (bonusEl) bonusEl.textContent = '🔒 --';
+    } else {
+        const maxLevel = typeof COMPANION_CONFIG !== 'undefined' ? COMPANION_CONFIG.MAX_LEVEL : 50;
+        const isMax = window.selectedCompanion.level >= maxLevel;
+        if (levelEl) {
+            const levelLabel = i18nT("common.levelShort");
+            const maxLabel = i18nT("ecurie.max");
+            levelEl.textContent = isMax 
+                ? `${levelLabel} ${window.selectedCompanion.level} ${maxLabel}` 
+                : `${levelLabel} ${window.selectedCompanion.level}/${maxLevel}`;
+        }
+        if (xpEl) {
+            if (isMax) {
+                xpEl.style.width = '100%';
+            } else {
+                const xpPercent = (window.selectedCompanion.xp / 100) * 100;
+                xpEl.style.width = xpPercent + '%';
+            }
+        }
+        if (bonusEl && typeof getCompanionBonusInfo === 'function') {
+            const bonusInfo = getCompanionBonusInfo(window.selectedCompanion.id, window.selectedCompanion.level);
+            if (bonusInfo) {
+                bonusEl.textContent = `${bonusInfo.bonusIcon} ${bonusInfo.formatted}`;
+                bonusEl.title = bonusInfo.bonusDescription;
+            } else {
+                bonusEl.textContent = '--';
+            }
+        }
+    }
+
+    // Affichage du type d'orbe
+    if (infoPanel && window.selectedCompanion) {
+        const orbType = window.selectedCompanion.orbType;
+        const orbIcon = ORB_ICONS[orbType] || "";
+        const orbLabel = ORB_LABELS[orbType] || orbType;
+        let orbHint = infoPanel.querySelector('.orb-hint');
+        if (!orbHint) {
+            orbHint = document.createElement('div');
+            orbHint.className = 'orb-hint';
+            infoPanel.appendChild(orbHint);
+        }
+        orbHint.textContent = `Orbe: ${orbIcon} ${orbLabel}`;
+    }
+}
 /* ==========================================
    🐾 BREAKER ÉCURIE - AAA PROFESSIONAL EDITION
    ========================================== */
 
-// ===== Canvas Setup =====
-const canvasEl = document.getElementById("ecurieCanvas");
-if (!canvasEl) throw new Error("ecurieCanvas introuvable");
+// ===== Companions Data =====
+let companions = [];
 
-const ctx = canvasEl.getContext("2d");
-const showcaseEl = document.querySelector(".companion-showcase");
-const DPR = window.devicePixelRatio || 1;
-let canvasW = 0;
-let canvasH = 0;
-
-function resize() {
-    const width = showcaseEl ? showcaseEl.clientWidth : window.innerWidth;
-    const height = showcaseEl ? showcaseEl.clientHeight : window.innerHeight;
-
-    canvasW = width;
-    canvasH = height;
-
-    canvasEl.width = Math.floor(width * DPR);
-    canvasEl.height = Math.floor(height * DPR);
-    canvasEl.style.width = width + "px";
-    canvasEl.style.height = height + "px";
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+function loadCompanions() {
+    companions = [];
+    const profile = typeof getPlayerProfile === "function" ? getPlayerProfile() : {};
+    const unlocked = profile.unlockedCompanions || ["aube"];
+    fetch("../data/shopData.json")
+        .then(res => res.json())
+        .then(shopData => {
+            const items = shopData.categories.find(cat => (cat.id || cat.name?.fr) === "companions" || cat.name?.fr === "Mascottes")?.items || [];
+            items.forEach(item => {
+                const c = {
+                    id: item.id,
+                    name: typeof item.name === "object" ? item.name.fr : item.name,
+                    unlocked: unlocked.includes(item.id),
+                    level: profile.companions?.[item.id]?.level || (item.id === "aube" ? 1 : 0),
+                    xp: profile.companions?.[item.id]?.xp || 0,
+                    orbType: item.orbType || "void",
+                    glb: item.glb || item.gbl || null, // injection directe depuis shopData.json
+                    image: item.image || null
+                };
+                // Si un modèle 3D existe, on ne charge pas d'image PNG
+                if (c.glb) {
+                    // rien à faire ici, affichage dynamique plus bas
+                } else {
+                    const img = new Image();
+                    if (c.id === "astral") {
+                        img.src = `../shop/categories/companions/light/astral_idle.png`;
+                    } else {
+                        img.src = `../assets/companions/${c.id}/${c.id}_idle.png`;
+                    }
+                    c.img = img;
+                }
+                companions.push(c);
+            });
+            // Initialiser selectedCompanion et selectedIndex
+            if (companions.length > 0) {
+                window.selectedIndex = 0;
+                window.selectedCompanion = companions[0];
+            } else {
+                window.selectedIndex = 0;
+                window.selectedCompanion = undefined;
+            }
+            generateSlots();
+            updateInfoPanel();
+        });
 }
 
-window.addEventListener("resize", resize);
-resize();
+// Appeler loadCompanions au démarrage
+window.addEventListener("DOMContentLoaded", loadCompanions);
 
-// ===== Companions Data =====
-const companions = [
-    { id: "aube", name: "Aube", unlocked: true, level: 1, xp: 0, orbType: "void" },
-    { id: "aqua", name: "Aqua", unlocked: false, level: 0, xp: 0, orbType: "water" },
-    { id: "ignis", name: "Ignis", unlocked: false, level: 0, xp: 0, orbType: "fire" },
-    { id: "astral", name: "Astral", unlocked: false, level: 0, xp: 0, orbType: "light" },
-    { id: "flora", name: "Flora", unlocked: false, level: 0, xp: 0, orbType: "nature" }
-];
+// Permettre le rafraîchissement dynamique depuis la boutique
+window.addEventListener("companionUnlocked", () => {
+    console.log("🔄 Rafraîchissement écurie suite à un achat en boutique");
+    loadCompanions();
+});
 
 const ORB_LABELS = {
     water: "Eau",
@@ -64,14 +183,28 @@ const FEED_VIDEO_BY_COMPANION = {
 
 // Load companion images
 companions.forEach(c => {
-    const img = new Image();
-    if (c.id === "astral") {
-        // Astral a un chemin spécial
-        img.src = `../shop/categories/companions/light/astral_idle.png`;
+    // Affichage harmonisé : modèle 3D si dispo, sinon PNG
+    const glbUrl = c.glb || c.gbl;
+    if (glbUrl) {
+        c.modelViewer = document.createElement('model-viewer');
+        // Si chemin absolu, on l'utilise tel quel, sinon on préfixe
+        const src = glbUrl.startsWith('/') ? glbUrl : `../${glbUrl}`;
+        c.modelViewer.setAttribute('src', src);
+        c.modelViewer.setAttribute('alt', c.name);
+        c.modelViewer.setAttribute('auto-rotate', '');
+        c.modelViewer.setAttribute('camera-controls', '');
+        c.modelViewer.style.width = '100%';
+        c.modelViewer.style.height = '120px';
+        c.modelViewer.style.backgroundColor = 'transparent';
     } else {
-        img.src = `../assets/companions/${c.id}/${c.id}_idle.png`;
+        const img = new Image();
+        if (c.id === "astral") {
+            img.src = `../shop/categories/companions/light/astral_idle.png`;
+        } else {
+            img.src = `../assets/companions/${c.id}/${c.id}_idle.png`;
+        }
+        c.img = img;
     }
-    c.img = img;
 });
 
 // Ensure Aube is first
@@ -106,87 +239,7 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// ===== Update Orb HUD =====
-function updateOrbHUD() {
-    if (typeof getPlayerProfile !== "function") return;
-    
-    const profile = getPlayerProfile();
-    const orbs = profile.orbs || {};
-    
-    const updateOrb = (id, type) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = orbs[type] || 0;
-    };
-    
-    updateOrb('orbAqua', 'water');
-    updateOrb('orbIgnis', 'fire');
-    updateOrb('orbAstral', 'light');
-    updateOrb('orbFlora', 'nature');
-    updateOrb('orbVoid', 'void');
-}
 
-// ===== Update Info Panel =====
-function updateInfoPanel() {
-    const nameEl = document.getElementById('companionName');
-    const levelEl = document.getElementById('companionLevel');
-    const xpEl = document.getElementById('companionXP');
-    const bonusEl = document.getElementById('companionBonus');
-    const infoPanel = document.querySelector('.companion-info-panel');
-    
-    if (nameEl) nameEl.textContent = selectedCompanion.name;
-    
-    if (!selectedCompanion.unlocked) {
-        // Compagnon verrouillé
-        if (levelEl) levelEl.textContent = i18nT("ecurie.locked");
-        if (xpEl) xpEl.style.width = '0%';
-        if (bonusEl) bonusEl.textContent = '🔒 --';
-    } else {
-        // Compagnon débloqué
-        const maxLevel = typeof COMPANION_CONFIG !== 'undefined' ? COMPANION_CONFIG.MAX_LEVEL : 50;
-        const isMax = selectedCompanion.level >= maxLevel;
-        
-        if (levelEl) {
-            const levelLabel = i18nT("common.levelShort");
-            const maxLabel = i18nT("ecurie.max");
-            levelEl.textContent = isMax 
-                ? `${levelLabel} ${selectedCompanion.level} ${maxLabel}` 
-                : `${levelLabel} ${selectedCompanion.level}/${maxLevel}`;
-        }
-        
-        if (xpEl) {
-            if (isMax) {
-                xpEl.style.width = '100%';
-            } else {
-                const xpPercent = (selectedCompanion.xp / 100) * 100;
-                xpEl.style.width = xpPercent + '%';
-            }
-        }
-        
-        // Afficher le bonus
-        if (bonusEl && typeof getCompanionBonusInfo === 'function') {
-            const bonusInfo = getCompanionBonusInfo(selectedCompanion.id, selectedCompanion.level);
-            if (bonusInfo) {
-                bonusEl.textContent = `${bonusInfo.bonusIcon} ${bonusInfo.formatted}`;
-                bonusEl.title = bonusInfo.bonusDescription;
-            } else {
-                bonusEl.textContent = '--';
-            }
-        }
-    }
-
-    if (infoPanel) {
-        const orbType = selectedCompanion.orbType;
-        const orbIcon = ORB_ICONS[orbType] || "";
-        const orbLabel = ORB_LABELS[orbType] || orbType;
-        let orbHint = infoPanel.querySelector('.orb-hint');
-        if (!orbHint) {
-            orbHint = document.createElement('div');
-            orbHint.className = 'orb-hint';
-            infoPanel.appendChild(orbHint);
-        }
-        orbHint.textContent = `Orbe: ${orbIcon} ${orbLabel}`;
-    }
-}
 
 // ===== Generate Companion Slots =====
 function generateSlots() {
@@ -198,29 +251,55 @@ function generateSlots() {
     companions.forEach((c, index) => {
         const slot = document.createElement('div');
         slot.className = 'companion-slot';
-        
         if (!c.unlocked) {
             slot.classList.add('locked');
         }
-        
         if (index === selectedIndex) {
             slot.classList.add('selected');
         }
-        
-        // Afficher l'image même si verrouillé (avec style locked)
-        if (c.img && c.img.complete) {
+        // Affichage dynamique : modèle 3D si glb existe, sinon image PNG
+        const visualContainer = document.createElement('div');
+        visualContainer.className = 'companion-visual-container';
+        if (c.glb) {
+            const mv = document.createElement('model-viewer');
+            const src = c.glb.startsWith('/') ? c.glb : `../${c.glb}`;
+            mv.src = src;
+            mv.alt = c.name;
+            mv.setAttribute('camera-controls', '');
+            mv.setAttribute('auto-rotate', '');
+            mv.setAttribute('interaction-prompt', 'none');
+            mv.setAttribute('loading', 'eager');
+            mv.className = 'shop-model';
+            mv.style.width = '100%';
+            mv.style.height = '100%';
+            mv.style.background = 'transparent';
+            mv.style.border = 'none';
+            visualContainer.appendChild(mv);
+        } else if (c.img && c.img.complete) {
             const img = document.createElement('img');
             img.src = c.img.src;
             img.alt = c.name;
-            slot.appendChild(img);
+            visualContainer.appendChild(img);
+        } else {
+            // Si ni glb ni image, afficher un placeholder générique
+            const placeholder = document.createElement('div');
+            placeholder.className = 'companion-placeholder';
+            placeholder.textContent = '?';
+            visualContainer.appendChild(placeholder);
         }
-
         const orbBadge = document.createElement('span');
         orbBadge.className = 'orb-badge';
         orbBadge.textContent = ORB_ICONS[c.orbType] || '';
         orbBadge.title = `Orbe: ${ORB_LABELS[c.orbType] || c.orbType}`;
-        slot.appendChild(orbBadge);
-        
+        visualContainer.appendChild(orbBadge);
+        // Affichage du cadenas si non débloqué
+        if (!c.unlocked) {
+            const lockIcon = document.createElement('div');
+            lockIcon.className = 'lock-icon';
+            lockIcon.textContent = '🔒';
+            visualContainer.appendChild(lockIcon);
+        }
+        slot.appendChild(visualContainer);
         slot.addEventListener('click', () => {
             if (c.unlocked) {
                 selectCompanion(index);
@@ -237,13 +316,16 @@ function generateSlots() {
 function selectCompanion(index) {
     if (index < 0 || index >= companions.length) return;
     if (!companions[index].unlocked) return;
-    
+
     selectedIndex = index;
     selectedCompanion = companions[index];
-    
+    // Synchroniser avec window pour updateInfoPanel
+    window.selectedIndex = index;
+    window.selectedCompanion = companions[index];
+
     updateInfoPanel();
     generateSlots();
-    
+
     // Visual feedback
     equipTransition = 0.3;
 }
@@ -417,66 +499,6 @@ function stopFeedingVideo(withFlash) {
 }
 
 // ===== Draw Companion in Center =====
-function drawCenter() {
-    if (!selectedCompanion?.img || !selectedCompanion.img.complete) return;
-    
-    const cx = canvasW * 0.5;
-    const uiOffset = canvasW < 480 ? 60 : canvasW < 768 ? 40 : 20;
-    const baseCenterY = canvasW < 480 ? canvasH * 0.28 : canvasW < 768 ? canvasH * 0.36 : canvasH * 0.5;
-    const cy = baseCenterY - uiOffset;
-    const floatY = Math.sin(floatTime) * 10;
-    
-    let scale = 1;
-    
-    if (equipTransition > 0) {
-        equipTransition -= 0.05;
-        scale = 1 + equipTransition * 0.5;
-    }
-    
-    ctx.save();
-    
-    // Responsive size
-    let baseSize = 400;
-    if (canvasW < 480) {
-        baseSize = 200;
-    } else if (canvasW < 768) {
-        baseSize = 280;
-    } else if (canvasW < 1024) {
-        baseSize = 350;
-    }
-    
-    const size = baseSize * scale;
-    
-    // Glow effect
-    ctx.shadowColor = 'rgba(143, 211, 255, 0.5)';
-    ctx.shadowBlur = 30;
-    
-    ctx.drawImage(
-        selectedCompanion.img,
-        cx - size / 2,
-        cy - size / 2 + floatY,
-        size,
-        size
-    );
-    
-    ctx.restore();
-}
-
-// ===== Main Animation Loop =====
-function loop() {
-    if (playingFeed) {
-        requestAnimationFrame(loop);
-        return;
-    }
-    
-    ctx.clearRect(0, 0, canvasW, canvasH);
-    
-    drawCenter();
-    
-    floatTime += 0.03;
-    
-    requestAnimationFrame(loop);
-}
 
 // ===== Event Listeners =====
 document.addEventListener('DOMContentLoaded', () => {
@@ -496,10 +518,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (firstUnlocked >= 0) {
         selectedIndex = firstUnlocked;
         selectedCompanion = companions[firstUnlocked];
+        console.log("✅ Compagnon sélectionné:", selectedCompanion.id);
+    } else {
+        selectedIndex = 0;
+        selectedCompanion = undefined;
+        console.log("⚠️ Aucun compagnon sélectionné.");
     }
-    
+
+    console.log("🐾 Tous les companions:", companions);
     console.log("🐾 Compagnons débloqués:", companions.filter(c => c.unlocked).map(c => c.id));
-    console.log("✅ Compagnon sélectionné:", selectedCompanion.id);
     
     // Setup UI
     generateSlots();
@@ -525,8 +552,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Start animation loop
-    loop();
 
     document.addEventListener('languagechange', () => {
         updateInfoPanel();

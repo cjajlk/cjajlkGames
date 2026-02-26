@@ -67,16 +67,18 @@ function createItemElement(item) {
     const itemName = typeof item.name === 'object' ? item.name[lang] || item.name.fr : item.name;
     const itemDesc = typeof item.description === 'object' ? item.description[lang] || item.description.fr : item.description;
 
-    if (item.gbl) {
+    const glbUrl = item.glb || item.gbl;
+    if (glbUrl) {
         // Affichage 3D avec <model-viewer>
         const modelViewer = document.createElement('model-viewer');
-        modelViewer.setAttribute('src', `../${item.gbl}`);
+        // Si chemin absolu, on l'utilise tel quel, sinon on préfixe
+        const src = glbUrl.startsWith('/') ? glbUrl : `../${glbUrl}`;
+        modelViewer.setAttribute('src', src);
         modelViewer.setAttribute('alt', itemName);
         modelViewer.setAttribute('auto-rotate', '');
         modelViewer.setAttribute('camera-controls', '');
-        modelViewer.style.width = '100%';
-        modelViewer.style.height = '120px';
-        modelViewer.style.backgroundColor = 'transparent';
+        modelViewer.setAttribute('interaction-prompt', 'none');
+        modelViewer.className = 'shop-model';
         imgContainer.appendChild(modelViewer);
     } else {
         const img = document.createElement('img');
@@ -153,6 +155,7 @@ function showPreviewModal(item, isOwned) {
     const itemDesc = typeof item.description === 'object' ? item.description[lang] || item.description.fr : item.description;
     const rarityLabel = i18nT(`shop.rarity.${item.rarity}`);
     
+    const glbUrl = item.glb || item.gbl;
     modal.innerHTML = `
         <div class="modal-content preview-modal ${item.rarity}">
             <button class="modal-close">×</button>
@@ -162,8 +165,8 @@ function showPreviewModal(item, isOwned) {
             </div>
             <div class="modal-body">
                 <div class="preview-image-container">
-                    ${item.gbl ?
-                        `<model-viewer src="../${item.gbl}" alt="${itemName}" auto-rotate camera-controls style="width: 100%; height: 180px; background: transparent;"></model-viewer>` :
+                    ${glbUrl ?
+                        `<model-viewer src="../${glbUrl}" alt="${itemName}" auto-rotate camera-controls interaction-prompt="none" class="shop-model"></model-viewer>` :
                         `<img src="../${item.image}" alt="${itemName}" class="preview-image">`
                     }
                     ${!isOwned && item.price > 0 ? '<div class="preview-lock">🔒</div>' : ''}

@@ -28,6 +28,11 @@
           "name": "Flora",
           "description": "Esprit de la nature.",
           "unlocked": false
+        },
+        {
+          "name": "Dragon Mystique",
+          "description": "Dragon légendaire, gardien des secrets mystiques.",
+          "unlocked": false
         }
       ]
     },

@@ -40,7 +40,8 @@ const defaultProfile = {
     fire: 0,
     light: 0,
     nature: 0,
-    void: 0
+    void: 0,
+    mystique: 0 // Ajout pour Dragon Mystique
   },
 
   equippedCompanion: "aube",
@@ -77,7 +78,7 @@ function loadProfile() {
       console.log("🔍 Vérification des compagnons débloqués:", parsed.unlockedCompanions);
       
       // Liste des compagnons valides
-      const validCompanions = ["aube", "aqua", "ignis", "astral", "flora"];
+      const validCompanions = ["aube", "aqua", "ignis", "astral", "flora", "dragonMystique"];
       
       // Filtrer les compagnons invalides
       parsed.unlockedCompanions = parsed.unlockedCompanions.filter(id => validCompanions.includes(id));
@@ -125,7 +126,9 @@ function saveProfile(profile) {
 function normalizeProfile(p) {
   if (!p) p = { ...defaultProfile };
 
-  if (!p.orbs) p.orbs = { water: 0, fire: 0, light: 0, nature: 0, void: 0 };
+  if (!p.orbs) p.orbs = { water: 0, fire: 0, light: 0, nature: 0, void: 0, mystique: 0 };
+  // Ajout du champ mystique si absent
+  if (p.orbs.mystique === undefined) p.orbs.mystique = 0;
   if (!p.companions) p.companions = {};
   const legacyCompanionMap = {
     blue: "aqua",
@@ -166,7 +169,7 @@ function normalizeProfile(p) {
     p.unlockedCompanions = p.unlockedCompanions.map((id) => legacyMap[id] || id);
 
     // Filtrer uniquement les IDs valides
-    const validIds = ["aube", "aqua", "ignis", "astral", "flora"];
+    const validIds = ["aube", "aqua", "ignis", "astral", "flora", "dragonMystique"];
     const before = p.unlockedCompanions.length;
     p.unlockedCompanions = p.unlockedCompanions.filter(id => validIds.includes(id));
 
@@ -220,12 +223,13 @@ function getOrbs() {
 function getOrbCount(type) {
   const o = getOrbs();
   if (type) return Number(o[type] || 0);
-  return Number(o.water || 0) + Number(o.fire || 0) + Number(o.light || 0) + Number(o.nature || 0) + Number(o.void || 0);
+  // Ajout du total mystique
+  return Number(o.water || 0) + Number(o.fire || 0) + Number(o.light || 0) + Number(o.nature || 0) + Number(o.void || 0) + Number(o.mystique || 0);
 }
 
 function addOrb(type, amount = 1) {
   const p = getPlayerProfile();
-  if (!p.orbs[type]) p.orbs[type] = 0;
+  if (p.orbs[type] === undefined) p.orbs[type] = 0;
   
   console.log("💧 Adding orb:", type, "x", amount, "- Before:", p.orbs[type]);
   p.orbs[type] += amount;
@@ -241,10 +245,11 @@ function addOrb(type, amount = 1) {
 function consumeOrb(type, amount = 1) {
     const p = getPlayerProfile();
     if (!p.orbs) p.orbs = {};
+    if (p.orbs[type] === undefined) p.orbs[type] = 0;
 
-    if (!p.orbs[type] || p.orbs[type] < amount) {
-        console.log("❌ Cannot consume orb:", type, "- Need:", amount, "Have:", p.orbs[type] || 0);
-        return false;
+    if (p.orbs[type] < amount) {
+      console.log("❌ Cannot consume orb:", type, "- Need:", amount, "Have:", p.orbs[type] || 0);
+      return false;
     }
 
     console.log("💧 Consuming orb:", type, "x", amount, "- Before:", p.orbs[type]);
@@ -266,12 +271,15 @@ function updateOrbHUD() {
     const astral = document.getElementById("orbAstral");
     const flora  = document.getElementById("orbFlora");
     const voidOrb= document.getElementById("orbVoid");
+    const mystique = document.getElementById("orbMystique");
 
     if (aqua)   aqua.textContent   = "x" + (orbs.water  || 0);
     if (ignis)  ignis.textContent  = "x" + (orbs.fire   || 0);
     if (astral) astral.textContent = "x" + (orbs.light  || 0);
     if (flora)  flora.textContent  = "x" + (orbs.nature || 0);
     if (voidOrb)voidOrb.textContent= "x" + (orbs.void   || 0);
+    // Ajout pour Dragon Mystique si un orbe spécial existe
+    if (mystique && orbs.mystique !== undefined) mystique.textContent = "x" + (orbs.mystique || 0);
 }
 
 // ====================================
