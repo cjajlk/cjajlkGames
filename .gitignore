@@ -1,4 +1,36 @@
-# Ignorer les fichiers de maintenance
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Éditeurs / IDE =====
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+.idea/
+
+# ===== Logs =====
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== Fichiers temporaires =====
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# ===== Dépendances / Build =====
+node_modules/
+dist/
+build/
+coverage/
+
+# ===== Fichiers de maintenance locaux =====
 maintenance_fichiers/
-*.py
-*.txt
+
+# ===== Sauvegardes locales =====
+*.backup
