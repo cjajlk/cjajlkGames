@@ -1,4 +1,4 @@
-/* =========================================================
+﻿/* =========================================================
    🎮 NOCTURNE ENGINE — V4
    ========================================================= */
 
@@ -1637,24 +1637,29 @@ function pauseToMenu() {
     const canvas = document.getElementById("gameCanvas");
     if (canvas) canvas.classList.add("hidden");
 
-    // Attendre 2.5s avant de rafraîchir
-    setTimeout(() => {
-        window.location.reload(); // Rafraîchissement de la page
-    }, 2500); // Laisser un délai pour que tout se termine correctement
+    // Mode campagne: retourner à campaign.html
+    if (campaignMode && campaignMode.active) {
+        setTimeout(() => {
+            window.location.href = 'pages/campaign.html';
+        }, 500);
+    } else {
+        // Mode normal: recharger
+        setTimeout(() => {
+            window.location.reload();
+        }, 2500);
 
-    // Retour au menu + reset
-    returnToMainMenu();
-    setTimeout(() => {
-        resetGameValues();  // <-- d’abord 
-        showMainMenu();     // <-- ensuite
-    }, 2500);
+        returnToMainMenu();
+        setTimeout(() => {
+            resetGameValues();
+            showMainMenu();
+        }, 2500);
+    }
 
-    
     console.log("↩ Retour au menu principal depuis pause");
 }
 
 function confirmReturnToHub() {
-    const ok = window.confirm("Quitter le jeu et revenir au centre de l’univers ?");
+    const ok = window.confirm("Quitter le jeu et revenir au centre de l'univers ?");
     if (!ok) return;
 
     const overlay = document.getElementById("pauseOverlay");
@@ -1663,7 +1668,11 @@ function confirmReturnToHub() {
         overlay.classList.add("hidden");
     }
 
-    window.location.href = "https://cjajlk.github.io/cjajlkGames/";
+    if (campaignMode && campaignMode.active) {
+        window.location.href = "pages/campaign.html";
+    } else {
+        window.location.href = "https://cjajlk.github.io/cjajlkGames/";
+    }
 }
 
 // Afficher un indicateur de chargement avant de rafraîchir la page
@@ -2834,7 +2843,7 @@ function closeGameModes() {
 
 
 function campaignComingSoon() {
-    showWarningText("🌙 Mode Campagne bientôt disponible…");
+    window.location.href = "pages/campaign.html";
 }
 
 
@@ -3563,16 +3572,20 @@ function endgame() {
         addGems(gained);
     }
 
-    // Attendre 2.5s avant de rafraîchir
-    setTimeout(() => {
-        window.location.reload(); // Rafraîchissement de la page
-    }, 2500); // Laisser un délai pour que tout se termine correctement
+    // Mode campagne: continuer au niveau suivant
+    if (campaignMode && campaignMode.active) {
+        endCampaignLevel(score >= levelTargetNormal);
+    } else {
+        // Mode normal/timer: recharger après 2.5s
+        setTimeout(() => {
+            window.location.reload();
+        }, 2500);
 
-    // Retour au menu + pas de reset des données
-    returnToMainMenu();
-    setTimeout(() => {
-        showMainMenu();
-    }, 2500);
+        returnToMainMenu();
+        setTimeout(() => {
+            showMainMenu();
+        }, 2500);
+    }
 }
 
 
@@ -3866,4 +3879,8 @@ function goBackToIntro() {
     sessionStorage.setItem("fromMenu", "1");  // Garde une trace qu'on est revenu du menu
     window.location.href = "../intro/intro.html";  // Redirection vers l'intro
 }
+
+
+
+
 
