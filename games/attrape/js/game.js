@@ -552,7 +552,7 @@ sfx_fail.volume = 0.45;
    📦 SYSTEME D’ASSETS
    ========================================================= */
 
-  const GameAssets = {
+const GameAssets = window.GameAssets = {
     images: {
         menuMascotte: null,
         menuOrbe: null,
@@ -1766,6 +1766,16 @@ function startTimerMode() {
     startGame(GameData);
 }
 
+// Expose menu and mode launch functions globally for inline HTML onclick handlers
+window.openProfile = openProfile;
+window.openGameModes = openGameModes;
+window.closeGameModes = closeGameModes;
+window.campaignComingSoon = campaignComingSoon;
+window.startNormalMode = startNormalMode;
+window.startTimerMode = startTimerMode;
+window.showMainMenu = showMainMenu;
+window.GameAssets = GameAssets;
+
 // Fonction d'objectif de niveau utilisée par startNormalMode
 function getNextLevelTarget(level) {
     if (level === 1) return 50;
@@ -2322,6 +2332,8 @@ if (campaignMode && campaignMode.active) {
     }
 }
 
+}
+
 
 /* =========================================================
    🖱️ CLICK SUR LE JEU — VERSION FIXÉE
@@ -2448,5 +2460,390 @@ function spawnObjectiveText(text) {
     setTimeout(() => {
         document.body.removeChild(textElement);
     }, 2000);
+}
+
+/* =========================================================
+   🎯 COMBO SYSTEM
+   ========================================================= */
+function onHitSuccess(cx, cy, gain) {
+    comboCount++;
+
+    if (comboCount >= comboTarget) {
+        comboCount = 0;
+        totalComboSuccess++;
+
+        if (totalComboSuccess === 5 || totalComboSuccess === 10 || totalComboSuccess % 25 === 0) {
+            showMascotteDialog("Incroyable !", "happy");
+        }
+
+        timerValue = Math.min(100, timerValue + 20);
+        addXP(1);
+        spawnFloatText(cx, cy, "COMBO !", "gold");
+        spawnShockwave(cx, cy);
+        showComboEffect(totalComboSuccess);
+    }
+}
+
+function showComboEffect(mult) {
+    const el = document.getElementById("comboEffect");
+    if (!el) return;
+
+    el.textContent = `COMBO x${mult}!`;
+    el.classList.remove("combo-flash");
+    void el.offsetWidth;
+    el.classList.add("combo-flash");
+
+    document.body.classList.remove("screen-shake");
+    void document.body.offsetWidth;
+    document.body.classList.add("screen-shake");
+
+    setTimeout(() => {
+        el.classList.remove("combo-flash");
+        document.body.classList.remove("screen-shake");
+    }, 300);
+}
+
+/* =========================================================
+   🔄 BOUCLE DE RENDU
+   ========================================================= */
+function initRender() {
+    if (!Game.running) {
+        Game.running = true;
+        lastFrameTime = 0;
+        gameLoopId = requestAnimationFrame(render);
+    }
+}
+
+function render() {
+    if (!Game.running) return;
+
+    const now = performance.now();
+    const deltaMs = lastFrameTime ? (now - lastFrameTime) : 0;
+    lastFrameTime = now;
+
+    const ctx = Game.ctx;
+    if (!ctx) return;
+
+    auraTime += 0.03;
+    ctx.clearRect(0, 0, Game.canvas.width, Game.canvas.height);
+
+    if (Game.assets.background) {
+        ctx.drawImage(Game.assets.background, 0, 0, Game.canvas.width, Game.canvas.height);
+    }
+
+    if (timerRunning) {
+        timerValue -= timerSpeed * timerPressure;
+        timerBackgroundElapsed += timerSpeed;
+
+        if (currentMode === "timer" && timerBackgroundElapsed >= TIMER_BG_INTERVAL) {
+            timerBackgroundElapsed = 0;
+            if (GameData.backgrounds && GameData.backgrounds.length > 0) {
+                currentBackgroundIndex = (currentBackgroundIndex + 1) % GameData.backgrounds.length;
+                transitionBackgroundCinematic(() => applyBackgroundFromIndex());
+                if (typeof crossfadeToNextTrack === "function") crossfadeToNextTrack();
+            }
+        }
+
+        const bar = document.getElementById("timerBar");
+        if (bar) {
+            const maxHeight = 200;
+            const height = Math.max(0, (timerValue / 100) * maxHeight);
+            bar.style.height = height + "px";
+        }
+
+        if (timerValue <= 0) {
+            timerValue = 0;
+            endTimerMode();
+            return;
+        }
+
+        if (isGamePaused) return;
+    }
+
+    if (!isGamePaused && isGameRunning && (gameStarted || timerRunning) && !inLevelTransition) {
+        spawnTimerMs += deltaMs;
+        const spawnThresholdMs = (timerRunning ? spawnRate * 0.55 : spawnRate) * (1000 / 60);
+        if (spawnTimerMs >= spawnThresholdMs) {
+            spawnTimerMs = 0;
+            spawnOrb();
+        }
+    }
+
+    for (let i = targets.length - 1; i >= 0; i--) {
+        const t = targets[i];
+        const isMobile = window.innerWidth < 820;
+
+        if (isMobile) {
+            t.x += (Math.random() * 1.6 - 0.8);
+            t.y += (Math.random() * 1.6 - 0.8);
+        } else {
+            t.x += (Math.random() * 1.2 - 0.6);
+            t.y += (Math.random() * 1.2 - 0.6);
+        }
+
+        t.x = Math.max(10, Math.min(Game.canvas.width - t.size - 10, t.x));
+        t.y = Math.max(10, Math.min(Game.canvas.height - t.size - 10, t.y));
+
+        drawOrb(t);
+
+        if (typeof t.lifetime === "number") {
+            t.lifetime--;
+            if (t.lifetime <= 0) {
+                targets.splice(i, 1);
+                if (!timerRunning) {
+                    misses++;
+                    updateHUD();
+                    if (misses >= missesMax) {
+                        endgame();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    updateParticles(ctx);
+    updateShockwaves(ctx);
+    updateFloatTexts(ctx);
+    drawMascotte(ctx);
+
+    if (Game.running) {
+        gameLoopId = requestAnimationFrame(render);
+    }
+}
+
+/* =========================================================
+   🌟 PROGRESSION
+   ========================================================= */
+function checkProgressAfterHit() {
+    if (timerRunning) {
+        if (score > 0 && score % 10 === 0) {
+            timerValue = Math.min(100, timerValue + 40);
+            spawnRate = Math.max(25, spawnRate - 5);
+        }
+        updateHUD();
+        return;
+    }
+
+    if (campaignMode && campaignMode.active) {
+        updateHUD();
+        const campaignObjective = getCampaignObjective();
+        if (!campaignTransitionInProgress && score >= campaignObjective) {
+            endCampaignLevel();
+        }
+        return;
+    }
+
+    if (levelRewardGiven) return;
+    if (score >= levelTargetNormal) {
+        levelRewardGiven = true;
+        level++;
+        levelTargetNormal = getNextLevelTarget(level);
+        setTimeout(() => {
+            levelRewardGiven = false;
+        }, 100);
+
+        if (GameData.backgrounds && GameData.backgrounds.length > 0) {
+            currentBackgroundIndex = (currentBackgroundIndex + 1) % GameData.backgrounds.length;
+            transitionBackgroundCinematic(() => applyBackgroundFromIndex());
+            if (typeof crossfadeToNextTrack === "function") crossfadeToNextTrack();
+        }
+
+        misses = 0;
+        spawnRate = Math.max(20, spawnRate - 5);
+        updateHUD();
+        showMascotteDialog(`Niveau ${level} termine !`, "happy");
+    }
+}
+
+/* =========================================================
+   ⏳ TIMER BAR
+   ========================================================= */
+function showTimerBar() {
+    const c = document.getElementById("timerBarContainer");
+    const bar = document.getElementById("timerBar");
+    if (c) c.style.display = "block";
+    if (bar) bar.style.height = "100%";
+}
+
+function hideTimerBar() {
+    const c = document.getElementById("timerBarContainer");
+    const bar = document.getElementById("timerBar");
+    if (c) c.style.display = "none";
+    if (bar) bar.style.height = "0px";
+}
+
+function updateTimerBar() {
+    const timerBar = document.getElementById("timerBar");
+    const timerBarContainer = document.getElementById("timerBarContainer");
+    if (!timerBar || !timerBarContainer) return;
+
+    if (timerRunning) timerPressure += 0.0035;
+
+    const maxHeight = 220;
+    const height = Math.max(0, (timerValue / 100) * maxHeight);
+    timerBar.style.height = `${height}px`;
+
+    const percentage = timerValue / 100;
+    timerBar.style.background = `linear-gradient(0deg, #c278ff ${percentage * 100}%, #9f50ff)`;
+
+    if (timerValue <= 0) {
+        timerBar.style.height = "0px";
+        timerValue = 0;
+        endTimerMode();
+    }
+}
+
+/* =========================================================
+   🎄 BANNIERE EVENEMENT
+   ========================================================= */
+function showEventBanner() {
+    const bottom = document.getElementById("menuBottomEffect");
+    const banner = document.getElementById("eventBanner");
+    const isActive = window.EventManager && EventManager.isEventActive("valentin");
+
+    if (!isActive) {
+        hideEventBanner();
+        return;
+    }
+
+    if (bottom) bottom.style.opacity = "0";
+    if (banner) banner.style.display = "flex";
+    document.body.classList.add("event-valentin");
+}
+
+function hideEventBanner() {
+    const bottom = document.getElementById("menuBottomEffect");
+    const banner = document.getElementById("eventBanner");
+
+    if (bottom) bottom.style.opacity = "0.6";
+    if (banner) banner.style.display = "none";
+    document.body.classList.remove("event-valentin");
+}
+
+/* =========================================================
+   🔄 RESET / FIN DE PARTIE
+   ========================================================= */
+function resetGameValues() {
+    score = 0;
+    comboCount = 0;
+    playerLevel = getLevelFromTotalPoints(playerTotalPoints);
+    playerXP = 0;
+    savePlayerProfile();
+    updateHUD();
+}
+
+function returnToMainMenu() {
+    savePlayerProfile();
+    isGameRunning = false;
+    Game.running = false;
+    gameStarted = false;
+    timerRunning = false;
+
+    if (gameLoopId) cancelAnimationFrame(gameLoopId);
+    gameLoopId = null;
+
+    hideGameUI();
+    clearOrbs();
+    refreshComboHUDVisibility();
+}
+
+function endgame() {
+    showMascotteDialog(mascotLoseLines[Math.floor(Math.random() * mascotLoseLines.length)], "sad");
+
+    Game.running = false;
+    gameStarted = false;
+    timerRunning = false;
+
+    if (gameLoopId) cancelAnimationFrame(gameLoopId);
+    gameLoopId = null;
+
+    if (score > 0) {
+        playerTotalPoints += score;
+        if (score > highScore) highScore = score;
+        addXP(score);
+        checkTitlesUnlock();
+        const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+        totalPlayTime += elapsed;
+        savePlayerProfile();
+    }
+
+    setTimeout(() => {
+        returnToMainMenu();
+        showMainMenu();
+    }, 2500);
+}
+
+function endTimerMode() {
+    showMascotteDialog(mascotLoseLines[Math.floor(Math.random() * mascotLoseLines.length)], "sad");
+
+    timerRunning = false;
+    gameStarted = false;
+    Game.running = false;
+
+    if (score > 0) {
+        playerTotalPoints += score;
+        if (score > highScore) highScore = score;
+        checkTitlesUnlock();
+        addXP(score);
+        const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+        totalPlayTime += elapsed;
+        savePlayerProfile();
+    }
+
+    setTimeout(() => {
+        resetGameValues();
+        showMainMenu();
+    }, 2500);
+}
+
+function quitToMenu() {
+    savePlayerProfile();
+    isGamePaused = false;
+    isGameRunning = false;
+    Game.running = false;
+
+    if (gameLoopId) cancelAnimationFrame(gameLoopId);
+    gameLoopId = null;
+
+    setTimeout(() => {
+        window.location.reload();
+    }, 2500);
+}
+
+/* =========================================================
+   📈 NIVEAUX / XP
+   ========================================================= */
+function getPointsForLevel(level) {
+    if (level <= 1) return 0;
+    const base = 300;
+    const growth = 1.7;
+    return Math.floor(base * Math.pow(level - 1, growth));
+}
+
+function getLevelFromTotalPoints(totalPoints) {
+    let lvl = 1;
+    while (lvl < SEASON_MAX_LEVEL && totalPoints >= getPointsForLevel(lvl + 1)) {
+        lvl++;
+    }
+    return lvl;
+}
+
+function updatePlayerBadge() {
+    const badge = document.getElementById("playerBadge");
+    if (!badge) return;
+
+    if (!playerName && !equippedTitle) {
+        badge.classList.add("hidden");
+        return;
+    }
+
+    let titleText = equippedTitle
+        ? (PlayerTitles.find(t => t.id === equippedTitle)?.name ?? "Aucun titre")
+        : "Aucun titre";
+
+    badge.textContent = `${playerName} - ${titleText}`;
+    badge.classList.remove("hidden");
+    setTimeout(() => badge.classList.add("visible"), 10);
 }
 

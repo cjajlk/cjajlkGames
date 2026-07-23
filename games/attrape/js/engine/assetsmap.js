@@ -1,3 +1,31 @@
+window.GameAssets = window.GameAssets || {
+    images: {},
+
+    async load(assetList) {
+        if (!Array.isArray(assetList) || assetList.length === 0) return;
+
+        await Promise.all(assetList.map(asset => {
+            return new Promise(resolve => {
+                if (!asset || !asset.id || !asset.src) {
+                    resolve();
+                    return;
+                }
+
+                const img = new Image();
+                img.onload = () => {
+                    window.GameAssets.images[asset.id] = img;
+                    resolve();
+                };
+                img.onerror = () => {
+                    console.error("Impossible de charger :", asset.src);
+                    resolve();
+                };
+                img.src = asset.src;
+            });
+        }));
+    }
+};
+
 function buildAssetsMap(GameData) {
 
     const mascotte =
