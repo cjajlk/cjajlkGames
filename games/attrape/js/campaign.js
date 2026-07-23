@@ -108,6 +108,7 @@ function startCampaignMode(worldId) {
     gameStarted = true;
     timerRunning = false;
 
+    document.body.classList.remove('normal-mode-active', 'timer-mode-active');
     document.body.classList.add('campaign-mode-active');
 
     // Adapter les paramètres du mode
@@ -129,6 +130,7 @@ function startCampaignMode(worldId) {
 
     // Afficher objectif en haut
     showCampaignHUD();
+    if (typeof window.syncHudVisibility === 'function') window.syncHudVisibility();
 }
 
 // HUD spécifique campagne
@@ -149,14 +151,13 @@ function showCampaignHUD() {
 
     campaignHud.innerHTML = `
         <div class="campaign-hud-row">
-            <div>
-                <div class="campaign-world">${world.name}</div>
-                <div class="campaign-level-name">${levelData.name}</div>
-            </div>
-            <div class="campaign-level-badge">Niveau ${campaignMode.currentLevel}</div>
+            <div class="campaign-world">${world.name}</div>
+            <div class="campaign-level-name">${levelData.name}</div>
         </div>
         <div class="campaign-objective">Objectif : ${levelData.objective} points</div>
     `;
+
+    if (typeof window.syncHudVisibility === 'function') window.syncHudVisibility();
 }
 
 // Mettre à jour HUD campagne

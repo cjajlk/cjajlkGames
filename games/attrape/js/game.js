@@ -47,6 +47,10 @@ if (savedTheme && GameData.backgrounds) {
         document.body.classList.remove('campaign-mode-active');
     }
 
+    if (typeof window.syncHudVisibility === "function") {
+        window.syncHudVisibility();
+    }
+
 });
 
 const Game = {
@@ -1318,6 +1322,7 @@ function openProfile() {
     updateProfilePanel();
     o.classList.remove("hidden");
     setTimeout(() => o.classList.add("visible"), 10);
+    if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
 }
 
 function closeProfile() {
@@ -1326,6 +1331,10 @@ function closeProfile() {
 
     o.classList.remove("visible");
     setTimeout(() => o.classList.add("hidden"), 300);
+    if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
+    setTimeout(() => {
+        if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
+    }, 320);
 }
 
 // Mise à jour du profil dans l'interface
@@ -1593,13 +1602,17 @@ function showMainMenu() {
         "happy"
     );
 
+    document.body.classList.remove("normal-mode-active", "timer-mode-active", "campaign-mode-active");
+
     updateEtatCoffre();
     showCoffreNocturne();
+    if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
 }
 
 function openGameModes() {
     document.getElementById("mainMenu")?.classList.add("hidden");
     document.getElementById("gameModePanel").classList.remove("hidden");
+    if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
 }
 
 function closeGameModes() {
@@ -1611,6 +1624,7 @@ function closeGameModes() {
         menu.style.display = "block";
         menu.classList.remove("hidden");
     }
+    if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
 }
 
 function campaignComingSoon() {
@@ -1638,25 +1652,89 @@ function showMenuMascotte() {
     if (m) m.style.display = "block";
 }
 
-function refreshComboHUDVisibility() {
-    const hudCombo = document.getElementById("hudCombo");
-    if (!hudCombo) return;
+function isElementOpen(el) {
+    if (!el) return false;
+    if (el.classList.contains("hidden")) return false;
+    return window.getComputedStyle(el).display !== "none";
+}
 
-    if (timerRunning) {
-        hudCombo.style.display = "block";
-        hudCombo.style.opacity = "1";
-    } else if (campaignMode && campaignMode.active) {
-        hudCombo.style.opacity = "0";
-        setTimeout(() => {
-            if (!timerRunning && campaignMode && campaignMode.active) {
-                hudCombo.style.display = "none";
-            }
-        }, 500);
-    } else {
-        hudCombo.style.opacity = "0";
-        setTimeout(() => {
-            if (!timerRunning) hudCombo.style.display = "none";
-        }, 500);
+function syncHudVisibility() {
+    const hudContainer = document.getElementById("hudContainer");
+    const quickButtons = document.getElementById("quickButtons");
+    const optionsGear = document.getElementById("optionsGear");
+    const campaignHud = document.getElementById("campaignHUD");
+    const hudCombo = document.getElementById("hudCombo");
+    const timerBarContainer = document.getElementById("timerBarContainer");
+
+    const mainMenu = document.getElementById("mainMenu");
+    const gameModePanel = document.getElementById("gameModePanel");
+    const shopOverlay = document.getElementById("shopOverlay");
+    const profileOverlay = document.getElementById("profileOverlay");
+    const optionsOverlay = document.getElementById("optionsOverlay");
+
+    const hasBlockingPanel =
+        isElementOpen(mainMenu) ||
+        isElementOpen(gameModePanel) ||
+        isElementOpen(shopOverlay) ||
+        isElementOpen(profileOverlay) ||
+        isElementOpen(optionsOverlay);
+
+    const isCampaignMode = currentMode === "campaign" && campaignMode && campaignMode.active;
+    const isTimerMode = currentMode === "timer";
+
+    const isRealGameRunning =
+        !isGamePaused &&
+        isGameRunning &&
+        (isCampaignMode || Game.running) &&
+        (gameStarted || timerRunning || isCampaignMode);
+
+    const showGeneralHud = isRealGameRunning && !hasBlockingPanel;
+    const showCampaignHud = showGeneralHud && isCampaignMode;
+    const showComboHud = showGeneralHud && isTimerMode;
+    const showTimerBar = showGeneralHud && isTimerMode;
+
+    if (hudContainer) {
+        hudContainer.style.display = showGeneralHud ? "block" : "none";
+        hudContainer.style.opacity = showGeneralHud ? "1" : "0";
+        hudContainer.style.pointerEvents = showGeneralHud ? "auto" : "none";
+    }
+
+    if (quickButtons) {
+        quickButtons.style.display = showGeneralHud ? "flex" : "none";
+        quickButtons.style.opacity = showGeneralHud ? "1" : "0";
+        quickButtons.style.pointerEvents = showGeneralHud ? "auto" : "none";
+    }
+
+    if (optionsGear) {
+        optionsGear.style.display = showGeneralHud ? "block" : "none";
+        optionsGear.style.opacity = showGeneralHud ? "1" : "0";
+        optionsGear.style.pointerEvents = showGeneralHud ? "auto" : "none";
+    }
+
+    if (campaignHud) {
+        campaignHud.style.display = showCampaignHud ? "grid" : "none";
+        campaignHud.style.opacity = showCampaignHud ? "1" : "0";
+        campaignHud.style.pointerEvents = showCampaignHud ? "auto" : "none";
+    }
+
+    if (hudCombo) {
+        hudCombo.style.display = showComboHud ? "block" : "none";
+        hudCombo.style.opacity = showComboHud ? "1" : "0";
+        hudCombo.style.pointerEvents = showComboHud ? "auto" : "none";
+    }
+
+    if (timerBarContainer) {
+        timerBarContainer.style.display = showTimerBar ? "block" : "none";
+        timerBarContainer.style.opacity = showTimerBar ? "1" : "0";
+        timerBarContainer.style.pointerEvents = showTimerBar ? "auto" : "none";
+    }
+}
+
+window.syncHudVisibility = syncHudVisibility;
+
+function refreshComboHUDVisibility() {
+    if (typeof window.syncHudVisibility === "function") {
+        window.syncHudVisibility();
     }
 }
 
@@ -1681,7 +1759,8 @@ function startNormalMode() {
     isGamePaused = false;
 
     currentMode = "normal";
-    document.body.classList.remove('campaign-mode-active');
+    document.body.classList.add("normal-mode-active");
+    document.body.classList.remove("timer-mode-active", "campaign-mode-active");
     gameStarted = true;
     timerRunning = false;
     sessionStartTime = Date.now();
@@ -1716,6 +1795,8 @@ function startNormalMode() {
         const bg = GameData.backgrounds.find(b => b.id === saved);
         if (bg) applyTheme(bg);
     }
+
+    if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
 }
 
 function startTimerMode() {
@@ -1747,7 +1828,8 @@ function startTimerMode() {
     }
 
     currentMode = "timer";
-    document.body.classList.remove('campaign-mode-active');
+    document.body.classList.add("timer-mode-active");
+    document.body.classList.remove("normal-mode-active", "campaign-mode-active");
 
     timerValue = 100;
     timerPressure = 1;
@@ -1764,6 +1846,7 @@ function startTimerMode() {
     updateHUD();
 
     startGame(GameData);
+    if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
 }
 
 // Expose menu and mode launch functions globally for inline HTML onclick handlers
@@ -2304,10 +2387,9 @@ if (xpText && xpToNext > 0) {
 // --- COMBO ---
 const hudCombo = document.getElementById("hudCombo");
 if (hudCombo) {
-    if (campaignMode && campaignMode.active) {
-        hudCombo.style.display = "none";
-        hudCombo.style.opacity = "0";
-    } else {
+    const isTimerMode = currentMode === "timer" && timerRunning;
+
+    if (isTimerMode) {
         let html = `Combo : ${comboCount}/${comboTarget}`;
 
         if (comboGemBonus) {
@@ -2330,6 +2412,10 @@ if (campaignMode && campaignMode.active) {
     if (!campaignTransitionInProgress && score >= campaignObjective) {
         endCampaignLevel();
     }
+}
+
+if (typeof window.syncHudVisibility === "function") {
+    window.syncHudVisibility();
 }
 
 }
@@ -2805,6 +2891,8 @@ function quitToMenu() {
 
     if (gameLoopId) cancelAnimationFrame(gameLoopId);
     gameLoopId = null;
+
+    if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
 
     setTimeout(() => {
         window.location.reload();

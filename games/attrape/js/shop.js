@@ -132,6 +132,7 @@ function openShop() {
     if (!ov) return;
     ov.classList.remove("hidden");
     ov.classList.add("visible");
+    if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
     updateShop();
     updateShopCoins();
 
@@ -143,6 +144,7 @@ function closeShop() {
     if (!ov) return;
     ov.classList.remove("visible");
     ov.classList.add("hidden");
+    if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
 }
 
 window.closeShop = closeShop;   // ← IMPORTANT !!

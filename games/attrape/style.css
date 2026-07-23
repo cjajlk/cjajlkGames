@@ -536,18 +536,18 @@ html, body {
 
 #campaignHUD {
     position: fixed;
-    top: 16px;
+    top: 94px;
     left: 50%;
     transform: translateX(-50%);
-    width: min(94vw, 420px);
+    width: min(calc(100% - 24px), 420px);
     background: rgba(18, 14, 44, 0.92);
     border: 1px solid rgba(180, 130, 255, 0.4);
-    border-radius: 18px;
-    padding: 14px 18px;
+    border-radius: 14px;
+    padding: 9px 12px;
     color: #fff;
-    z-index: 9998;
+    z-index: 18;
     display: grid;
-    gap: 8px;
+    gap: 4px;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(12px);
     text-align: left;
@@ -590,14 +590,13 @@ html, body {
 
 @media (max-width: 600px) {
     #campaignHUD {
-        top: 10px;
-        width: min(96vw, 360px);
-        padding: 12px 14px;
+        top: 100px;
+        width: min(calc(100% - 24px), 360px);
+        padding: 8px 10px;
     }
 
     #campaignHUD .campaign-hud-row {
-        flex-direction: column;
-        align-items: flex-start;
+        gap: 6px;
     }
 }
 
@@ -2774,4 +2773,37 @@ body.event-valentin #mainMenu {
 
 #mainMenu.hidden ~ #legalFooter {
     display: none;
+}
+
+/* =========================================================
+   HUD MOBILE CIBLE PAR MODE
+   ========================================================= */
+@media (max-width: 768px) {
+    #campaignHUD {
+        top: 100px;
+        width: min(calc(100% - 24px), 320px);
+        padding: 8px 10px;
+        border-radius: 12px;
+        gap: 4px;
+    }
+
+    #campaignHUD .campaign-hud-row {
+        display: block;
+    }
+
+    #campaignHUD .campaign-world {
+        font-size: 0.74rem;
+        margin-bottom: 1px;
+    }
+
+    #campaignHUD .campaign-level-name {
+        margin-top: 0;
+        font-size: 0.86rem;
+        line-height: 1.15;
+    }
+
+    #campaignHUD .campaign-objective {
+        font-size: 0.8rem;
+        line-height: 1.2;
+    }
 }

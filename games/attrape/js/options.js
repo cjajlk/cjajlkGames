@@ -6,6 +6,7 @@
         if (!overlay) return;
         overlay.classList.remove("hidden");
         setTimeout(() => overlay.classList.add("visible"), 10);
+        if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
         updateFullscreenLabel();
         syncLanguageSelect();
         if (typeof window.applyTranslations === "function") {
@@ -18,6 +19,10 @@
         if (!overlay) return;
         overlay.classList.remove("visible");
         setTimeout(() => overlay.classList.add("hidden"), 300);
+        if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
+        setTimeout(() => {
+            if (typeof window.syncHudVisibility === "function") window.syncHudVisibility();
+        }, 320);
     }
 
     function updateFullscreenLabel() {
