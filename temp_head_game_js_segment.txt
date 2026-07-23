@@ -1,0 +1,360 @@
+
+function drawMascotte(ctx) {
+    if (!Game.assets.mascotte) return;
+
+    const baseSize = Math.min(Game.canvas.width, Game.canvas.height);
+    let scale = 2;
+
+// ?? bonus taille skins spéciales
+if (equippedMascotte === "futuriste_defense") scale = 1.15;
+if (equippedMascotte === "boss") scale = 1.3;
+
+const h = baseSize * 0.20 * scale;
+const w = h * 0.70;
+
+
+    const x = Game.canvas.width * 0.10;
+    const y = Game.canvas.height - h - 60;
+
+    const t = Date.now() * 0.002;
+    const bob = Math.sin(t) * 2;
+    const sway = Math.sin(t * 0.6) * 1.5;
+
+    // Ombre sol
+    ctx.save();
+    ctx.globalAlpha = 0.25;
+    ctx.beginPath();
+    ctx.ellipse(
+        x + w * 0.5,
+        Game.canvas.height - 40,
+        w * 0.45,
+        18,
+        0, 0, Math.PI * 2
+    );
+    ctx.fillStyle = "rgba(0,0,0,0.75)";
+    ctx.fill();
+    ctx.restore();
+
+    // Glow dynamique
+    ctx.save();
+    ctx.shadowColor = "rgba(150,120,255,0.35)";
+    ctx.shadowBlur = 35 + Math.sin(t * 1.5) * 8;
+
+    ctx.drawImage(
+        Game.assets.mascotte,
+        x + sway,
+        y + bob,
+        w,
+        h
+    );
+    ctx.restore();
+}
+
+function addCoins(amount) {
+    if (!amount || amount <= 0) return;
+
+    coins += amount;
+    savePlayerProfile();
+
+    updateAllProfileUI();
+    updateProfilePanel();
+}
+
+
+ function updateHUD() {
+    // --- SCORE ---
+    const hudPoints = document.getElementById("hudPoints");
+    if (hudPoints) {
+        hudPoints.textContent = "Pts : " + score;
+        
+    }
+
+    // --- COINS ---
+    const hudCoins = document.getElementById("profileCoins");
+    if (hudCoins) {
+        hudCoins.textContent = coins ?? 0;
+    }
+
+    // --- GEMS ---
+    const hudGems = document.getElementById("profileGems");
+    if (hudGems) {
+        hudGems.textContent = gems ?? 0;
+    }
+
+    // --- XP BAR (VISUELLE) ---
+const xpBarFill = document.getElementById("xpBarFill");
+if (xpBarFill && xpToNext > 0) {
+    const percent = Math.min(100, (playerXP / xpToNext) * 100);
+    xpBarFill.style.width = `${percent}%`;
+} else {
+    console.warn("Erreur : xpToNext est invalide.");
+}
+
+// --- XP TEXT (AFFICHAGE UNIQUEMENT) ---
+const xpText = document.getElementById("xpText");
+if (xpText && xpToNext > 0) {
+    const displayedXP = Math.min(playerXP, xpToNext);
+
+    xpText.textContent =
+        `Lvl ${playerLevel} – ${displayedXP} / ${xpToNext} XP`;
+
+    // Message purement informatif (le niveau est déjà géré ailleurs)
+    if (displayedXP >= xpToNext) {
+        xpText.textContent += " (Niveau atteint !)";
+    }
+}
+
+// --- COMBO ---
+const hudCombo = document.getElementById("hudCombo");
+if (hudCombo) {
+    if (campaignMode && campaignMode.active) {
+        hudCombo.style.display = "none";
+        hudCombo.style.opacity = "0";
+    } else {
+        let html = `Combo : ${comboCount}/${comboTarget}`;
+
+        if (comboGemBonus) {
+            html += ` <span class="combo-gem">+1</span> ??`;
+        }
+
+        hudCombo.innerHTML = html;
+        hudCombo.style.display = "block";
+        hudCombo.style.opacity = "1";
+
+        // Animation douce
+        hudCombo.classList.remove("combo-anim");
+        void hudCombo.offsetWidth; // forcer reflow
+        hudCombo.classList.add("combo-anim");
+    }
+}
+
+if (campaignMode && campaignMode.active) {
+    const campaignObjective = getCampaignObjective();
+    if (!campaignTransitionInProgress && score >= campaignObjective) {
+        endCampaignLevel();
+    }
+}
+    const my = (e.clientY - rect.top) * scaleY;
+
+    let touched = false;
+
+    for (let i = targets.length - 1; i >= 0; i--) {
+        const t = targets[i];
+
+        if (mx >= t.x && mx <= t.x + t.size &&
+            my >= t.y && my <= t.y + t.size) {
+
+            // SFX clic
+            sfx_pop.currentTime = 0;
+            sfx_pop.play().catch(() => {});
+
+            // BONUS orbe équipée
+            let gain = 1;
+            if (t.orbId === equippedOrb) {
+                gain = timerRunning ? 1 : 2;
+                if (timerRunning) {
+                    timerValue = Math.min(100, timerValue + 10);
+                }
+            }
+
+            // ?? Orbe noire — ambiguïté (malus rare)
+if (equippedOrb === "orb_black_risk") {
+  if (Math.random() < 0.2) { // 20 % du temps
+    if (timerRunning) {
+      timerValue = Math.max(0, timerValue - 5);
+    } else {
+      score = Math.max(0, score - 1);
+    }
+  }
+}
+
+
+       
+
+
+          // Ajouter la logique pour afficher le texte lorsque l'objectif est atteint
+function checkAndDisplayObjective() {
+
+   // Générer automatiquement les objectifs
+const goalMultiplier = 1000;  // Le multiplicateur pour chaque objectif
+const maxGoal = 10;  // Nombre d'objectifs à créer (par exemple, 5 objectifs)
+
+const objectives = [];
+
+// Générer les objectifs automatiquement
+for (let i = 1; i <= maxGoal; i++) {
+    objectives.push({
+        points: goalMultiplier * i, // Objectif = multiplicateur * i (par exemple 1000, 2000, 3000, ...)
+    });
+}
+
+console.log(objectives);  // Affiche le tableau des objectifs générés
+
+
+    // Vérifier chaque objectif et afficher le texte lorsqu'il est atteint
+     for (let i = 0; i < objectives.length; i++) {
+        // Vérifier si l'objectif est atteint et si le joueur ne l'a pas déjà atteint
+        if (playerTotalPoints >= objectives[i].points && i > lastObjectiveIndex) {
+            lastObjectiveIndex = i;  // Mettre à jour l'index de l'objectif atteint
+            spawnObjectiveText(`Objectif atteint : ${objectives[i].points} points ! ??`);  // Afficher le texte dynamique
+        }
+    }
+}
+
+// Fonction pour afficher un texte flottant lorsqu'un objectif est atteint
+function spawnObjectiveText(text) {
+    // Créer un élément div pour le texte flottant
+    const textElement = document.createElement("div");
+    textElement.classList.add("floating-text");  // Appliquer la classe CSS définie dans le CSS
+    textElement.textContent = text;  // Texte dynamique de l'objectif atteint
+    
+    // Ajouter l'élément au body du document
+    document.body.appendChild(textElement);
+
+    // Positionner le texte (centré sur l'écran ou à la position de ton choix)
+    textElement.style.left = `${Game.canvas.width / 20}px`;  // Position horizontale centrée
+    textElement.style.top = `450px`;  // Position verticale ajustée (tu peux la changer)
+
+    // Supprimer le texte après l'animation
+    setTimeout(() => {
+        document.body.removeChild(textElement);  // Retirer le texte du DOM après 2 secondes
+    }, 2000); // Durée de l'animation (en ms)
+}
+
+
+
+
+            // SCORE + STATS
+            score += gain;
+            playerTotalPoints += gain;
+
+            // Vérifier si un objectif a été atteint et afficher le texte approprié
+checkAndDisplayObjective(); // Appeler cette fonction après avoir mis à jour les points
+
+// Ajoute un contrôle après la mise à jour des points
+checkTitlesUnlock();  // Vérifier et débloquer des titres si nécessaire
+savePlayerProfile(); 
+
+// recalcul du niveau réel
+const newLevel = getLevelFromTotalPoints(playerTotalPoints);
+
+// seuils
+const currentLevelStart = getPointsForLevel(newLevel);
+const nextLevelTarget   = getPointsForLevel(newLevel + 1);
+
+// XP visuelle = progression dans le niveau
+playerXP = playerTotalPoints - currentLevelStart;
+xpToNext = nextLevelTarget - currentLevelStart;
+
+// Level up réel
+if (newLevel !== playerLevel) {
+    playerLevel = newLevel;
+    showLevelToast(playerLevel);
+    showMascotteDialog(`Niveau ${playerLevel} atteint ?`, "happy");
+}
+
+
+
+
+            if (score > highScore) highScore = score;
+
+            // ? XP
+            addXP(gain);
+
+            // ? COMBO uniquement en MODE TIMER
+            if (timerRunning) {
+                onHitSuccess(t.x + t.size / 2, t.y + t.size / 2, gain);
+            }
+
+            // ? COINS uniquement en MODE NORMAL
+            if (!timerRunning) {
+                if (typeof window.addCoins === "function") {
+                    addCoins(1);
+                } else {
+                    console.warn("?? addCoins() manquant");
+                }
+            }
+
+            // Effets visuels
+            const cx = t.x + t.size / 2;
+            const cy = t.y + t.size / 2;
+            spawnParticles(cx, cy);
+            spawnFloatText(cx, cy, gain);
+            spawnShockwave(cx, cy);
+
+            // Supprimer orbe
+            targets.splice(i, 1);
+
+            touched = true;
+        }
+    }
+
+    if (touched) {
+        updateHUD();             // HUD mis à jour
+        checkProgressAfterHit(); // ? changement fond / musique OK
+        savePlayerProfile();     // Sauvegarde
+        console.log("? Score :", score);
+    }
+}
+
+
+
+
+
+/* =========================================================
+   ?? COMBO SYSTEM — propre & indépendant
+   ========================================================= */
+ function onHitSuccess(cx, cy, gain) {
+
+    // 1. Ajoute un clic au combo en cours
+    comboCount++;
+
+    // 2. Vérifie si un combo entier est réussi
+    if (comboCount >= comboTarget) {
+
+        comboCount = 0;              // reset combo en cours
+        totalComboSuccess++;         // 1 vrai combo validé
+
+        // Mascotte joyeuse aux gros combos
+if (totalComboSuccess === 5 || totalComboSuccess === 10 || totalComboSuccess % 25 === 0) {
+    showMascotteDialog("Incroyable !", "happy");
+}
+
+
+        // BONUS temps (20% de la barre)
+        timerValue = Math.min(100, timerValue + 20);
+
+        // Petit bonus XP
+        addXP(1);
+
+        // Effets visuels du combo
+        spawnFloatText(cx, cy, "COMBO !", "gold");
+        spawnShockwave(cx, cy);
+
+        // Effet graphique optionnel
+        showComboEffect(totalComboSuccess);
+
+       
+
+    }
+
+    // AUCUN bonus sinon.
+    // Pas de gemme ici, jamais !
+}
+
+
+
+function showComboEffect(mult) {
+    const el = document.getElementById("comboEffect");
+    if (!el) return;
+
+    el.textContent = `COMBO x${mult}!`;
+    el.classList.remove("combo-flash");
+    void el.offsetWidth; // reset animation
+    el.classList.add("combo-flash");
+
+    // Shake écran
+    document.body.classList.remove("screen-shake");
+    void document.body.offsetWidth;
+    document.body.classList.add("screen-shake");
+
