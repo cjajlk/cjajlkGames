@@ -33,6 +33,20 @@ if (savedTheme && GameData.backgrounds) {
     if (bg) applyTheme(bg);
 }
 
+    // 🔎 Masquer le combo dès que le mode campagne est détecté dans l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameModeParam = urlParams.get('mode');
+    if (gameModeParam === 'campaign') {
+        document.body.classList.add('campaign-mode-active');
+        const hudCombo = document.getElementById('hudCombo');
+        if (hudCombo) {
+            hudCombo.style.display = 'none';
+            hudCombo.style.opacity = '0';
+        }
+    } else {
+        document.body.classList.remove('campaign-mode-active');
+    }
+
 });
 
 const Game = {
@@ -2043,42 +2057,33 @@ if (xpText && xpToNext > 0) {
 // --- COMBO ---
 const hudCombo = document.getElementById("hudCombo");
 if (hudCombo) {
-    let html = `Combo : ${comboCount}/${comboTarget}`;
+    if (campaignMode && campaignMode.active) {
+        hudCombo.style.display = "none";
+        hudCombo.style.opacity = "0";
+    } else {
+        let html = `Combo : ${comboCount}/${comboTarget}`;
 
-    if (comboGemBonus) {
-        html += ` <span class="combo-gem">+1</span> 💎`;
+        if (comboGemBonus) {
+            html += ` <span class="combo-gem">+1</span> 💎`;
+        }
+
+        hudCombo.innerHTML = html;
+        hudCombo.style.display = "block";
+        hudCombo.style.opacity = "1";
+
+        // Animation douce
+        hudCombo.classList.remove("combo-anim");
+        void hudCombo.offsetWidth; // forcer reflow
+        hudCombo.classList.add("combo-anim");
     }
-
-    hudCombo.innerHTML = html;
-
-    // Animation douce
-    hudCombo.classList.remove("combo-anim");
-    void hudCombo.offsetWidth; // forcer reflow
-    hudCombo.classList.add("combo-anim");
 }
+
+if (campaignMode && campaignMode.active) {
+    const campaignObjective = getCampaignObjective();
+    if (!campaignTransitionInProgress && score >= campaignObjective) {
+        endCampaignLevel();
     }
-
-
-
-
-   
-
-
-
-
-
-/* =========================================================
-   🖱️ CLICK SUR LE JEU — VERSION FIXÉE
-   ========================================================= */
-  function onGameClick(e) {
-    if ((!gameStarted && !timerRunning) || inLevelTransition) return;
-    if (isGamePaused) return;
-
-    const rect = Game.canvas.getBoundingClientRect();
-    const scaleX = Game.canvas.width / rect.width;
-    const scaleY = Game.canvas.height / rect.height;
-
-    const mx = (e.clientX - rect.left) * scaleX;
+}
     const my = (e.clientY - rect.top) * scaleY;
 
     let touched = false;
@@ -2699,6 +2704,15 @@ function showLevelToast(level) {
         return;
     }
 
+    if (campaignMode && campaignMode.active) {
+        updateHUD();
+        const campaignObjective = getCampaignObjective();
+        if (!campaignTransitionInProgress && score >= campaignObjective) {
+            endCampaignLevel();
+        }
+        return;
+    }
+
     /* ======================================================
        🎮 MODE NORMAL — Progression interne du mode
        (Rien à voir avec l’XP / niveau du joueur)
@@ -2920,15 +2934,20 @@ function refreshComboHUDVisibility() {
     if (!hudCombo) return;
 
     if (timerRunning) {
-        // Visible + fade in
         hudCombo.style.display = "block";
         hudCombo.style.opacity = "1";
+    } else if (campaignMode && campaignMode.active) {
+        hudCombo.style.opacity = "0";
+        setTimeout(() => {
+            if (!timerRunning && campaignMode && campaignMode.active) {
+                hudCombo.style.display = "none";
+            }
+        }, 500);
     } else {
-        // Masqué proprement
         hudCombo.style.opacity = "0";
         setTimeout(() => {
             if (!timerRunning) hudCombo.style.display = "none";
-        }, 500); // petit fade-out cool
+        }, 500);
     }
 }
 
@@ -2965,6 +2984,7 @@ function startNormalMode() {
   
 
     currentMode = "normal";
+    document.body.classList.remove('campaign-mode-active');
     gameStarted = true;
     timerRunning = false;
     sessionStartTime = Date.now();
@@ -3049,6 +3069,7 @@ function startTimerMode() {
     }
 
     currentMode = "timer";
+    document.body.classList.remove('campaign-mode-active');
 
     // 🌙 Valeurs Timer
     timerValue = 100;
@@ -3144,9 +3165,16 @@ function updateTimerBar() {
 function showEventBanner() {
     const bottom = document.getElementById("menuBottomEffect");
     const banner = document.getElementById("eventBanner");
+    const isActive = window.EventManager && EventManager.isEventActive('valentin');
+
+    if (!isActive) {
+        hideEventBanner();
+        return;
+    }
 
     if (bottom) bottom.style.opacity = "0";      // enlève le voile noir
     if (banner) banner.style.display = "flex";   // montre la bannière événement
+    document.body.classList.add('event-valentin');
 }
 
 // Cache l'événement + remet le voile discret du menu
@@ -3156,6 +3184,7 @@ function hideEventBanner() {
 
     if (bottom) bottom.style.opacity = "0.6";    // retour léger de l’effet normal du menu
     if (banner) banner.style.display = "none";   // cache la bannière
+    document.body.classList.remove('event-valentin');
 }
 
 
@@ -3574,7 +3603,10 @@ function endgame() {
 
     // Mode campagne: continuer au niveau suivant
     if (campaignMode && campaignMode.active) {
-        endCampaignLevel(score >= levelTargetNormal);
+        const campaignObjective = getCampaignObjective();
+        if (score >= campaignObjective) {
+            endCampaignLevel();
+        }
     } else {
         // Mode normal/timer: recharger après 2.5s
         setTimeout(() => {

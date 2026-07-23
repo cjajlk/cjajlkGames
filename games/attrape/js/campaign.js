@@ -10,6 +10,8 @@ let campaignMode = {
     campaignProgress: {}
 };
 
+let campaignTransitionInProgress = false;
+
 // Charger les données de campagne
 async function loadCampaignData() {
     try {
@@ -67,11 +69,16 @@ function getCampaignObjective() {
 
 // Démarrer mode campagne
 function startCampaignMode(worldId) {
+    const keepLevel = campaignMode.active && campaignMode.worldId === worldId;
     campaignMode.active = true;
     campaignMode.worldId = worldId;
-    campaignMode.currentLevel = 1;
+    if (!keepLevel) {
+        campaignMode.currentLevel = 1;
+    }
 
-    console.log(`🌙 Mode Campagne: Monde "${worldId}", Niveau 1`);
+    campaignTransitionInProgress = false;
+
+    console.log(`🌙 Mode Campagne: Monde "${worldId}", Niveau ${campaignMode.currentLevel}`);
 
     // Réinitialiser le jeu
     resetGameValues();
@@ -101,6 +108,8 @@ function startCampaignMode(worldId) {
     gameStarted = true;
     timerRunning = false;
 
+    document.body.classList.add('campaign-mode-active');
+
     // Adapter les paramètres du mode
     score = 0;
     misses = 0;
@@ -108,6 +117,13 @@ function startCampaignMode(worldId) {
     levelTargetNormal = getCampaignObjective();
     spawnRate = 60; // Mode normal
 
+    const hudCombo = document.getElementById('hudCombo');
+    if (hudCombo) {
+        hudCombo.style.display = 'none';
+        hudCombo.style.opacity = '0';
+    }
+
+    refreshComboHUDVisibility();
     updateHUD();
     startGame(GameData);
 
@@ -127,31 +143,19 @@ function showCampaignHUD() {
     if (!campaignHud) {
         campaignHud = document.createElement('div');
         campaignHud.id = 'campaignHUD';
-        campaignHud.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(20, 10, 50, 0.8);
-            border: 1px solid rgba(180, 120, 255, 0.6);
-            border-radius: 12px;
-            padding: 15px 30px;
-            color: #fff;
-            font-family: 'Poppins', sans-serif;
-            text-align: center;
-            z-index: 100;
-            backdrop-filter: blur(8px);
-        `;
+        campaignHud.className = 'campaign-hud';
         document.body.appendChild(campaignHud);
     }
 
     campaignHud.innerHTML = `
-        <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">
-            ${world.name} • ${levelData.name}
+        <div class="campaign-hud-row">
+            <div>
+                <div class="campaign-world">${world.name}</div>
+                <div class="campaign-level-name">${levelData.name}</div>
+            </div>
+            <div class="campaign-level-badge">Niveau ${campaignMode.currentLevel}</div>
         </div>
-        <div style="font-size: 1.2rem; font-weight: 600; margin-top: 5px;">
-            Objectif: ${levelData.objective} points
-        </div>
+        <div class="campaign-objective">Objectif : ${levelData.objective} points</div>
     `;
 }
 
@@ -161,18 +165,24 @@ function updateCampaignHUD() {
 }
 
 // Fin niveau campagne
-function endCampaignLevel(success) {
+function endCampaignLevel() {
     if (!campaignMode.active) return;
+    if (campaignTransitionInProgress) return;
 
     const world = getCurrentWorld();
     const levelData = getCurrentCampaignLevel();
 
     if (!world || !levelData) return;
 
-    if (success && score >= levelData.objective) {
+    if (score >= levelData.objective) {
+        campaignTransitionInProgress = true;
+
         // ✅ Niveau complété
         const progress = campaignMode.campaignProgress[campaignMode.worldId];
         progress.levels[campaignMode.currentLevel - 1] = true;
+
+        const completedLevel = campaignMode.currentLevel;
+        showMascotteDialog(`Niveau ${completedLevel} terminé !`, "happy");
 
         // Vérifier si monde complété
         if (progress.levels.every(l => l)) {
@@ -276,6 +286,8 @@ function quitCampaignMode() {
     campaignMode.worldId = null;
     campaignMode.currentLevel = 1;
 
+    document.body.classList.remove('campaign-mode-active');
+
     const campaignHud = document.getElementById('campaignHUD');
     if (campaignHud) campaignHud.remove();
 
@@ -284,17 +296,18 @@ function quitCampaignMode() {
 
 // Charger données au démarrage
 document.addEventListener('DOMContentLoaded', () => {
-    loadCampaignData();
-    loadCampaignProgress();
+    loadCampaignData().then(() => {
+        loadCampaignProgress();
 
-    // Vérifier si on lance une campagne
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('mode') === 'campaign') {
-        const worldId = urlParams.get('world');
-        if (worldId) {
-            setTimeout(() => startCampaignMode(worldId), 500);
+        // Vérifier si on lance une campagne
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('mode') === 'campaign') {
+            const worldId = urlParams.get('world');
+            if (worldId) {
+                setTimeout(() => startCampaignMode(worldId), 500);
+            }
         }
-    }
+    });
 });
 
 console.log('✅ campaign.js chargé');

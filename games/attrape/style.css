@@ -522,6 +522,7 @@ html, body {
     font-size: 20px;
     font-weight: 600;
     text-shadow: 0 0 10px #000;
+    z-index: 999;
 }
 
 .hudBox {
@@ -531,6 +532,73 @@ html, body {
     border-radius: 8px;
     display: inline-block;
     min-width: 80px;
+}
+
+#campaignHUD {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(94vw, 420px);
+    background: rgba(18, 14, 44, 0.92);
+    border: 1px solid rgba(180, 130, 255, 0.4);
+    border-radius: 18px;
+    padding: 14px 18px;
+    color: #fff;
+    z-index: 9998;
+    display: grid;
+    gap: 8px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(12px);
+    text-align: left;
+}
+
+#campaignHUD .campaign-hud-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+#campaignHUD .campaign-world {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+#campaignHUD .campaign-level-name {
+    margin-top: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f7f0ff;
+}
+
+#campaignHUD .campaign-level-badge {
+    background: rgba(142, 98, 255, 0.16);
+    color: #f1e8ff;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+#campaignHUD .campaign-objective {
+    font-size: 0.96rem;
+    color: #dccfff;
+    line-height: 1.35;
+}
+
+@media (max-width: 600px) {
+    #campaignHUD {
+        top: 10px;
+        width: min(96vw, 360px);
+        padding: 12px 14px;
+    }
+
+    #campaignHUD .campaign-hud-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 .shop-gems {
@@ -1828,6 +1896,16 @@ canvas {
     box-shadow: 0 0 10px rgba(150, 120, 255, 0.4);
 }
 
+.campaign-mode-active #hudCombo {
+    display: none !important;
+    opacity: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    pointer-events: none !important;
+}
+
 /* +1 gem en violet lumineux */
 #hudCombo .combo-gem {
     margin-left: 6px;
@@ -2024,8 +2102,8 @@ canvas {
 }
 
 #mainMenu {
-    background-image: url('assets/fonds/stvalentin.png');
-     background-size: cover; /* Couvre toute la div */
+    background-image: url('assets/fonds/fondmenu.png');
+    background-size: cover; /* Couvre toute la div */
     background-position: center; /* Centrer l'image dans la div */
     background-repeat: no-repeat; /* Ne pas répéter l'image */
     height: 100vh; /* Assurer que le menu prend toute la hauteur de l'écran */
@@ -2036,6 +2114,11 @@ canvas {
     flex-direction: column;  /* Pour centrer le contenu verticalement */
     position: relative; /* Pour que l'image soit en arrière-plan */
 }
+
+body.event-valentin #mainMenu {
+    background-image: url('assets/fonds/stvalentin.png');
+}
+
 
 .menu-btn.disabled {
   opacity: 0.5;
