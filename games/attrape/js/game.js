@@ -1544,6 +1544,243 @@ function hideCoffreNocturne() {
     if (coffre) coffre.style.display = "none";
 }
 
+function hideGameUI() {
+    const hud = document.getElementById("gameHUD");
+    const timerBar = document.getElementById("timerBarContainer");
+
+    if (hud) hud.style.display = "none";
+    if (timerBar) timerBar.style.display = "none";
+
+    // On arrête le canvas du jeu
+    Game.running = false;
+}
+
+function showGameUI() {
+    const hud = document.getElementById("gameHUD");
+    if (hud) hud.style.display = "block";
+}
+
+function showMainMenu() {
+    playerName = localStorage.getItem("playerName") || "Invité";
+    console.log("🏠 Retour propre au menu principal");
+
+    hideGameUI();
+    clearOrbs();
+    Game.running = false;
+    gameStarted = false;
+    timerRunning = false;
+
+    const canvas = document.getElementById("gameCanvas");
+    if (canvas) canvas.style.display = "none";
+
+    const menu = document.getElementById("mainMenu");
+    if (menu) {
+        menu.style.display = "block";
+        menu.classList.remove("hidden");
+    }
+
+    showMenuMascotte();
+    showMenuAnimations();
+    initMenuCharacters();
+    showEventBanner();
+    updateHUD();
+
+    setMascotteState("idle");
+    startMascotteLoop();
+
+    showMascotteDialog(
+        mascotMenuLines[Math.floor(Math.random() * mascotMenuLines.length)],
+        "happy"
+    );
+
+    updateEtatCoffre();
+    showCoffreNocturne();
+}
+
+function openGameModes() {
+    document.getElementById("mainMenu")?.classList.add("hidden");
+    document.getElementById("gameModePanel").classList.remove("hidden");
+}
+
+function closeGameModes() {
+    document.getElementById("gameModePanel").classList.add("hidden");
+    document.getElementById("gameModePanel").style.display = "none";
+
+    const menu = document.getElementById("mainMenu");
+    if (menu) {
+        menu.style.display = "block";
+        menu.classList.remove("hidden");
+    }
+}
+
+function campaignComingSoon() {
+    window.location.href = "pages/campaign.html";
+}
+
+function hideMainMenu() {
+    const menu = document.getElementById("mainMenu");
+    if (!menu) return;
+
+    menu.classList.add("hidden");
+    menu.style.display = "none";
+
+    stopMenuMascotteAnimation = true;
+    cancelAnimationFrame(updateMenuMascotteId);
+}
+
+function hideMenuMascotte() {
+    const m = document.getElementById("menuMascotteContainer");
+    if (m) m.style.display = "none";
+}
+
+function showMenuMascotte() {
+    const m = document.getElementById("menuMascotteContainer");
+    if (m) m.style.display = "block";
+}
+
+function refreshComboHUDVisibility() {
+    const hudCombo = document.getElementById("hudCombo");
+    if (!hudCombo) return;
+
+    if (timerRunning) {
+        hudCombo.style.display = "block";
+        hudCombo.style.opacity = "1";
+    } else if (campaignMode && campaignMode.active) {
+        hudCombo.style.opacity = "0";
+        setTimeout(() => {
+            if (!timerRunning && campaignMode && campaignMode.active) {
+                hudCombo.style.display = "none";
+            }
+        }, 500);
+    } else {
+        hudCombo.style.opacity = "0";
+        setTimeout(() => {
+            if (!timerRunning) hudCombo.style.display = "none";
+        }, 500);
+    }
+}
+
+function closeAllMenus() {
+    document.getElementById("mainMenu")?.classList.add("hidden");
+    document.getElementById("gameModePanel")?.classList.add("hidden");
+
+    const menu = document.getElementById("mainMenu");
+    if (menu) menu.style.display = "none";
+    const panel = document.getElementById("gameModePanel");
+    if (panel) panel.style.display = "none";
+}
+
+function startNormalMode() {
+    setMascotteState("idle");
+
+    resetGameValues();
+    const canvas = document.getElementById("gameCanvas");
+    if (canvas) canvas.style.display = "block";
+
+    isGameRunning = true;
+    isGamePaused = false;
+
+    currentMode = "normal";
+    document.body.classList.remove('campaign-mode-active');
+    gameStarted = true;
+    timerRunning = false;
+    sessionStartTime = Date.now();
+    refreshComboHUDVisibility();
+    hideMainMenu();
+    hideMenuMascotte();
+    hideEventBanner();
+    stopMenuBubble();
+    stopMenuMascotte();
+    closeAllMenus();
+    showGameUI();
+    hideCoffreNocturne();
+
+    if (!musicInitialized) {
+        initMusic();
+    } else {
+        playCurrentTrack();
+    }
+
+    missesMax = 15;
+    level = 2;
+    levelRewardGiven = false;
+    levelTargetNormal = getNextLevelTarget(level);
+
+    hideTimerBar();
+    updateHUD();
+
+    startGame(GameData);
+
+    const saved = localStorage.getItem("equippedTheme");
+    if (saved) {
+        const bg = GameData.backgrounds.find(b => b.id === saved);
+        if (bg) applyTheme(bg);
+    }
+}
+
+function startTimerMode() {
+    setMascotteState("idle");
+
+    resetGameValues();
+    const canvas = document.getElementById("gameCanvas");
+    if (canvas) canvas.style.display = "block";
+
+    isGameRunning = true;
+    sessionStartTime = Date.now();
+    hideEventBanner();
+    hideMenuMascotte();
+    stopMenuBubble();
+    hideMainMenu();
+    stopMenuMascotte();
+    closeAllMenus();
+    showGameUI();
+    hideCoffreNocturne();
+
+    if (typeof window.restoreFullscreen === "function") {
+        window.restoreFullscreen();
+    }
+
+    if (!musicInitialized) {
+        initMusic();
+    } else {
+        playCurrentTrack();
+    }
+
+    currentMode = "timer";
+    document.body.classList.remove('campaign-mode-active');
+
+    timerValue = 100;
+    timerPressure = 1;
+    spawnRate = 55;
+    comboCount = 0;
+    totalComboSuccess = 0;
+
+    timerRunning = true;
+    gameStarted = false;
+
+    refreshComboHUDVisibility();
+
+    showTimerBar();
+    updateHUD();
+
+    startGame(GameData);
+}
+
+// Fonction d'objectif de niveau utilisée par startNormalMode
+function getNextLevelTarget(level) {
+    if (level === 1) return 50;
+    if (level === 2) return 100;
+    if (level === 3) return 200;
+    if (level === 4) return 400;
+    if (level === 5) return 800;
+    if (level === 6) return 1600;
+    if (level === 7) return 2500;
+    if (level === 8) return 4000;
+    if (level === 9) return 6500;
+    if (level === 10) return 10000;
+    return Math.floor(10000 * Math.pow(1.2, level - 10));
+}
+
 // 📺 Pub récompensée — adaptateur
 function showRewardedAd(onSuccess, onFail) {
     // 🔁 À REMPLACER par la vraie régie (AdMob / AdSense / autre)
