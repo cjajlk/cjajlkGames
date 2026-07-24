@@ -2780,30 +2780,49 @@ body.event-valentin #mainMenu {
    ========================================================= */
 @media (max-width: 768px) {
     #campaignHUD {
-        top: 100px;
-        width: min(calc(100% - 24px), 320px);
-        padding: 8px 10px;
+        top: 88px;
+        width: auto;
+        max-width: calc(100vw - 80px);
+        padding: 8px 12px;
         border-radius: 12px;
-        gap: 4px;
+        gap: 2px;
+        line-height: 1.2;
     }
 
     #campaignHUD .campaign-hud-row {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        gap: 0;
+        min-width: 0;
     }
 
     #campaignHUD .campaign-world {
-        font-size: 0.74rem;
-        margin-bottom: 1px;
+        font-size: 14px;
+        margin-bottom: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
     }
 
     #campaignHUD .campaign-level-name {
         margin-top: 0;
-        font-size: 0.86rem;
-        line-height: 1.15;
+        font-size: 14px;
+        line-height: 1.2;
+        white-space: nowrap;
+        flex: 0 0 auto;
+    }
+
+    #campaignHUD .campaign-level-name::before {
+        content: " — ";
+        color: rgba(255, 255, 255, 0.75);
     }
 
     #campaignHUD .campaign-objective {
-        font-size: 0.8rem;
+        font-size: 13px;
         line-height: 1.2;
+        white-space: nowrap;
     }
 }
