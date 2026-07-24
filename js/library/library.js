@@ -77,7 +77,7 @@ function attachLibraryEvents() {
     const detailClose = document.getElementById("libraryDetailClose");
 
     if (backButton) {
-        backButton.addEventListener("click", () => window.location.href = "index.html");
+        backButton.addEventListener("click", () => window.location.href = "../index.html");
     }
     if (unlockButton) {
         unlockButton.addEventListener("click", buyNextReward);
