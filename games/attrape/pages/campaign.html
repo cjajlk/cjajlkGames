@@ -354,8 +354,13 @@
         }
 
         function playCampaignWorld(worldId) {
+            const progress = campaignProgress[worldId];
+            const levels = Array.isArray(progress?.levels) ? progress.levels : [];
+            const firstUncompletedIndex = levels.findIndex(done => !done);
+            const startLevel = firstUncompletedIndex >= 0 ? firstUncompletedIndex + 1 : 1;
+
             sessionStorage.setItem('campaignWorld', worldId);
-            window.location.href = '../index.html?mode=campaign&world=' + worldId;
+            window.location.href = `../index.html?mode=campaign&world=${encodeURIComponent(worldId)}&level=${startLevel}`;
         }
 
         function backToCampaignMenu() {

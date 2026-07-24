@@ -68,12 +68,18 @@ function getCampaignObjective() {
 }
 
 // Démarrer mode campagne
-function startCampaignMode(worldId) {
+function startCampaignMode(worldId, requestedLevel = null) {
     const keepLevel = campaignMode.active && campaignMode.worldId === worldId;
     campaignMode.active = true;
     campaignMode.worldId = worldId;
     if (!keepLevel) {
-        campaignMode.currentLevel = 1;
+        const parsedLevel = Number.parseInt(requestedLevel, 10);
+        campaignMode.currentLevel = Number.isFinite(parsedLevel) && parsedLevel > 0 ? parsedLevel : 1;
+    }
+
+    const world = getCurrentWorld();
+    if (world) {
+        campaignMode.currentLevel = Math.max(1, Math.min(campaignMode.currentLevel, world.levels.length));
     }
 
     campaignTransitionInProgress = false;
@@ -304,8 +310,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('mode') === 'campaign') {
             const worldId = urlParams.get('world');
+            const levelParam = urlParams.get('level');
             if (worldId) {
-                setTimeout(() => startCampaignMode(worldId), 500);
+                setTimeout(() => startCampaignMode(worldId, levelParam), 500);
             }
         }
     });
