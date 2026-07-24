@@ -212,6 +212,22 @@
         }
 
         @media (max-width: 768px) {
+            html,
+            body {
+                min-height: 100%;
+                height: auto !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+                touch-action: pan-y !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .campaign-container {
+                min-height: 100dvh;
+                height: auto;
+                padding-bottom: calc(28px + env(safe-area-inset-bottom));
+            }
+
             .worlds-grid {
                 grid-template-columns: 1fr;
             }
