@@ -6,7 +6,7 @@ const libraryRewards = [
         order: 1,
         title: "Lyra — Pose contemplation",
         category: "mascotte",
-        image: "../games/attrape/assets/images/menu/lyra_idle.png",
+        image: "../assets/images/menu/lyra_idle.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -14,7 +14,7 @@ const libraryRewards = [
         order: 2,
         title: "Lyra — Souffle lumineux",
         category: "mascotte",
-        image: "../games/attrape/assets/images/menu/lyra_breath.png",
+        image: "../assets/images/menu/lyra_breath.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -22,7 +22,7 @@ const libraryRewards = [
         order: 3,
         title: "Lyra — Regard en boucle",
         category: "mascotte",
-        image: "../games/attrape/assets/images/menu/lyra_blink.png",
+        image: "../assets/images/menu/lyra_blink.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -30,7 +30,7 @@ const libraryRewards = [
         order: 4,
         title: "Orbe Azur",
         category: "orbe",
-        image: "../games/attrape/assets/orbes/orb_blue.png",
+        image: "../assets/orbes/orb_blue.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -38,7 +38,7 @@ const libraryRewards = [
         order: 5,
         title: "Orbe Rouge",
         category: "orbe",
-        image: "../games/attrape/assets/orbes/orb_red.png",
+        image: "../assets/orbes/orb_red.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -46,7 +46,7 @@ const libraryRewards = [
         order: 6,
         title: "8 — Illustration mystère",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/8.png",
+        image: "../assets/images/mascotte/8.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -54,7 +54,7 @@ const libraryRewards = [
         order: 7,
         title: "Alia",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/alia.png",
+        image: "../assets/images/mascotte/alia.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -62,7 +62,7 @@ const libraryRewards = [
         order: 8,
         title: "CJajlk",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/cjajlk.png",
+        image: "../assets/images/mascotte/cjajlk.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -70,7 +70,7 @@ const libraryRewards = [
         order: 9,
         title: "Girl1 — Portrait",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl1.png",
+        image: "../assets/images/mascotte/girl1.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -78,7 +78,7 @@ const libraryRewards = [
         order: 10,
         title: "Girl1 — Clin d’œil",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl1_blink.png",
+        image: "../assets/images/mascotte/girl1_blink.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -86,7 +86,7 @@ const libraryRewards = [
         order: 11,
         title: "Girl1 — Joyeux",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl1_happy.png",
+        image: "../assets/images/mascotte/girl1_happy.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -94,7 +94,7 @@ const libraryRewards = [
         order: 12,
         title: "Girl1 — Repos",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl1_idle.png",
+        image: "../assets/images/mascotte/girl1_idle.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -102,7 +102,7 @@ const libraryRewards = [
         order: 13,
         title: "Girl1 — Triste",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl1_sad.png",
+        image: "../assets/images/mascotte/girl1_sad.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -110,7 +110,7 @@ const libraryRewards = [
         order: 14,
         title: "Girl2",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl2.png",
+        image: "../assets/images/mascotte/girl2.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -118,7 +118,7 @@ const libraryRewards = [
         order: 15,
         title: "Girl3",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl3.png",
+        image: "../assets/images/mascotte/girl3.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -126,7 +126,7 @@ const libraryRewards = [
         order: 16,
         title: "Girl4 — Portrait",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl4.png",
+        image: "../assets/images/mascotte/girl4.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -134,7 +134,7 @@ const libraryRewards = [
         order: 17,
         title: "Girl4 — Clin d’œil",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl4_blink.png",
+        image: "../assets/images/mascotte/girl4_blink.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -142,7 +142,7 @@ const libraryRewards = [
         order: 18,
         title: "Girl4 — Joyeux",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl4_happy.png",
+        image: "../assets/images/mascotte/girl4_happy.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -150,7 +150,7 @@ const libraryRewards = [
         order: 19,
         title: "Girl4 — Repos",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl4_idle.png",
+        image: "../assets/images/mascotte/girl4_idle.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -158,7 +158,7 @@ const libraryRewards = [
         order: 20,
         title: "Girl4 — Triste",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl4_sad.png",
+        image: "../assets/images/mascotte/girl4_sad.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -166,7 +166,7 @@ const libraryRewards = [
         order: 21,
         title: "Girl5",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl5.png",
+        image: "../assets/images/mascotte/girl5.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -174,7 +174,7 @@ const libraryRewards = [
         order: 22,
         title: "Girl6 — Portrait",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl6.png",
+        image: "../assets/images/mascotte/girl6.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -182,7 +182,7 @@ const libraryRewards = [
         order: 23,
         title: "Girl6 — Clin d’œil",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl6_blink.png",
+        image: "../assets/images/mascotte/girl6_blink.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -190,7 +190,7 @@ const libraryRewards = [
         order: 24,
         title: "Girl6 — Joyeux",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl6_happy.png",
+        image: "../assets/images/mascotte/girl6_happy.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -198,7 +198,7 @@ const libraryRewards = [
         order: 25,
         title: "Girl6 — Repos",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl6_idle.png",
+        image: "../assets/images/mascotte/girl6_idle.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -206,7 +206,7 @@ const libraryRewards = [
         order: 26,
         title: "Girl6 — Triste",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl6_sad.png",
+        image: "../assets/images/mascotte/girl6_sad.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -214,7 +214,7 @@ const libraryRewards = [
         order: 27,
         title: "Girl7 — Portrait",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl7.png",
+        image: "../assets/images/mascotte/girl7.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -222,7 +222,7 @@ const libraryRewards = [
         order: 28,
         title: "Girl7 — Clin d’œil",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl7_blink.png",
+        image: "../assets/images/mascotte/girl7_blink.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -230,7 +230,7 @@ const libraryRewards = [
         order: 29,
         title: "Girl7 — Joyeux",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl7_happy.png",
+        image: "../assets/images/mascotte/girl7_happy.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -238,7 +238,7 @@ const libraryRewards = [
         order: 30,
         title: "Girl7 — Repos",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl7_idle.png",
+        image: "../assets/images/mascotte/girl7_idle.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -246,7 +246,7 @@ const libraryRewards = [
         order: 31,
         title: "Girl7 — Triste",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl7_sad.png",
+        image: "../assets/images/mascotte/girl7_sad.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -254,7 +254,7 @@ const libraryRewards = [
         order: 32,
         title: "Girl8",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/girl8.png",
+        image: "../assets/images/mascotte/girl8.png",
         price: LIBRARY_REWARD_PRICE
     },
     {
@@ -262,7 +262,7 @@ const libraryRewards = [
         order: 33,
         title: "Lyra",
         category: "mascotte",
-        image: "../games/attrape/assets/images/mascotte/lyra.png",
+        image: "../assets/images/mascotte/lyra.png",
         price: LIBRARY_REWARD_PRICE
     }
 ];
