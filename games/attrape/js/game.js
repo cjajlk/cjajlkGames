@@ -88,7 +88,7 @@ let lastFrameTime = 0;
    ========================================================= */
 
 function savePlayerProfile() {
-    const profile = {
+    let profile = {
         playerName: playerName,
         coins: coins,
         gems: gems,
@@ -115,6 +115,14 @@ function savePlayerProfile() {
     if (typeof mascotteSide !== "undefined") profile.mascotteSide = mascotteSide;
     if (typeof coffreDerniereUtilisation === "number") {
         profile.coffreDerniereUtilisation = coffreDerniereUtilisation;
+    }
+
+    // Conserver les données supplémentaires déjà présentes dans le profil sauvegardé
+    try {
+        const existingProfile = JSON.parse(localStorage.getItem("nocturnePlayerProfileV3") || "{}");
+        profile = { ...existingProfile, ...profile };
+    } catch (e) {
+        console.warn("Impossible de fusionner le profil existant :", e);
     }
 
     // Sauvegarde centralisée du profil complet

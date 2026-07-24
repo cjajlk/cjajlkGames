@@ -17,6 +17,17 @@ function saveLibraryProfile(profile) {
     if (!profile.library) {
         profile.library = { unlockedRewardIds: [] };
     }
+
+    const existingSaved = localStorage.getItem("nocturnePlayerProfileV3");
+    if (existingSaved) {
+        try {
+            const existingProfile = JSON.parse(existingSaved);
+            profile = { ...existingProfile, ...profile };
+        } catch (e) {
+            console.warn("Unable to merge existing profile:", e);
+        }
+    }
+
     localStorage.setItem("nocturnePlayerProfileV3", JSON.stringify(profile));
 }
 
