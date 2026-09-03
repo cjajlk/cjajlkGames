@@ -27,6 +27,7 @@ const cjAccount = {
     
     if (!playerData) {
         playerData = {
+            schemaVersion: 2,
             id: this.generateId(),
             pseudo: "Explorateur Nocturne",
             createdAt: Date.now(),
@@ -35,6 +36,13 @@ const cjAccount = {
                 byGame: {
                     attrape: 0,
                     breaker: 0
+                },
+                playTime: {
+                    totalSeconds: 0,
+                    byGame: {
+                        attrape: 0,
+                        breaker: 0
+                    }
                 }
             },
             items: {
@@ -51,9 +59,69 @@ const cjAccount = {
         this.savePlayer(playerData);
     }
 
+    let needsSave = false;
+
+    if (typeof playerData.schemaVersion !== "number") {
+        playerData.schemaVersion = 2;
+        needsSave = true;
+    }
+
+    if (!playerData.stats || typeof playerData.stats !== "object") {
+        playerData.stats = {};
+        needsSave = true;
+    }
+    if (typeof playerData.stats.totalCJ !== "number" || !isFinite(playerData.stats.totalCJ)) {
+        playerData.stats.totalCJ = 0;
+        needsSave = true;
+    }
+    if (!playerData.stats.byGame || typeof playerData.stats.byGame !== "object") {
+        playerData.stats.byGame = {};
+        needsSave = true;
+    }
+    if (typeof playerData.stats.byGame.attrape !== "number" || !isFinite(playerData.stats.byGame.attrape)) {
+        playerData.stats.byGame.attrape = 0;
+        needsSave = true;
+    }
+    if (typeof playerData.stats.byGame.breaker !== "number" || !isFinite(playerData.stats.byGame.breaker)) {
+        playerData.stats.byGame.breaker = 0;
+        needsSave = true;
+    }
+
+    if (!playerData.stats.playTime || typeof playerData.stats.playTime !== "object") {
+        playerData.stats.playTime = {
+            totalSeconds: 0,
+            byGame: {
+                attrape: 0,
+                breaker: 0
+            }
+        };
+        needsSave = true;
+    } else {
+        if (typeof playerData.stats.playTime.totalSeconds !== "number" || !isFinite(playerData.stats.playTime.totalSeconds)) {
+            playerData.stats.playTime.totalSeconds = 0;
+            needsSave = true;
+        }
+        if (!playerData.stats.playTime.byGame || typeof playerData.stats.playTime.byGame !== "object") {
+            playerData.stats.playTime.byGame = {};
+            needsSave = true;
+        }
+        if (typeof playerData.stats.playTime.byGame.attrape !== "number" || !isFinite(playerData.stats.playTime.byGame.attrape)) {
+            playerData.stats.playTime.byGame.attrape = 0;
+            needsSave = true;
+        }
+        if (typeof playerData.stats.playTime.byGame.breaker !== "number" || !isFinite(playerData.stats.playTime.byGame.breaker)) {
+            playerData.stats.playTime.byGame.breaker = 0;
+            needsSave = true;
+        }
+    }
+
     // 👇 Important : pour les anciens comptes
     if (playerData.selectedBadge === undefined) {
         playerData.selectedBadge = null;
+        needsSave = true;
+    }
+
+    if (needsSave) {
         this.savePlayer(playerData);
     }
 
@@ -127,23 +195,33 @@ const cjAccount = {
     },
 
     /**
-     * Décrémente le solde CJ global et par jeu
+     * Décrémente uniquement le solde CJ global
      */
-    removeCJ(gameName, amount) {
-        if (!gameName || typeof amount !== "number" || amount <= 0) {
+    spendCJ(amount) {
+        if (typeof amount !== "number" || !isFinite(amount) || amount <= 0) {
             return false;
         }
+
+        const normalizedAmount = Math.floor(amount);
+        if (normalizedAmount <= 0) {
+            return false;
+        }
+
         const playerData = this.ensureDataStructure();
-        if (playerData.stats.totalCJ < amount) {
+        if (playerData.stats.totalCJ < normalizedAmount) {
             return false;
         }
-        playerData.stats.totalCJ -= amount;
-        if (!playerData.stats.byGame[gameName]) {
-            playerData.stats.byGame[gameName] = 0;
-        }
-        playerData.stats.byGame[gameName] -= amount;
+
+        playerData.stats.totalCJ -= normalizedAmount;
         this.savePlayer(playerData);
         return true;
+    },
+
+    /**
+     * Compatibilité : conserve la signature historique
+     */
+    removeCJ(gameName, amount) {
+        return this.spendCJ(amount);
     },
 
     setPseudo(newPseudo) {
@@ -199,6 +277,45 @@ const cjAccount = {
     getAllCJStats() {
         const playerData = this.getPlayer();
         return playerData?.stats?.byGame || {};
+    },
+
+    /**
+     * Ajoute du temps de jeu global (en secondes)
+     */
+    addPlayTime(gameName, seconds) {
+        if (!gameName || typeof seconds !== "number" || !isFinite(seconds) || seconds <= 0) {
+            return false;
+        }
+
+        const normalizedSeconds = Math.floor(seconds);
+        if (normalizedSeconds <= 0) {
+            return false;
+        }
+
+        const playerData = this.ensureDataStructure();
+        const playTime = playerData.stats.playTime;
+
+        playTime.totalSeconds = (playTime.totalSeconds || 0) + normalizedSeconds;
+        playTime.byGame[gameName] = (playTime.byGame[gameName] || 0) + normalizedSeconds;
+
+        this.savePlayer(playerData);
+        return true;
+    },
+
+    /**
+     * Retourne le temps de jeu global total (secondes)
+     */
+    getTotalPlayTime() {
+        const playerData = this.ensureDataStructure();
+        return playerData?.stats?.playTime?.totalSeconds || 0;
+    },
+
+    /**
+     * Retourne le temps de jeu global d'un jeu (secondes)
+     */
+    getPlayTimeByGame(gameName) {
+        const playerData = this.ensureDataStructure();
+        return playerData?.stats?.playTime?.byGame?.[gameName] || 0;
     },
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -296,6 +413,7 @@ window.CJajlkAccount = {
     // Compatibilité avec ancien API
     add: (gameName, amount) => cjAccount.addCJ(gameName, amount),
     remove: (gameName, amount) => cjAccount.removeCJ(gameName, amount),
+    spend: (amount) => cjAccount.spendCJ(amount),
     unlockBadge: (badgeId) => cjAccount.unlockBadge(badgeId),
     isBadgeUnlocked: (badgeId) => cjAccount.isBadgeUnlocked(badgeId),
     getTotal: () => cjAccount.getTotalCJ(),

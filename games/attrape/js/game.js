@@ -854,6 +854,8 @@ let gameStarted = false;     // mode normal
 let timerRunning = false;    // mode timer
 let inLevelTransition = false;
 let sessionStartTime = 0;
+let sessionActiveMs = 0;
+let sessionTimeCommitted = true;
 let auraTime = 0;
 
 let level = 1;
@@ -867,6 +869,29 @@ window.getGameState = function () {
         paused: isGamePaused
     };
 };
+
+function startSessionTimeTracking() {
+    sessionStartTime = Date.now();
+    sessionActiveMs = 0;
+    sessionTimeCommitted = false;
+}
+
+function commitSessionPlayTime() {
+    if (sessionTimeCommitted) return 0;
+
+    const elapsedSeconds = Math.floor(sessionActiveMs / 1000);
+    sessionTimeCommitted = true;
+
+    if (elapsedSeconds <= 0) return 0;
+
+    totalPlayTime += elapsedSeconds;
+
+    if (window.CJajlkAccount && typeof window.CJajlkAccount.addPlayTime === "function") {
+        window.CJajlkAccount.addPlayTime("attrape", elapsedSeconds);
+    }
+
+    return elapsedSeconds;
+}
 
 let lastObjectiveIndex = -1; // Index du dernier objectif atteint
 
@@ -1771,7 +1796,7 @@ function startNormalMode() {
     document.body.classList.remove("timer-mode-active", "campaign-mode-active");
     gameStarted = true;
     timerRunning = false;
-    sessionStartTime = Date.now();
+    startSessionTimeTracking();
     refreshComboHUDVisibility();
     hideMainMenu();
     hideMenuMascotte();
@@ -1815,7 +1840,7 @@ function startTimerMode() {
     if (canvas) canvas.style.display = "block";
 
     isGameRunning = true;
-    sessionStartTime = Date.now();
+    startSessionTimeTracking();
     hideEventBanner();
     hideMenuMascotte();
     stopMenuBubble();
@@ -1962,6 +1987,7 @@ function pauseToMenu() {
      
 
     playerName = localStorage.getItem("playerName") || "Invité";
+    commitSessionPlayTime();
     savePlayerProfile();
 
     console.log('Jeu en pause, sauvegarde de l\'état');
@@ -2013,6 +2039,9 @@ function pauseToMenu() {
 function confirmReturnToHub() {
     const ok = window.confirm("Quitter le jeu et revenir au centre de l'univers ?");
     if (!ok) return;
+
+    commitSessionPlayTime();
+    savePlayerProfile();
 
     const overlay = document.getElementById("pauseOverlay");
     if (overlay) {
@@ -2615,6 +2644,13 @@ function render() {
     const deltaMs = lastFrameTime ? (now - lastFrameTime) : 0;
     lastFrameTime = now;
 
+    if (!isGamePaused && isGameRunning && (gameStarted || timerRunning) && !inLevelTransition) {
+        sessionActiveMs += deltaMs;
+        if (window.CJEngine && typeof window.CJEngine.tick === "function") {
+            window.CJEngine.tick(deltaMs, "attrape");
+        }
+    }
+
     const ctx = Game.ctx;
     if (!ctx) return;
 
@@ -2828,6 +2864,7 @@ function resetGameValues() {
 }
 
 function returnToMainMenu() {
+    commitSessionPlayTime();
     savePlayerProfile();
     isGameRunning = false;
     Game.running = false;
@@ -2852,13 +2889,16 @@ function endgame() {
     if (gameLoopId) cancelAnimationFrame(gameLoopId);
     gameLoopId = null;
 
+    const elapsedSeconds = commitSessionPlayTime();
+
     if (score > 0) {
         playerTotalPoints += score;
         if (score > highScore) highScore = score;
         addXP(score);
         checkTitlesUnlock();
-        const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
-        totalPlayTime += elapsed;
+    }
+
+    if (score > 0 || elapsedSeconds > 0) {
         savePlayerProfile();
     }
 
@@ -2875,13 +2915,16 @@ function endTimerMode() {
     gameStarted = false;
     Game.running = false;
 
+    const elapsedSeconds = commitSessionPlayTime();
+
     if (score > 0) {
         playerTotalPoints += score;
         if (score > highScore) highScore = score;
         checkTitlesUnlock();
         addXP(score);
-        const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
-        totalPlayTime += elapsed;
+    }
+
+    if (score > 0 || elapsedSeconds > 0) {
         savePlayerProfile();
     }
 
@@ -2892,6 +2935,7 @@ function endTimerMode() {
 }
 
 function quitToMenu() {
+    commitSessionPlayTime();
     savePlayerProfile();
     isGamePaused = false;
     isGameRunning = false;

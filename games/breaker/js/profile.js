@@ -533,6 +533,10 @@ function addPlayTime(seconds) {
     console.log("⏱️ Adding play time:", seconds, "seconds - Current total:", profile.temps, "seconds");
     profile.temps += seconds;
     savePlayerProfile(profile);
+
+    if (window.CJajlkAccount && typeof window.CJajlkAccount.addPlayTime === "function") {
+      window.CJajlkAccount.addPlayTime("breaker", seconds);
+    }
     
     // Vérification
     const verified = getPlayerProfile();

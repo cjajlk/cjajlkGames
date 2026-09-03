@@ -18,7 +18,7 @@ function checkEngineVersion() {
     const storedVersion = localStorage.getItem("CJEngine_version");
     if (storedVersion !== CJ_ENGINE_VERSION) {
         console.log("🔄 Version CJEngine changée → reset sécurisé");
-        localStorage.removeItem("CJEngine");
+        localStorage.removeItem("cjEngineTimers");
         localStorage.setItem("CJEngine_version", CJ_ENGINE_VERSION);
     }
 }

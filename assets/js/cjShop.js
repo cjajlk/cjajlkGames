@@ -98,7 +98,7 @@ function renderImageSection(items, containerId) {
         showImageCJPopup("CJ insuffisants pour débloquer cette image.");
         return;
       }
-      if (window.CJajlkAccount && typeof window.CJajlkAccount.remove === "function" && window.CJajlkAccount.remove("shop", item.price)) {
+      if (spendFromAccount(item.price)) {
         unlockImage(imageId);
         renderImageSections();
         showMessage("Image débloquée !");
@@ -156,9 +156,12 @@ function disableCard(itemId) {
  * Met à jour dynamiquement le badge cosmétique du Hero dans la boutique
  */
 function updateHeroBadge() {
-  const badgeId = window.CJajlkAccount && typeof window.CJajlkAccount.getSelectedBadge === "function"
+  const rawBadgeId = window.CJajlkAccount && typeof window.CJajlkAccount.getSelectedBadge === "function"
     ? window.CJajlkAccount.getSelectedBadge()
     : null;
+  const badgeId = typeof rawBadgeId === "string" && rawBadgeId.startsWith("badge_")
+    ? rawBadgeId.slice(6)
+    : rawBadgeId;
   const badgeContainer = document.getElementById("heroBadge");
   if (!badgeContainer) return;
   if (!badgeId) {
@@ -166,9 +169,9 @@ function updateHeroBadge() {
     return;
   }
   const badgeMap = {
-    badge_explorer: { icon: "🌙", label: "Explorateur Nocturne" },
-    badge_fidele: { icon: "⭐", label: "Joueur Fidèle" },
-    badge_centre: { icon: "🔮", label: "Compagnon du Centre" }
+    explorer: { icon: "🌙", label: "Explorateur Nocturne" },
+    fidele: { icon: "⭐", label: "Joueur Fidèle" },
+    centre: { icon: "🔮", label: "Compagnon du Centre" }
   };
   const badge = badgeMap[badgeId];
   if (!badge) return;
@@ -243,6 +246,20 @@ function getCJAccountData() {
       return { totalCJ: window.CJajlkAccount.getTotal() };
     }
     return { totalCJ: 0 };
+}
+
+function spendFromAccount(amount) {
+  if (!window.CJajlkAccount) return false;
+  if (typeof window.CJajlkAccount.spendCJ === "function") {
+    return window.CJajlkAccount.spendCJ(amount);
+  }
+  if (typeof window.CJajlkAccount.spend === "function") {
+    return window.CJajlkAccount.spend(amount);
+  }
+  if (typeof window.CJajlkAccount.remove === "function") {
+    return window.CJajlkAccount.remove("shop", amount);
+  }
+  return false;
 }
 
 /**
@@ -352,7 +369,7 @@ function renderItems(items, containerId) {
         return;
       }
       // Débit sécurisé
-      if (window.CJajlkAccount && typeof window.CJajlkAccount.remove === "function" && window.CJajlkAccount.remove("hub", price)) {
+      if (spendFromAccount(price)) {
         if (window.CJajlkAccount && typeof window.CJajlkAccount.unlockBadge === "function") {
           window.CJajlkAccount.unlockBadge(itemId);
         }
@@ -427,7 +444,7 @@ function buyShopItem(itemId) {
     return;
   }
   // 💳 Débiter puis débloquer le badge
-  if (window.CJajlkAccount.remove("hub", item.price)) {
+  if (spendFromAccount(item.price)) {
     // 🔓 Débloque le badge
     window.CJajlkAccount.unlockBadge(itemId);
 
