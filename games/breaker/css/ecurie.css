@@ -900,9 +900,13 @@ model-viewer.shop-model {
         bottom: auto;
         width: 100%;
         max-width: 100%;
+        max-height: calc(100svh - 360px);
         padding: 0;
         margin-top: 8px;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 8px;
     }
 
     .mobile-info-content {
@@ -914,9 +918,10 @@ model-viewer.shop-model {
     }
 
     .companion-info-panel.is-open .mobile-info-content {
-        max-height: 360px;
+        max-height: none;
         opacity: 1;
-        padding: 8px 10px 10px;
+        padding: 8px 10px 12px;
+        overflow: visible;
     }
 
     .companion-info-panel .info-header {
