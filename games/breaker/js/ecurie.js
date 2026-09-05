@@ -5,8 +5,12 @@ function updateInfoPanel() {
     const display = document.getElementById('main-companion-display');
     const nameEl = document.getElementById('companionName');
     const levelEl = document.getElementById('companionLevel');
+    const mobileNameEl = document.getElementById('mobileCompanionName');
+    const mobileLevelEl = document.getElementById('mobileCompanionLevel');
     const xpEl = document.getElementById('companionXpBar');
     const bonusEl = document.getElementById('companionBonus');
+    const mobileToggle = document.getElementById('mobileInfoToggle');
+    const mobilePanel = document.querySelector('.companion-info-panel');
 
     // Nettoyer l'affichage central
     if (display) display.innerHTML = '';
@@ -27,7 +31,7 @@ function updateInfoPanel() {
             mv.style.background = 'transparent';
             mv.style.border = 'none';
             display.appendChild(mv);
-        } else if (window.selectedCompanion.img && window.selectedCompanion.img.complete) {
+        } else if (window.selectedCompanion.img) {
             const img = document.createElement('img');
             img.src = window.selectedCompanion.img.src;
             img.alt = window.selectedCompanion.name;
@@ -35,6 +39,7 @@ function updateInfoPanel() {
             img.style.maxHeight = '100%';
             img.style.display = 'block';
             img.style.margin = '0 auto';
+            img.loading = 'eager';
             display.appendChild(img);
         } else {
             // Placeholder si rien à afficher
@@ -47,9 +52,11 @@ function updateInfoPanel() {
 
     // Affichage des infos (nom, niveau, xp, bonus)
     if (nameEl) nameEl.textContent = window.selectedCompanion ? window.selectedCompanion.name : '';
+    if (mobileNameEl) mobileNameEl.textContent = window.selectedCompanion ? window.selectedCompanion.name : '';
 
     if (!window.selectedCompanion || !window.selectedCompanion.unlocked) {
         if (levelEl) levelEl.textContent = i18nT("ecurie.locked");
+        if (mobileLevelEl) mobileLevelEl.textContent = i18nT("ecurie.locked");
         if (xpEl) xpEl.style.width = '0%';
         if (bonusEl) bonusEl.textContent = '🔒 --';
     } else {
@@ -60,6 +67,13 @@ function updateInfoPanel() {
             const maxLabel = i18nT("ecurie.max");
             levelEl.textContent = isMax 
                 ? `${levelLabel} ${window.selectedCompanion.level} ${maxLabel}` 
+                : `${levelLabel} ${window.selectedCompanion.level}/${maxLevel}`;
+        }
+        if (mobileLevelEl) {
+            const levelLabel = i18nT("common.levelShort");
+            const maxLabel = i18nT("ecurie.max");
+            mobileLevelEl.textContent = isMax
+                ? `${levelLabel} ${window.selectedCompanion.level} ${maxLabel}`
                 : `${levelLabel} ${window.selectedCompanion.level}/${maxLevel}`;
         }
         if (xpEl) {
@@ -93,6 +107,12 @@ function updateInfoPanel() {
             infoPanel.appendChild(orbHint);
         }
         orbHint.textContent = `Orbe: ${orbIcon} ${orbLabel}`;
+    }
+
+    if (mobileToggle && mobilePanel) {
+        const isOpen = mobilePanel.classList.contains('is-open');
+        mobileToggle.textContent = isOpen ? 'Infos' : 'Détails';
+        mobileToggle.setAttribute('aria-expanded', String(isOpen));
     }
 }
 /* ==========================================
@@ -150,6 +170,21 @@ function loadCompanions() {
 
 // Appeler loadCompanions au démarrage
 window.addEventListener("DOMContentLoaded", loadCompanions);
+
+function setupMobileInfoToggle() {
+    const mobileToggle = document.getElementById('mobileInfoToggle');
+    const mobilePanel = document.querySelector('.companion-info-panel');
+    if (!mobileToggle || !mobilePanel) return;
+
+    mobileToggle.addEventListener('click', () => {
+        mobilePanel.classList.toggle('is-open');
+        updateInfoPanel();
+    });
+
+    mobilePanel.classList.remove('is-open');
+}
+
+window.addEventListener('DOMContentLoaded', setupMobileInfoToggle);
 
 // Permettre le rafraîchissement dynamique depuis la boutique
 window.addEventListener("companionUnlocked", () => {

@@ -361,6 +361,8 @@ function resizeCanvas() {
     applyPaddleSizeBonus(); // Applique le bonus du compagnon
     paddle.height = playfieldW * 0.05;
 
+    companion.size = window.innerWidth >= 769 ? 156 : 120;
+
     // balle = ~4% largeur écran, plus grosse sur mobile
     ball.size = playfieldW < 768 ? playfieldW * 0.08 : playfieldW * 0.05;
 

@@ -65,34 +65,41 @@
 
     <!-- Main companion display -->
     <div class="companion-showcase">
+        <div class="mobile-companion-summary" aria-live="polite">
+            <h2 id="mobileCompanionName">Aube</h2>
+            <span class="mobile-companion-level" id="mobileCompanionLevel">Niv. 1</span>
+        </div>
         <div id="main-companion-display"></div>
+        <button id="mobileInfoToggle" class="mobile-info-toggle" type="button" aria-expanded="false" aria-controls="mobileInfoContent" data-i18n="ecurie.details">Détails</button>
         <!-- Companion info panel (overlay on canvas/model) -->
         <div class="companion-info-panel">
-            <div class="info-header">
-                <h2 id="companionName">Aube</h2>
-                <span class="companion-level" id="companionLevel">Niv. 1</span>
-            </div>
-            <div class="info-stats">
-                <div class="stat-item">
-                    <span class="stat-label" data-i18n="common.xp">XP</span>
-                    <div class="stat-bar">
-                        <div class="stat-fill" id="companionXP" style="width: 0%"></div>
+            <div id="mobileInfoContent" class="mobile-info-content">
+                <div class="info-header">
+                    <h2 id="companionName">Aube</h2>
+                    <span class="companion-level" id="companionLevel">Niv. 1</span>
+                </div>
+                <div class="info-stats">
+                    <div class="stat-item">
+                        <span class="stat-label" data-i18n="common.xp">XP</span>
+                        <div class="stat-bar">
+                            <div class="stat-fill" id="companionXP" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item bonus-display">
+                        <span class="stat-label" data-i18n="common.bonus">Bonus</span>
+                        <div class="bonus-value" id="companionBonus">--</div>
                     </div>
                 </div>
-                <div class="stat-item bonus-display">
-                    <span class="stat-label" data-i18n="common.bonus">Bonus</span>
-                    <div class="bonus-value" id="companionBonus">--</div>
+                <div class="info-actions">
+                    <button class="btn-action btn-equip" id="btnEquip">
+                        <span class="btn-icon">⚔️</span>
+                        <span data-i18n="ecurie.equip">Équiper</span>
+                    </button>
+                    <button class="btn-action btn-feed" id="btnFeed">
+                        <span class="btn-icon">🍖</span>
+                        <span data-i18n="ecurie.feed">Nourrir</span>
+                    </button>
                 </div>
-            </div>
-            <div class="info-actions">
-                <button class="btn-action btn-equip" id="btnEquip">
-                    <span class="btn-icon">⚔️</span>
-                    <span data-i18n="ecurie.equip">Équiper</span>
-                </button>
-                <button class="btn-action btn-feed" id="btnFeed">
-                    <span class="btn-icon">🍖</span>
-                    <span data-i18n="ecurie.feed">Nourrir</span>
-                </button>
             </div>
         </div>
     </div>

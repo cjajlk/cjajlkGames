@@ -37,6 +37,12 @@
     padding-bottom: 0;
     /* Si besoin, on peut ajuster le camera-orbit ou field-of-view côté JS pour un centrage parfait */
 }
+
+.mobile-companion-summary,
+.mobile-info-toggle {
+    display: none;
+}
+
 @media (max-width: 600px) {
     .ecurie-header {
         flex-direction: column;
@@ -60,6 +66,16 @@
     .orbItem {
         padding: 2px 4px;
     }
+    .companion-showcase {
+        height: auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        padding: 0 10px 10px;
+    }
     #main-companion-display {
         height: 70px;
         min-height: 40px;
@@ -68,6 +84,7 @@
         padding-bottom: 0;
         z-index: 100;
         margin-bottom: 0;
+        transform: none;
     }
     #main-companion-display img,
     #main-companion-display model-viewer {
@@ -79,12 +96,12 @@
     .companion-info-panel {
         z-index: 10;
         background: rgba(10, 20, 40, 0.97);
-        position: fixed;
-        left: 8px;
-        right: 8px;
-        bottom: 70px;
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
         top: auto;
-        width: auto;
+        width: 100%;
         min-width: 0;
         max-width: 98vw;
         border-radius: 18px;
@@ -803,19 +820,111 @@ model-viewer.shop-model {
         font-size: 1em;
     }
 
+    .mobile-companion-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        width: 100%;
+        padding: 6px 10px 0;
+        margin: 0;
+        order: 1;
+    }
+
+    .mobile-companion-summary h2 {
+        margin: 0;
+        color: #fff;
+        font-size: 1.05rem;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    }
+
+    .mobile-companion-level {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(143, 211, 255, 0.18);
+        border: 1px solid rgba(143, 211, 255, 0.35);
+        color: #8fd3ff;
+        font-size: 0.75rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
     .companion-showcase {
-        top: 140px;
-        bottom: 140px;
+        height: auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 6px;
+        padding: 0 10px 12px;
+    }
+
+    #main-companion-display {
+        order: 3;
+        transform: none;
+        height: 240px;
+        min-height: 150px;
+        z-index: 100;
+        margin-top: 18px;
+    }
+
+    .mobile-info-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 46px;
+        margin: 8px 0 0;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 2px solid rgba(143, 211, 255, 0.9);
+        background: linear-gradient(135deg, rgba(18, 36, 72, 0.98), rgba(28, 52, 96, 0.95));
+        color: #e6f7ff;
+        font-size: 0.95rem;
+        font-weight: 800;
+        letter-spacing: 0.4px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.32), inset 0 0 0 1px rgba(255,255,255,0.08);
+        order: 2;
     }
 
     .companion-info-panel {
-        position: fixed;
-        right: 10px;
-        left: 10px;
+        order: 4;
+        position: relative;
+        right: auto;
+        left: auto;
         top: auto;
-        bottom: 160px;
-        width: auto;
-        padding: 15px;
+        bottom: auto;
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        margin-top: 8px;
+        overflow: hidden;
+    }
+
+    .mobile-info-content {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.28s ease, opacity 0.2s ease, padding 0.2s ease;
+        padding: 0 10px;
+    }
+
+    .companion-info-panel.is-open .mobile-info-content {
+        max-height: 360px;
+        opacity: 1;
+        padding: 8px 10px 10px;
+    }
+
+    .companion-info-panel .info-header {
+        display: none;
+    }
+
+    .companion-info-panel .info-stats {
+        margin: 0 0 6px;
     }
 
     .info-header h2 {
@@ -827,13 +936,22 @@ model-viewer.shop-model {
         padding: 4px 8px;
     }
 
+    .info-stats {
+        margin: 10px 0;
+    }
+
+    .stat-item {
+        margin-bottom: 8px;
+    }
+
     .info-actions {
-        gap: 8px;
+        gap: 6px;
+        margin-top: 8px;
     }
 
     .btn-action {
-        padding: 10px;
-        font-size: 0.75rem;
+        padding: 7px 8px;
+        font-size: 0.72rem;
     }
 
     .btn-action .btn-icon {
@@ -842,6 +960,7 @@ model-viewer.shop-model {
 
     .companion-slots {
         height: 140px;
+        margin-top: 10px;
     }
 
     .slots-container {
@@ -922,6 +1041,29 @@ model-viewer.shop-model {
 
 /* 🖥 DESKTOP (> 1024px) */
 @media (min-width: 1025px) {
+    .companion-showcase {
+        height: 500px;
+        min-height: 380px;
+    }
+
+    #main-companion-display {
+        height: 340px;
+        max-height: 42vh;
+        transform: translateY(340px);
+    }
+
+    #main-companion-display img {
+        max-width: 400px;
+        max-height: 400px;
+        height: 94%;
+    }
+
+    #main-companion-display model-viewer {
+        max-width: 470px;
+        max-height: 470px;
+        height: 96%;
+    }
+
     .btn-back:hover .btn-icon {
         animation: float 1s ease-in-out infinite;
     }

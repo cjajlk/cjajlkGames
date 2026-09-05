@@ -332,6 +332,11 @@ html, body {
     }
 
     #companion3dDisplay {
+        width: 156px;
+        height: 156px;
+    }
+
+    #companion3dDisplay {
         display: block;
     }
 }
