@@ -637,6 +637,40 @@ header h1 {
    RESPONSIVE
    ========================================== */
 
+@media (min-width: 769px) {
+    .item {
+        min-height: 260px;
+        padding: 12px 14px 10px;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    .img-container {
+        margin: 4px 0 2px;
+    }
+
+    .item img {
+        max-width: 124px;
+    }
+
+    .item .name {
+        margin: 4px 0 2px;
+    }
+
+    .item .description {
+        margin: 0;
+        min-height: 0;
+    }
+
+    .item .cost {
+        margin: 4px 0 2px;
+    }
+
+    .item button {
+        margin-top: 4px;
+    }
+}
+
 /* 📱 MOBILE PORTRAIT (< 480px) */
 @media (max-width: 480px) {
     #shop-container {

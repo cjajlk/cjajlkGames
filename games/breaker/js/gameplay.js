@@ -170,11 +170,25 @@ let lastFrameTime = 0;
 
 let viewW = 0;
 let viewH = 0;
+const GAMEPLAY_MAX_WIDTH = 1280;
+let playfieldW = 0;
+let playfieldX = 0;
 
 const rows = 5;
 const cols = 8;
 
 let brickW, brickH, gap;
+
+function updatePlayfieldBounds() {
+    playfieldW = Math.min(window.innerWidth, GAMEPLAY_MAX_WIDTH);
+    playfieldX = Math.max(0, (window.innerWidth - playfieldW) / 2);
+
+    const root = document.documentElement;
+    root.style.setProperty("--playfield-left", `${playfieldX}px`);
+    root.style.setProperty("--playfield-width", `${playfieldW}px`);
+    root.style.setProperty("--playfield-top", `0px`);
+    root.style.setProperty("--playfield-bottom", `0px`);
+}
 
 /* =============================
    2️⃣ GAME STATE
@@ -319,6 +333,15 @@ const ctx = canvas.getContext("2d");
 function resizeCanvas() {
     viewW = window.innerWidth;
     viewH = window.innerHeight;
+    updatePlayfieldBounds();
+
+    if (companion.id === 'dragonMystique') {
+        companion.render3D = window.innerWidth >= 769;
+        const display = document.getElementById("companion3dDisplay");
+        if (display) {
+            display.style.display = companion.render3D ? "block" : "none";
+        }
+    }
 
     canvas.width = viewW * DPR;
     canvas.height = viewH * DPR;
@@ -336,13 +359,13 @@ function resizeCanvas() {
 
     // paddle = ~30% largeur écran
     applyPaddleSizeBonus(); // Applique le bonus du compagnon
-    paddle.height = viewW * 0.05;
+    paddle.height = playfieldW * 0.05;
 
     // balle = ~4% largeur écran, plus grosse sur mobile
-    ball.size = viewW < 768 ? viewW * 0.08 : viewW * 0.05;
+    ball.size = playfieldW < 768 ? playfieldW * 0.08 : playfieldW * 0.05;
 
     /* responsive bricks */
-    brickW = viewW * 0.10;
+    brickW = playfieldW * 0.095;
     brickH = brickW * 0.5;
     gap = brickW * 0.05;
 
@@ -387,6 +410,8 @@ const companion = {
     loaded: false,
     id: null,
     element: null,
+    render3D: false,
+    modelEl: null,
     
     // Position & Animation
     x: 0,
@@ -462,6 +487,24 @@ function getEncouragements(type) {
     return encouragements[type] || encouragements.orb;
 }
 
+function ensureCompanion3DDisplay() {
+    const container = document.getElementById("companion3dDisplay");
+    if (!container) return null;
+
+    container.innerHTML = "";
+    const modelViewer = document.createElement("model-viewer");
+    modelViewer.className = "companion-3d-model";
+    modelViewer.setAttribute("camera-controls", "");
+    modelViewer.setAttribute("auto-rotate", "");
+    modelViewer.setAttribute("interaction-prompt", "none");
+    modelViewer.setAttribute("loading", "eager");
+    modelViewer.setAttribute("alt", "Dragon Mystique");
+    modelViewer.src = "../assets/3d/dragon_mystique.glb";
+    container.appendChild(modelViewer);
+    companion.modelEl = modelViewer;
+    return container;
+}
+
 // 🎮 Charger le compagnon équipé
 function loadCompanion() {
     try {
@@ -474,11 +517,27 @@ function loadCompanion() {
         
         companion.id = profile.equippedCompanion;
         companion.element = profile.equippedCompanion; // Pour les couleurs
+        companion.render3D = companion.id === 'dragonMystique' && window.innerWidth >= 769;
+        companion.modelEl = null;
+
+        const display = document.getElementById("companion3dDisplay");
+        if (display) {
+            display.innerHTML = "";
+            display.style.display = companion.render3D ? "block" : "none";
+        }
         
         // Charger l'image (gestion spéciale pour astral)
         companion.image = new Image();
         
-        if (companion.id === 'astral') {
+        if (companion.id === 'dragonMystique') {
+            companion.image.src = "../assets/companions/dragonMystique/dragonMystique_idle.png";
+            if (companion.render3D) {
+                ensureCompanion3DDisplay();
+                companion.loaded = true;
+                console.log("✅ Compagnon 3D chargé:", companion.id);
+                return;
+            }
+        } else if (companion.id === 'astral') {
             companion.image.src = "../shop/categories/companions/light/astral_idle.png";
         } else {
             companion.image.src = `../assets/companions/${companion.id}/${companion.id}_idle.png`;
@@ -587,13 +646,15 @@ function drawCompanion() {
         ctx.shadowOffsetY = 10;
     }
     
-    ctx.drawImage(
-        companion.image,
-        drawX - drawSize / 2,
-        drawY - drawSize / 2,
-        drawSize,
-        drawSize
-    );
+    if (!companion.render3D) {
+        ctx.drawImage(
+            companion.image,
+            drawX - drawSize / 2,
+            drawY - drawSize / 2,
+            drawSize,
+            drawSize
+        );
+    }
     
     ctx.shadowColor = "transparent";
     
@@ -779,10 +840,10 @@ function applyPaddleSizeBonus() {
     // Applique le bonus de taille de paddle (Flora)
     if (activeCompanionBonus && activeCompanionBonus.type === 'paddle_size') {
         const bonusMultiplier = 1 + (activeCompanionBonus.value / 100);
-        paddle.width = (viewW * 0.20) * bonusMultiplier;
+        paddle.width = (playfieldW * 0.20) * bonusMultiplier;
         console.log(`🛡️ Bonus paddle: ${activeCompanionBonus.value}% (${paddle.width.toFixed(0)}px)`);
     } else {
-        paddle.width = viewW * 0.20;
+        paddle.width = playfieldW * 0.20;
     }
 }
 
@@ -921,7 +982,7 @@ function createBricks() {
         if (state.stage >= 5) currentRows = 7;
     }
 
-    const offsetX = (viewW - currentCols * (brickW + gap)) / 2;
+    const offsetX = playfieldX + ((playfieldW - currentCols * (brickW + gap)) / 2);
     const offsetY = viewH * 0.12;
 
     for (let r = 0; r < currentRows; r++) {
@@ -1008,7 +1069,7 @@ function createBricks() {
 
 function resetBall() {
     paddle.y = viewH * 0.85;
-    paddle.x = viewW / 2 - paddle.width / 2;
+    paddle.x = playfieldX + playfieldW / 2 - paddle.width / 2;
 
     ball.launched = false;
     ball.x = paddle.x + paddle.width / 2;
@@ -1026,7 +1087,7 @@ function launchBall() {
     ball.launched = true;  // Marque la balle comme lancée
 
     // Vitesse de base
-    let baseSpeed = viewW * 0.006 + state.stage * 0.3;
+    let baseSpeed = playfieldW * 0.006 + state.stage * 0.3;
     
     // Applique le bonus de vitesse (Aqua)
     if (activeCompanionBonus && activeCompanionBonus.type === 'ball_speed') {
@@ -1080,14 +1141,14 @@ function updateBall(deltaFactor) {
 
     /* walls */
     const epsilon = 2;
-    if (ball.x < 0 || ball.x > viewW) {
+    if (ball.x < playfieldX || ball.x > playfieldX + playfieldW) {
         if (!ball._justBouncedX) {
             ball.dx *= -1;
             playSound(assets.sounds.wallHit);
         }
         // Correction position avec marge
-        if (ball.x < 0) ball.x = 0 + epsilon;
-        if (ball.x > viewW) ball.x = viewW - epsilon;
+        if (ball.x < playfieldX) ball.x = playfieldX + epsilon;
+        if (ball.x > playfieldX + playfieldW) ball.x = playfieldX + playfieldW - epsilon;
     }
 
     if (ball.y < 0) {
@@ -1122,9 +1183,9 @@ function updateOrbHUD() {
 function updatePaddle() {
     paddle.x += paddle.speed;
     // empêcher sortie écran
-    if (paddle.x < 0) paddle.x = 0;
-    if (paddle.x + paddle.width > viewW) {
-        paddle.x = viewW - paddle.width;
+    if (paddle.x < playfieldX) paddle.x = playfieldX;
+    if (paddle.x + paddle.width > playfieldX + playfieldW) {
+        paddle.x = playfieldX + playfieldW - paddle.width;
     }
 }
 
@@ -1282,7 +1343,7 @@ function updateBricks() {
                 // Détection mur pour inversion direction
                 // On vérifie si une brique touche le mur
                 const margin = 20;
-                if (b.x < margin || b.x + b.w > viewW - margin) {
+                if (b.x < playfieldX + margin || b.x + b.w > playfieldX + playfieldW - margin) {
                     boss._shouldInvertDirection = true;
                 }
             }
@@ -1426,7 +1487,7 @@ function updateBricks() {
                 state.xp += bossXP;
                 localStorage.setItem("breakerXP", state.xp);
                 // 💎 Gain de diamants boss
-                addDiamonds(5);
+                addDiamonds(10);
                 // 💬 Encouragement boss
                 showCompanionEncouragement('boss');
                 // ⏱️ Sauvegarder le temps avant de quitter
@@ -1456,10 +1517,8 @@ function updateBricks() {
             }
             localStorage.setItem('breaker_profile', JSON.stringify(profile));
 
-            // 💎 Gain de diamant tous les 3 niveaux
-            if (state.stage % 3 === 0) {
-                addDiamonds(1);
-            }
+            // 💎 Gain de diamant à chaque niveau normal terminé
+            addDiamonds(1);
 
             state.stage++;
             const stageXP = applyXPBonus(100); // Bonus Aube
@@ -2184,7 +2243,7 @@ canvas.addEventListener("touchmove", e => {
     e.preventDefault();
 
     const touch = e.touches[0];
-    paddle.x = touch.clientX - paddle.width / 2;
+    paddle.x = Math.max(playfieldX, Math.min(touch.clientX - paddle.width / 2, playfieldX + playfieldW - paddle.width));
 
 }, { passive: false });
 // Correction finale : accolade fermante pour terminer le script

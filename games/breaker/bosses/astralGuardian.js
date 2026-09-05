@@ -22,7 +22,7 @@ export default class AstralGuardian extends BossBase {
     }
 
     onVictory() {
-        this.game.addDiamonds(5);
+        this.game.addDiamonds(10);
         this.game.addXP(500);
         this.game.showBossMessage('astralVictory');
     }
