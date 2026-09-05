@@ -638,8 +638,22 @@ header h1 {
    ========================================== */
 
 @media (min-width: 769px) {
+    #items-grid {
+        flex: 0 0 auto;
+        align-content: start;
+        align-items: start;
+    }
+
+    #items-grid .shop-model {
+        height: 140px;
+    }
+
+    #items-grid .item img {
+        max-width: 112px;
+    }
+
     .item {
-        min-height: 260px;
+        min-height: 210px;
         padding: 12px 14px 10px;
         justify-content: flex-start;
         gap: 8px;
@@ -759,6 +773,6 @@ header h1 {
     }
 
     .item {
-        min-height: 340px;
+        min-height: 210px;
     }
 }
