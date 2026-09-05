@@ -900,13 +900,13 @@ model-viewer.shop-model {
         bottom: auto;
         width: 100%;
         max-width: 100%;
-        max-height: calc(100svh - 360px);
+        max-height: calc(100svh - 330px);
         padding: 0;
         margin-top: 8px;
         overflow-x: hidden;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        padding-bottom: 8px;
+        padding-bottom: 4px;
     }
 
     .mobile-info-content {
@@ -929,7 +929,25 @@ model-viewer.shop-model {
     }
 
     .companion-info-panel .info-stats {
-        margin: 0 0 6px;
+        margin: 0 0 4px;
+    }
+
+    .bonus-display {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 6px 9px;
+    }
+
+    .bonus-display .stat-label {
+        margin-bottom: 0;
+        white-space: nowrap;
+    }
+
+    .bonus-value {
+        font-size: 0.95rem;
+        white-space: nowrap;
     }
 
     .info-header h2 {
@@ -942,25 +960,30 @@ model-viewer.shop-model {
     }
 
     .info-stats {
-        margin: 10px 0;
+        margin: 6px 0 4px;
     }
 
     .stat-item {
-        margin-bottom: 8px;
+        margin-bottom: 5px;
     }
 
     .info-actions {
+        flex-direction: row;
+        flex-wrap: nowrap;
         gap: 6px;
-        margin-top: 8px;
+        margin-top: 6px;
     }
 
     .btn-action {
-        padding: 7px 8px;
-        font-size: 0.72rem;
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 6px 6px;
+        font-size: 0.68rem;
+        line-height: 1.05;
     }
 
     .btn-action .btn-icon {
-        font-size: 1.3em;
+        font-size: 1.15em;
     }
 
     .companion-slots {
